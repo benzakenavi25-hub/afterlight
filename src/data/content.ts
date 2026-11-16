@@ -1,6 +1,9 @@
 /** Page copy (Hebrew). Wording follows the brief verbatim where it is specified. */
 import type { StillId } from './media';
 
+/** Links with this href open the floor-plan dialog (SpacesStack intercepts them; there is no #plan section). */
+export const PLAN_HREF = '#plan';
+
 export const studio = {
   name: 'Benzaken Studio',
   /** Real, verified studio contact link. Leave null until supplied — never invent one. */
@@ -8,9 +11,9 @@ export const studio = {
 };
 
 export const nav = [
-  { href: '#home', label: 'הבית' },
+  { href: '#reveal', label: 'הבית' },
   { href: '#spaces', label: 'החללים' },
-  { href: '#plan', label: 'תכנית הבית' },
+  { href: PLAN_HREF, label: 'תכנית הבית' },
   { href: '#contact', label: 'יצירת קשר' },
 ] as const;
 
@@ -20,48 +23,78 @@ export const hero = {
   conceptLabel: 'פרויקט קונספט',
   title: 'העיר נשארת למטה.',
   subtitle: 'פנטהאוז מול האופק. חלל פתוח, אור רך וקו אחד שמחבר בין הבית לעיר.',
-  discover: { href: '#home', label: 'לגלות את הבית' },
+  discover: { href: '#spaces', label: 'לגלות את הבית' },
   tourPending: 'סיור הווידאו בבית נמצא בהכנה',
   scrollHint: 'גללו כדי להיכנס',
-  skip: { href: '#home', label: 'לדלג לפרטי הבית' },
+  skip: { href: '#spaces', label: 'לדלג לפרטי הבית' },
   tourUnavailable: 'הסיור אינו זמין כרגע',
   play: 'צפייה בסיור הבית',
   playMeta: 'וידאו, 25 שניות, ללא קול',
   closePlayer: 'סגירת הסיור',
 };
 
-export const overview = {
-  label: 'THE RESIDENCE',
-  heading: 'מרחב לנשום. מקום להישאר.',
-  text: 'חלל האירוח נפתח לאורך ציר אחד: מפינת האוכל והמטבח, דרך הסלון ועד המרפסת. אגוז כהה, אבן בגוונים שקטים וטקסטיל רך יוצרים בית חם מול נוף עירוני פתוח.',
-  features: ['חלל אירוח פתוח', 'מטבח עם אי מרכזי', 'סוויטה פרטית', 'מרפסת מול האופק'],
-};
-
-export const spaces = {
-  heading: 'בית שמתגלה, חלל אחר חלל.',
-  living: {
-    heading: 'מקום לשיחות שנמשכות.',
-    text: 'הסלון נפתח אל המרפסת, עם פינת ישיבה רחבה וקשר רציף בין הפנים לחוץ.',
-    caption: 'הסלון. הדמיית קונספט.',
-  },
-  kitchen: {
-    heading: 'במרכז הבית.',
-    text: 'אי האבן, נגרות האגוז ופינת האוכל חולקים מרחב פתוח שמיועד לאירוח וליום־יום.',
-    caption: 'המטבח ואי האבן. הדמיית קונספט.',
-  },
-  suite: {
-    heading: 'רגע של שקט.',
-    text: 'חומריות חמה, אור ערב רך וחלל רחצה אינטימי ממשיכים את השפה של הבית גם באזור הפרטי.',
-    caption: 'חדר השינה וחדר הרחצה. הדמיית קונספט.',
-  },
-};
-
 export type ZoneId = 'entry' | 'kitchen' | 'living' | 'suite' | 'terrace';
 
+/**
+ * Three spaces, one composition (SpacesStack). Stage copy, photos, crops and colours live here.
+ * `bg` is a literal colour or a CSS custom property (`--ink` = the site's deep blue), resolved at runtime.
+ * `theme` picks the text palette: 'dark' text on light backgrounds, 'light' text on the blue.
+ * `crop` is the CSS object-position per layout (narrow = phone/tablet, where the frame is near-square).
+ */
+export const spacesStack = {
+  /** Visually hidden section heading (the stage titles are the visible headings). */
+  heading: 'שלושה חללים בבית',
+  planButton: 'לגלות את חלוקת הבית',
+  stages: [
+    {
+      id: 'living',
+      num: '01',
+      label: 'סלון',
+      title: 'מקום להישאר.',
+      still: 'gallery-living',
+      zone: 'living',
+      bg: '#ffffff',
+      theme: 'dark',
+      crop: { wide: '50% 55%', narrow: '38% 62%' },
+    },
+    {
+      id: 'kitchen',
+      num: '02',
+      label: 'מטבח',
+      title: 'במרכז הבית.',
+      still: 'gallery-kitchen',
+      zone: 'kitchen',
+      bg: '#dfe3e8',
+      theme: 'dark',
+      crop: { wide: '50% 60%', narrow: '46% 70%' },
+    },
+    {
+      id: 'suite',
+      num: '03',
+      label: 'סוויטת השינה',
+      title: 'השקט שלכם.',
+      still: 'gallery-bedroom',
+      zone: 'suite',
+      bg: '--ink',
+      theme: 'light',
+      crop: { wide: '50% 55%', narrow: '44% 62%' },
+    },
+  ] satisfies {
+    id: string;
+    num: string;
+    label: string;
+    title: string;
+    still: StillId;
+    zone: ZoneId;
+    bg: string;
+    theme: 'dark' | 'light';
+    crop: { wide: string; narrow: string };
+  }[],
+};
+
 export const plan = {
-  heading: 'לראות איך הכול מתחבר.',
-  subcopy: 'מבט על הקשר בין החללים ועל הציר שמוביל מהכניסה למרפסת.',
-  caption: 'תכנית קונספט להמחשה בלבד · ללא קנה מידה.',
+  heading: 'חלוקת הבית',
+  caption: 'תכנית קונספט להמחשה בלבד · ללא קנה מידה',
   description:
     'תרשים סכמטי: הכניסה בתחתית במרכז. מעליה, פינת האוכל משמאל והמטבח מימין. מעליהם הסלון, ולאורך הקצה העליון המרפסת. ציר ישר מוביל מהכניסה אל המרפסת. אגף פרטי עם סוויטה וחדר רחצה מסתעף שמאלה מצד הכניסה והסלון.',
   zones: [
@@ -115,14 +148,6 @@ export const footer = {
   credit: 'עיצוב ופיתוח:',
   privacy: 'הטופס באתר הוא הדגמה בלבד: הפרטים נבדקים בדפדפן שלך, אינם נשלחים לשום מקום ואינם נשמרים.',
 };
-
-/** Lightbox order and captions for the editorial gallery (gallery stills only, not the camera route). */
-export const galleryItems = [
-  { still: 'gallery-living', caption: 'הסלון, פתוח אל המרפסת. הדמיית קונספט.' },
-  { still: 'gallery-kitchen', caption: 'המטבח, אי האבן ונגרות האגוז. הדמיית קונספט.' },
-  { still: 'gallery-bedroom', caption: 'חדר השינה. הדמיית קונספט.' },
-  { still: 'gallery-bathroom', caption: 'חדר הרחצה. הדמיית קונספט.' },
-] satisfies { still: StillId; caption: string }[];
 
 export const revealCopy = {
   kicker: 'מקום משלו. מעל העיר.',

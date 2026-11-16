@@ -1,31 +1,120 @@
-.plan {
-  padding-block: var(--section-space);
-  background: var(--paper-2);
+/* Page scroll lock while a modal is open. The gutter stays reserved so nothing shifts sideways. */
+html.is-scroll-locked {
+  overflow: hidden;
+  scrollbar-gutter: stable;
 }
 
-.plan__grid {
-  display: grid;
-  gap: 2rem;
+/* ---------- Dialog shell: full screen on phones, spacious panel on desktop ---------- */
+.plan-dialog {
+  inline-size: 100%;
+  max-inline-size: 100%;
+  block-size: 100%;
+  max-block-size: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--paper);
+  color: var(--text);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
-.plan__head {
+.plan-dialog::backdrop {
+  background: rgb(17 24 32 / 0.72);
+}
+
+.plan-dialog__inner {
   display: grid;
+  gap: 1.5rem;
+  padding: max(1rem, env(safe-area-inset-top)) var(--gutter) max(1.5rem, env(safe-area-inset-bottom));
+}
+
+.plan-dialog__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 1rem;
 }
 
-.plan__head h2 {
-  font-size: var(--fs-h2);
+.plan-dialog__head h2 {
+  font-size: var(--fs-h3);
 }
 
-.plan__head p {
-  max-inline-size: 34rem;
-  color: var(--text-muted);
+.plan-dialog__close {
+  min-block-size: 2.75rem;
+  padding-inline: 0.75rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: 400 var(--fs-small) / 1 var(--font-body);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.35em;
+  text-decoration-color: var(--bronze);
 }
 
-.plan__figure {
+.plan-dialog__figure {
   margin: 0;
 }
 
+/* Clearly visible disclaimer, not a fine-print caption */
+.plan-dialog__note {
+  margin-block-start: 0.875rem;
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid var(--rule-dark);
+  font-size: var(--fs-small);
+  color: var(--text);
+}
+
+.plan-dialog__detail {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.plan-dialog__photo {
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: var(--paper-2);
+}
+
+.plan-dialog__label {
+  font-size: var(--fs-h3);
+}
+
+@media (min-width: 62.5rem) {
+  .plan-dialog {
+    inline-size: min(76rem, calc(100% - 4rem));
+    block-size: auto;
+    max-block-size: calc(100dvh - 4rem);
+    margin: auto;
+  }
+
+  .plan-dialog__inner {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(2rem, 4vw, 4rem);
+    row-gap: 2rem;
+    padding: 2rem 2.5rem 2.5rem;
+  }
+
+  .plan-dialog__head {
+    grid-column: 1 / -1;
+  }
+
+  /* RTL: detail on the right, diagram on the left */
+  .plan-dialog__detail {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .plan-dialog__figure {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+/* ---------- Conceptual diagram (carried over from the former plan section) ---------- */
 .plan__svg {
   display: block;
   inline-size: 100%;
@@ -33,10 +122,18 @@
   font-family: var(--font-body);
 }
 
+.zone {
+  cursor: pointer;
+}
+
 .zone rect {
   fill: var(--paper);
   stroke: var(--text);
   stroke-width: 1;
+}
+
+.zone:hover rect {
+  stroke-width: 2;
 }
 
 .zone[data-active='true'] rect {
@@ -55,6 +152,16 @@
   fill: var(--paper);
 }
 
+.zone rect,
+.zone text {
+  transition: fill var(--dur-hover) ease;
+}
+
+.plan__sub {
+  font-size: 14px !important;
+  fill: var(--text-muted) !important;
+}
+
 /* Narrow screens: the SVG scales down, so enlarge labels to stay legible (~14px rendered) */
 @media (max-width: 47.99rem) {
   .zone text {
@@ -64,11 +171,6 @@
   .zone .plan__sub {
     font-size: 18px !important;
   }
-}
-
-.plan__sub {
-  font-size: 14px !important;
-  fill: var(--text-muted) !important;
 }
 
 .plan__glazing {
@@ -91,70 +193,6 @@
   fill: none;
   stroke: var(--bronze);
   stroke-width: 1.5;
-}
-
-.plan__caption {
-  margin-block-start: 0.75rem;
-  font-size: var(--fs-micro);
-  color: var(--text-muted);
-}
-
-.plan__detail {
-  display: grid;
-  gap: 0.875rem;
-  align-content: start;
-}
-
-.plan__photo {
-  inline-size: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-}
-
-.plan__detail h3 {
-  margin-block-start: 0.5rem;
-  font-size: var(--fs-h3);
-}
-
-.plan__detail p {
-  color: var(--text-muted);
-}
-
-
-
-@media (min-width: 62.5rem) {
-  .plan__grid {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: 1.5rem;
-    row-gap: 3rem;
-  }
-
-  .plan__head {
-    grid-column: 1 / span 6;
-  }
-
-  .plan__detail {
-    grid-column: 1 / span 4;
-    grid-row: 2;
-  }
-
-  .plan__figure {
-    grid-column: 5 / -1;
-    grid-row: 2;
-  }
-}
-
-.zone {
-  cursor: pointer;
-}
-
-.zone:hover rect {
-  stroke-width: 2;
-}
-
-.zone rect,
-.zone text {
-  transition: fill var(--dur-hover) ease;
 }
 
 /* Parallel zone buttons: the accessible control for the diagram */
@@ -186,8 +224,4 @@
   background: var(--ink);
   border-color: var(--ink);
   color: var(--paper);
-}
-
-.plan__detail h3 {
-  margin-block: 0.5rem 0.5rem;
 }

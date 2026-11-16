@@ -1,0 +1,209 @@
+/* Three spaces, one composition. Colours and crops come from content.ts (spacesStack) as inline vars. */
+.ss {
+  position: relative;
+  color: var(--text);
+}
+
+/* ---------- Scrub mode: section = stage + scroll distance, sized up front (no shift when GSAP loads) ---------- */
+.ss--scrub {
+  background: var(--ss-bg-start, #fff);
+  block-size: calc(100vh * (1 + var(--ss-travel, 1.8)));
+}
+
+.ss__stage {
+  position: sticky;
+  inset-block-start: 0;
+  block-size: 100vh;
+  overflow: clip; /* clip, not hidden: must not become a scroll container for sticky */
+}
+
+/* lvh: the stage does not resize when a mobile toolbar shows/hides; the content box uses svh so it
+   always fits inside the smallest visible area. */
+@supports (height: 100lvh) {
+  .ss--scrub {
+    block-size: calc(100lvh * (1 + var(--ss-travel, 1.8)));
+  }
+
+  .ss__stage {
+    block-size: 100lvh;
+  }
+}
+
+.ss__frame {
+  --ss-pad: clamp(1rem, 3.5svh, 2.5rem);
+  container-type: inline-size;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: clamp(1rem, 3svh, 1.75rem);
+  block-size: 100vh;
+  padding-block: calc(var(--header-h) + var(--ss-pad)) max(var(--ss-pad), env(safe-area-inset-bottom));
+}
+
+@supports (height: 100svh) {
+  .ss__frame {
+    block-size: 100svh;
+  }
+}
+
+/* All stage texts share one grid cell: the cell is as tall as the tallest, so swaps never shift layout */
+.ss__texts {
+  display: grid;
+  align-items: end;
+}
+
+.ss__texts > .ss__text {
+  grid-area: 1 / 1;
+}
+
+/* Before the engine runs: only the first stage is shown */
+.ss--scrub:not([data-ready]) .ss__text:not(:first-child) {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.ss--scrub:not([data-ready]) .ss__card:not(:first-child) {
+  transform: translateY(100%);
+}
+
+/* Clipped frame; cards are stacked absolutely and only ever moved with transform */
+.ss__media {
+  position: relative;
+  overflow: clip;
+  inline-size: 100%;
+  block-size: min(100%, 100cqi); /* never taller than square on phones: keeps the rooms legible */
+  align-self: start;
+  background: var(--paper-2);
+}
+
+/* Tablets: room for a wider, less cropped frame */
+@media (min-width: 40rem) {
+  .ss__media {
+    block-size: min(100%, 75cqi);
+  }
+}
+
+.ss__card {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.ss__img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  object-position: var(--crop-narrow, 50% 50%);
+}
+
+/* ---------- Stage text ---------- */
+.ss__text {
+  display: grid;
+  justify-items: start;
+  align-content: end;
+  gap: 0.5rem;
+}
+
+.ss__meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.875rem;
+  font-size: var(--fs-small);
+  color: var(--text-muted);
+}
+
+.ss__num {
+  font-size: 1.125rem;
+  letter-spacing: 0.12em;
+}
+
+.ss__title {
+  font-size: var(--fs-h2);
+}
+
+.ss__btn {
+  margin-block-start: clamp(0.5rem, 2svh, 1.25rem);
+}
+
+.ss__btn:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--light);
+}
+
+.ss__text[data-theme='light'] {
+  color: var(--light);
+}
+
+.ss__text[data-theme='light'] .ss__meta {
+  color: var(--light-muted);
+}
+
+.ss__text[data-theme='light'] .ss__btn:hover {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--ink);
+}
+
+/* ---------- Desktop: image left (~60%), text right (~40%) — RTL, so text is the first column ---------- */
+@media (min-width: 62.5rem) {
+  .ss__frame {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 6fr);
+    grid-template-rows: minmax(0, 1fr);
+    column-gap: clamp(2.5rem, 5vw, 6rem);
+    align-items: center;
+  }
+
+  .ss__texts {
+    align-items: center;
+  }
+
+  .ss__text {
+    gap: 0.75rem;
+  }
+
+  .ss__title {
+    font-size: clamp(2.25rem, 1.2rem + 2.6vw, 4.25rem);
+  }
+
+  .ss__media {
+    block-size: auto;
+    aspect-ratio: 3 / 2;
+    max-block-size: 100%;
+    align-self: center;
+  }
+
+  .ss__img {
+    object-position: var(--crop-wide, 50% 50%);
+  }
+}
+
+/* ---------- Flow mode (reduced motion, short viewports, text that would not fit) ---------- */
+.ss-flow__item {
+  padding-block: var(--section-space);
+}
+
+.ss-flow__item[data-theme='light'] {
+  color: var(--light);
+}
+
+.ss-flow__grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.ss-flow__img {
+  block-size: auto;
+  aspect-ratio: 4 / 3;
+}
+
+@media (min-width: 62.5rem) {
+  .ss-flow__grid {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 6fr);
+    column-gap: clamp(2.5rem, 5vw, 6rem);
+    align-items: center;
+  }
+
+  .ss-flow__img {
+    aspect-ratio: 3 / 2;
+  }
+}

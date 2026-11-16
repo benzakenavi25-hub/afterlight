@@ -2,10 +2,6 @@ import { useEffect } from 'react';
 
 /** Secondary content blocks that fade in once. The hero and controls are never hidden. */
 const TARGETS = [
-  '.overview__grid',
-  '.spaces__title',
-  '.space__text',
-  '.plan__head',
   '.materials__title',
   '.materials__item',
   '.terrace__text',

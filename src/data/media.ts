@@ -183,3 +183,22 @@ export const reveal = {
   /** Photo crop (CSS object-position). Portrait keeps the penthouse glazing column in frame. */
   objectPosition: { landscape: '50% 50%', portrait: '54% 50%' },
 };
+
+/**
+ * Spaces image stack (SpacesStack). Everything tunable about the pinned sequence lives here;
+ * stage copy, photos, crops and colours are in content.ts (spacesStack).
+ */
+export const stack = {
+  /** Extra scroll distance in viewport heights beyond the pinned stage. Lower = shorter/faster. */
+  scroll: { wide: 1.8, narrow: 1.5 },
+  /**
+   * Share of the timeline (0–1) for each card transition: [starts, ends]. The gaps before, between
+   * and after are the settled, readable intervals (living / kitchen / bedroom).
+   */
+  transitions: [
+    [0.18, 0.42],
+    [0.58, 0.82],
+  ] as [number, number][],
+  /** Vertical offset of the incoming / outgoing text, in px. */
+  textOffset: 8,
+};
