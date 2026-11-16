@@ -5,6 +5,8 @@ interface Props {
   sizes: string;
   className?: string;
   priority?: boolean;
+  /** Fetched right away but at low priority (below-the-fold media needed soon). */
+  eagerLow?: boolean;
   /** Override the manifest alt (e.g. '' for a decorative duplicate). */
   alt?: string;
 }
@@ -12,7 +14,7 @@ interface Props {
 const srcset = (still: Still, ext: 'avif' | 'webp') =>
   still.widths.map((w) => `${import.meta.env.BASE_URL}media/${still.id}-${w}.${ext} ${w}w`).join(', ');
 
-export function ResponsiveImage({ still, sizes, className, priority = false, alt }: Props) {
+export function ResponsiveImage({ still, sizes, className, priority = false, eagerLow = false, alt }: Props) {
   const fallbackWidth = still.widths[Math.min(1, still.widths.length - 1)];
   return (
     <picture>
@@ -24,9 +26,9 @@ export function ResponsiveImage({ still, sizes, className, priority = false, alt
         width={still.width}
         height={still.height}
         alt={alt ?? still.alt}
-        loading={priority ? 'eager' : 'lazy'}
+        loading={priority || eagerLow ? 'eager' : 'lazy'}
         decoding={priority ? 'sync' : 'async'}
-        fetchPriority={priority ? 'high' : 'auto'}
+        fetchPriority={priority ? 'high' : eagerLow ? 'low' : 'auto'}
       />
     </picture>
   );

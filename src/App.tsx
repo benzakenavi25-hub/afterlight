@@ -1,5 +1,6 @@
 import { Header } from './components/Header';
 import { TourHero } from './components/TourHero';
+import { ExteriorReveal } from './components/ExteriorReveal';
 import { HomeOverview } from './components/HomeOverview';
 import { SpacesGallery } from './components/SpacesGallery';
 import { ConceptPlan } from './components/ConceptPlan';
@@ -23,6 +24,7 @@ export default function App() {
       <Header />
       <main id="main" tabIndex={-1}>
         <TourHero />
+        <ExteriorReveal />
         <HomeOverview />
         <SpacesGallery />
         <ConceptPlan />

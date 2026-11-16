@@ -19,11 +19,12 @@ export type StillId =
   | 'gallery-terrace'
   | 'detail-walnut'
   | 'detail-stone'
-  | 'detail-textile';
+  | 'detail-textile'
+  | 'exterior-facade';
 
 export interface Still {
   id: StillId;
-  role: 'tour' | 'gallery' | 'detail';
+  role: 'tour' | 'gallery' | 'detail' | 'exterior';
   status: MediaStatus;
   /** Intrinsic size of the largest derivative (used for aspect ratio / CLS). */
   width: number;
@@ -108,6 +109,13 @@ export const stills: Record<StillId, Still> = {
     ...PORTRAIT,
     alt: 'פינת אי האבן בחיבור מיטר, עם עורקים עדינים',
   },
+  'exterior-facade': {
+    id: 'exterior-facade',
+    role: 'exterior',
+    status: 'ready',
+    ...LANDSCAPE,
+    alt: 'חזית בניין מגורים מאבן בהירה בשעת דמדומים, עם מרפסות מוארות ופנטהאוז זכוכית בקומה העליונה, מול מפרץ ועיר. הדמיית קונספט.',
+  },
   'detail-textile': {
     id: 'detail-textile',
     role: 'detail',
@@ -152,4 +160,26 @@ export const tour = {
     { from: 0.32, label: 'סלון' },
     { from: 0.74, label: 'מרפסת' },
   ],
+};
+
+/**
+ * Exterior reveal (letters → facade). Everything tunable about the transition lives here.
+ * See ExteriorReveal.tsx for how each value is used.
+ */
+export const reveal = {
+  /** Extra scroll distance in viewport heights beyond the pinned stage. Lower = shorter/faster. */
+  scroll: { wide: 1.5, narrow: 1.2 },
+  /** Share of the timeline: [zoom starts, mask fully open]. Before = name readable, after = image + text. */
+  zoom: [0.12, 0.8] as [number, number],
+  /** Fraction of the stage the two-line name may occupy (width, height). */
+  block: { wide: { w: 0.7, h: 0.6 }, narrow: { w: 0.86, h: 0.5 } },
+  /**
+   * Which letter and where inside its stem the zoom aims. 'AFTER' line, character index 2 = the T:
+   * its vertical stem is one solid rectangle, so the opening can never land in a gap.
+   */
+  focus: { line: 0, char: 2 },
+  /** Safety margin on the final scale so the opened mask always overshoots the screen. */
+  overshoot: 1.2,
+  /** Photo crop (CSS object-position). Portrait keeps the penthouse glazing column in frame. */
+  objectPosition: { landscape: '50% 50%', portrait: '54% 50%' },
 };

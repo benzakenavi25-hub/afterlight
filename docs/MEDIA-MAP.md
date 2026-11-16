@@ -70,3 +70,7 @@ Web files (`public/media/`, originals untouched):
 | tour-master-mobile.mp4 | 4.0 MB | **(replaced after Stage 5)** 960×540, 600 fr, 25.0s, CRF 27, GOP 8, no B-frames, faststart | mobile/tablet scroll scrub + reduced-motion player (was 720p GOP 48, 4.2 MB) |
 
 Reproducible via `scripts/build-media.sh`.
+
+## Update — exterior facade (2026-11-17)
+- `AFTERLIGHT-exterior.webp` (1672×941, supplied as an image in chat) → copied to incoming-media (original kept), derivatives `public/media/exterior-facade-{640,960,1280,1672}.{avif,webp}` (largest AVIF 112 KB). Used only by the exterior reveal. Built by scripts/build-media.sh.
+- Fonts/deps added for the reveal: `@fontsource/barlow-semi-condensed` (latin-800 only), `gsap` (lazy-loaded).

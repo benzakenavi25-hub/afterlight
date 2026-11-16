@@ -9,6 +9,8 @@ import '@fontsource/heebo/400.css';
 import '@fontsource/heebo/500.css';
 import '@fontsource/cormorant-garamond/latin-400.css';
 import '@fontsource/cormorant-garamond/latin-500.css';
+// One weight, used only for the exterior-reveal lettering (SVG mask)
+import '@fontsource/barlow-semi-condensed/latin-800.css';
 
 import './styles/tokens.css';
 import './styles/base.css';

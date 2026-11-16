@@ -17,6 +17,7 @@ MAP=(
   "b53d78a0-4dbe-44e5-a8a3-cccc25ee7c4b.png gallery-bathroom 480,800,1122"
   "a003b1a9-02f5-4697-8c2a-754ad897f3ed.png detail-walnut 480,800,1122"
   "681cfaba-757b-4072-9039-034c83b4a0be.png detail-stone 480,800,1122"
+  "AFTERLIGHT-exterior.webp exterior-facade 640,960,1280,1672"
   "95ca42b3-7a3c-4dea-9020-0c02ffcd19cf.png detail-textile 480,800,1122"
 )
 

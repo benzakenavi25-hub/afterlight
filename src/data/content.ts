@@ -123,3 +123,9 @@ export const galleryItems = [
   { still: 'gallery-bedroom', caption: 'חדר השינה. הדמיית קונספט.' },
   { still: 'gallery-bathroom', caption: 'חדר הרחצה. הדמיית קונספט.' },
 ] satisfies { still: StillId; caption: string }[];
+
+export const revealCopy = {
+  kicker: 'מקום משלו. מעל העיר.',
+  name: 'AFTERLIGHT',
+  descriptor: 'פנטהאוז מול האופק.',
+};
