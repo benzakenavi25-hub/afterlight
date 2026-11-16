@@ -46,14 +46,16 @@ bash scripts/build-media.sh "/path/to/incoming-media"
 
 - Stills: mapping in the `MAP` array (original filename → output name → widths). Assignments were made by viewing each image; keep that rule for new files. Outputs AVIF + WebP per width.
 - Hero poster: first frame of `AFTERLIGHT-tour-master.mp4` → `tour-01-entry-*`. If the film changes, regenerate so poster and film start match; update `index.html` preload if widths change.
-- Tour film: script encodes `tour-master-desktop.mp4` (1080p, GOP 12, no B-frames, for scrubbing) and `tour-master-mobile.mp4` (720p). It removes frame 121 (a measured duplicate in the current master) — **remove or adjust that filter for a different master** after re-auditing (see MEDIA-MAP.md).
-- Chapter label timing: `tour.chapters` in `src/data/media.ts` (fractions of the film).
+- Tour film: script encodes `tour-master-desktop.mp4` (1080p, GOP 12, no B-frames, 12.9 MB) and `tour-master-mobile.mp4` (960×540, GOP 8, no B-frames, 4.0 MB; used for scrub on screens < 62.5rem and for the reduced-motion player). It removes frame 121 (a measured duplicate in the current master) — **remove or adjust that filter for a different master** after re-auditing (see MEDIA-MAP.md).
+- **Tour pace:** `tour.scroll` in `src/data/media.ts` — scroll distance in viewport heights beyond the pinned stage (`wide: 2.5`, `narrow: 2`). Lower = faster/shorter. Chapter label timing: `tour.chapters` in the same file (fractions of the film). Portrait framing of the film on phones: `aspect-ratio: 3 / 2` in `TourHero.css`.
 - To disable the tour (e.g. film missing), set `tour.status` to `'missing'`: the hero shows the poster and a neutral readiness line, no tour controls.
 
 ## Behaviour summary
 
-- Desktop (≥1000px, mouse/trackpad, no reduced motion): pinned scroll tour over 4.5 screen heights, scroll ↔ film time, chapter label, skip link "לפרטי הבית". Film fetched after page load/idle or first scroll.
-- Mobile / touch / reduced motion / film error: poster + "צפייה בסיור הבית" → inline player with native controls at 16:9. No film is requested before the tap.
+- Opening: elevator-doors overlay (`ElevatorDoors.tsx`, code-drawn, 0.9 s, `transform` only). Plays once per tab session; skipped with reduced motion, a `#hash` URL or a scrolled page; decided by the inline script in `index.html`. Overlay is inert, `pointer-events: none`, removed when finished.
+- Tour on every device (desktop and mobile): pinned stage, scroll position ↔ film time (down = forward, stop = stop, up = reverse; no smoothing/inertia added). Progress uses the stage's `svh` height, not `innerHeight`, so mobile address-bar changes do not shift it. Chapter label + skip link "לדלג לפרטי הבית". Film fetched after page load (first scroll triggers it earlier); `Save-Data` visitors keep the poster.
+- Portrait phones/tablets: film framed at 3:2 (≈7% trimmed per side; dining table and kitchen island stay in frame) inside the dark stage, headline below it.
+- Reduced motion: still poster + optional "צפייה בסיור הבית" player (no film request before the tap, no doors, no pinning). Film error / Save-Data: still poster + "הסיור אינו זמין כרגע", page continues normally.
 - Demo form: validated locally, nothing sent, stored or logged; success text states it is a demo.
 
 ## Measured checks (Stage 5, 2026-11-16)

@@ -132,10 +132,16 @@ export type TourStatus = 'missing' | 'partial' | 'ready';
  * Tour film. Only 'ready' may expose a scroll tour or play control.
  * Both files are re-encodes of AFTERLIGHT-tour-master.mp4 (see docs/MEDIA-MAP.md):
  * desktop = 1080p, keyframe every 12 frames, no B-frames (seek-friendly scrub);
- * mobile = 720p, ordinary GOP, loaded only after the visitor taps play.
+ * mobile  = 960x540, keyframe every 8 frames, no B-frames (scrub on phones).
  */
 export const tour = {
   status: 'ready' as TourStatus,
+  /**
+   * TOUR PACE — the one place to tune it. Scroll distance of the tour, in viewport heights,
+   * BEYOND the pinned stage itself (the stage is 1 viewport tall). Lower = faster / shorter tour.
+   * `wide` applies at ≥ 62.5rem, `narrow` below. Starting values, to be tuned by feel.
+   */
+  scroll: { wide: 2.5, narrow: 2 },
   desktopSrc: `${import.meta.env.BASE_URL}media/tour-master-desktop.mp4`,
   mobileSrc: `${import.meta.env.BASE_URL}media/tour-master-mobile.mp4`,
   duration: 25,

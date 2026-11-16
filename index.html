@@ -4,6 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#111820" />
+    <script>
+      // Elevator-doors intro (see src/components/ElevatorDoors.tsx): decided once, before first paint.
+      // Plays on the first visit in this tab session only; never with reduced motion, a #hash link or a scrolled page.
+      try {
+        if (
+          !sessionStorage.getItem('afterlight-doors-seen') &&
+          !location.hash &&
+          !matchMedia('(prefers-reduced-motion: reduce)').matches &&
+          (window.scrollY || 0) < 8
+        ) {
+          document.documentElement.setAttribute('data-doors', 'pending');
+        }
+      } catch (e) {}
+    </script>
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23111820'/%3E%3Cpath d='M6 19h20' stroke='%23A58C72' stroke-width='1.5'/%3E%3C/svg%3E"

@@ -6,7 +6,8 @@
 
 /* Desktop scrub: ~4.5 viewport heights of ordinary scroll, the stage stays pinned */
 .hero--scrub {
-  block-size: 450svh;
+  /* pinned stage (100svh) + tour scroll distance; --travel comes from tour.scroll in media.ts */
+  block-size: calc(100svh * (1 + var(--travel, 2.5)));
 }
 
 .hero__stage {
@@ -190,6 +191,37 @@
   inline-size: 3.5rem;
 }
 
+/* Portrait phones/tablets: the 16:9 film is framed at 3:2 (deliberate, ~7% trimmed per side so the
+   dining table and kitchen island stay in frame) instead of being cropped to the full tall screen */
+@media (max-width: 62.49rem) and (orientation: portrait) {
+  .hero__media {
+    inset: auto;
+    inset-inline: 0;
+    inset-block-start: calc(var(--header-h) + 2.75rem);
+    aspect-ratio: 3 / 2;
+  }
+
+  .hero__shade {
+    display: none;
+  }
+
+  .hero__film {
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    aspect-ratio: auto;
+    object-fit: cover;
+  }
+}
+
+/* Short portrait phones: the skip link already leads into the page; drop the duplicate link so
+   the headline block never overlaps the framed film */
+@media (max-width: 62.49rem) and (orientation: portrait) and (max-height: 47.5rem) {
+  .hero__discover {
+    display: none;
+  }
+}
+
 /* Manual player: the film at its natural 16:9 ratio, never cropped */
 .hero__film {
   position: absolute;
@@ -277,6 +309,15 @@
 
   .hero__label {
     display: none;
+  }
+
+  /* label is hidden: pin copy and foot to their own rows so the foot stays at the bottom */
+  .hero__copy {
+    grid-row: 2;
+  }
+
+  .hero__foot {
+    grid-row: 3;
   }
 
   .hero__copy {

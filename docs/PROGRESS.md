@@ -6,6 +6,12 @@ Stage 5 complete. All stages done. **Deployed (2026-11-16) to https://benzakenav
 ## Working rules (Abraham, 2026-11-16)
 Token-frugal: read only stage-relevant brief sections/files, concise PROGRESS, no full rescans, checks proportional to change, short report, stop for approval.
 
+## Change request 1 (2026-11-16): elevator-doors intro + scroll tour on mobile
+- Doors: `ElevatorDoors.tsx/.css` (+ inline decision script in `index.html`). Opens when the hero poster is decoded (≤1.5 s wait), 900 ms transform, removed afterwards. Once per tab session; skipped for reduced motion, #hash, scrolled page.
+- Tour: scrub on all screens (reduced motion → still + optional player; failure/Save-Data → still). Pace in one place: `tour.scroll` (media.ts): wide 2.5, narrow 2 viewport heights. Mobile film re-encoded (960×540, GOP 8, 4.0MB). Progress via stage svh height. Portrait phones: 3:2 framed film. Skip label "לדלג לפרטי הבית". Short-phone/landscape CSS fixes.
+- Checks (Playwright Chromium, vite preview, emulation only — no real phone): doors closed→open geometry exact (panels meet at centre, exit fully), ~0.9s, removed ~1.0s after mount, not replayed on reload, none with reduced motion, none with #hash, `pointer-events: none` + scroll works while closed. Scrub 390 (4× CPU) / 768 / 1440: currentTime tracks progress exactly (0, 6.24, 12.47, 18.7, 24.95), no drift after stopping, reverse correct, hero = 3 / 3 / 3.5 viewport heights, after the end #home follows and stage is released, no horizontal overflow. Seek latency: mobile file median 10ms p95 26–29ms, 0 slow frames; desktop 1080p median ~20–38ms, ~25–30% of frames >34ms (worst ~50ms) in a synthetic constant-speed sweep (headless Chromium; GOP 6 trial improved seek latency but not frame pacing, 15.5MB, not adopted). Reduced motion: no doors, no scrub, no mp4 request; media blocked: static still, page scrolls on.
+- Not verified: real phones (iOS Safari especially: muted inline seek behaviour), Safari/Firefox, real touch-momentum feel, rubber-banding. Frame-sequence fallback not implemented (only if real-device testing shows judder).
+
 ## Stage 5 — completed
 - Reveals: 9 secondary blocks, 550ms / 16px, once, only below the fold, off under reduced motion and without JS.
 - Fixes: short-landscape hero (play button inside first screen), long-word wrapping (overflow-wrap: anywhere), contrast comments corrected.

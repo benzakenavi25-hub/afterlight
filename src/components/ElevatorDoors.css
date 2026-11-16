@@ -1,0 +1,73 @@
+/* Dark behind the doors from the very first paint (CSS is render-blocking), so no light flash */
+html[data-doors='pending'] body {
+  background: #231c16;
+}
+
+.doors {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow: hidden;
+  pointer-events: none; /* never blocks scroll or clicks */
+}
+
+.doors__panel {
+  position: absolute;
+  inset-block: 0;
+  inline-size: 50%;
+  /* Dark, muted bronze metal: soft top light, faint brushing, brighter toward the seam */
+  background:
+    linear-gradient(180deg, rgb(255 235 210 / 0.07) 0%, rgb(255 235 210 / 0) 24%, rgb(0 0 0 / 0.24) 100%),
+    linear-gradient(105deg, rgb(255 235 210 / 0) 38%, rgb(255 235 210 / 0.045) 50%, rgb(255 235 210 / 0) 62%),
+    repeating-linear-gradient(90deg, rgb(255 240 220 / 0.018) 0 1px, rgb(0 0 0 / 0.025) 1px 3px),
+    linear-gradient(90deg, #271f18 0%, #372c22 58%, #43362a 100%);
+  transition: transform 900ms cubic-bezier(0.7, 0, 0.2, 1); /* OPEN_MS in ElevatorDoors.tsx */
+  will-change: transform;
+}
+
+/* Physical left/right on purpose: the doors part left and right regardless of text direction */
+.doors__panel--left {
+  left: 0;
+}
+
+.doors__panel--right {
+  right: 0;
+  background-image:
+    linear-gradient(180deg, rgb(255 235 210 / 0.07) 0%, rgb(255 235 210 / 0) 24%, rgb(0 0 0 / 0.24) 100%),
+    linear-gradient(255deg, rgb(255 235 210 / 0) 38%, rgb(255 235 210 / 0.045) 50%, rgb(255 235 210 / 0) 62%),
+    repeating-linear-gradient(90deg, rgb(255 240 220 / 0.018) 0 1px, rgb(0 0 0 / 0.025) 1px 3px),
+    linear-gradient(270deg, #271f18 0%, #372c22 58%, #43362a 100%);
+}
+
+/* Thin centre seam: a dark gap with a fine bronze edge on each panel */
+.doors__panel::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inline-size: 1px;
+  background: linear-gradient(180deg, rgb(165 140 114 / 0.5), rgb(165 140 114 / 0.22));
+}
+
+.doors__panel--left::after {
+  right: 0;
+  box-shadow: -1px 0 0 rgb(0 0 0 / 0.5);
+}
+
+.doors__panel--right::after {
+  left: 0;
+  box-shadow: 1px 0 0 rgb(0 0 0 / 0.5);
+}
+
+.doors[data-open='true'] .doors__panel--left {
+  transform: translate3d(-100%, 0, 0);
+}
+
+.doors[data-open='true'] .doors__panel--right {
+  transform: translate3d(100%, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .doors {
+    display: none;
+  }
+}

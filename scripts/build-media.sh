@@ -52,8 +52,8 @@ if [[ -f "$MASTER" ]]; then
   # Desktop scrub: 1080p, keyframe every 12 frames, no B-frames (cheap, accurate seeks).
   ffmpeg -v error -y -i "$MASTER" -an -vf "$SEL" -c:v libx264 -profile:v high -preset slow -crf 25 \
     -pix_fmt yuv420p -g 12 -keyint_min 12 -sc_threshold 0 -bf 0 "${TAGS[@]}" "$OUT/tour-master-desktop.mp4"
-  # Mobile manual player: 720p, ordinary GOP.
-  ffmpeg -v error -y -i "$MASTER" -an -vf "$SEL,scale=1280:-2:flags=lanczos" -c:v libx264 -profile:v high \
-    -preset slow -crf 25 -pix_fmt yuv420p -g 48 "${TAGS[@]}" "$OUT/tour-master-mobile.mp4"
+  # Mobile scrub + reduced-motion player: 960x540, keyframe every 8 frames, no B-frames.
+  ffmpeg -v error -y -i "$MASTER" -an -vf "$SEL,scale=960:-2:flags=lanczos" -c:v libx264 -profile:v high \
+    -preset slow -crf 27 -pix_fmt yuv420p -g 8 -keyint_min 8 -sc_threshold 0 -bf 0 "${TAGS[@]}" "$OUT/tour-master-mobile.mp4"
   echo "done: tour masters"
 fi

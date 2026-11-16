@@ -67,6 +67,6 @@ Web files (`public/media/`, originals untouched):
 | File | Size | Spec | Use |
 |---|---|---|---|
 | tour-master-desktop.mp4 | 12.9 MB | 1920×1080, 600 fr, 25.0s, CRF 25, GOP 12, no B-frames, faststart; SSIM 0.981 vs source | desktop scroll scrub |
-| tour-master-mobile.mp4 | 4.2 MB | 1280×720, 600 fr, 25.0s, CRF 25, GOP 48, faststart | manual player after tap |
+| tour-master-mobile.mp4 | 4.0 MB | **(replaced after Stage 5)** 960×540, 600 fr, 25.0s, CRF 27, GOP 8, no B-frames, faststart | mobile/tablet scroll scrub + reduced-motion player (was 720p GOP 48, 4.2 MB) |
 
 Reproducible via `scripts/build-media.sh`.

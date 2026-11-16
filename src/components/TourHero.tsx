@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { hero, studio } from '../data/content';
 import { heroPoster, tour } from '../data/media';
 import { ResponsiveImage } from './ResponsiveImage';
@@ -7,23 +7,36 @@ import './TourHero.css';
 /** The poster is object-fit: cover, so on tall viewports it renders wider than 100vw. Mirrored in index.html preload. */
 const HERO_SIZES = '(max-aspect-ratio: 16/9) 178vh, 100vw';
 
-/** Scroll scrub only on a roomy, fine-pointer screen without reduced-motion. Everything else gets the manual player. */
-const SCRUB_QUERY =
-  '(min-width: 62.5rem) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)';
+const WIDE_QUERY = '(min-width: 62.5rem)';
+const REDUCED_QUERY = '(prefers-reduced-motion: reduce)';
 
 type Mode = 'static' | 'scrub' | 'manual';
 
-function useTourMode(failed: boolean): Mode {
-  const [scrub, setScrub] = useState(() => window.matchMedia(SCRUB_QUERY).matches);
+function useMedia(query: string): boolean {
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
   useEffect(() => {
-    const mq = window.matchMedia(SCRUB_QUERY);
-    const onChange = () => setScrub(mq.matches);
+    const mq = window.matchMedia(query);
+    const onChange = () => setMatches(mq.matches);
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
-  }, []);
+  }, [query]);
+  return matches;
+}
+
+/** Visitors who asked the browser to save data keep the poster and skip the film download. */
+const saveData = () =>
+  (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
+
+/**
+ * scrub  – film follows the scroll position (desktop and mobile)
+ * manual – reduced motion: still poster + optional play
+ * static – no film available / failed / data saver: still poster, page continues normally
+ */
+function pickMode(failed: boolean, reduced: boolean): Mode {
   if (tour.status !== 'ready') return 'static';
-  if (scrub && !failed) return 'scrub';
-  return 'manual';
+  if (reduced) return 'manual';
+  if (failed || saveData()) return 'static';
+  return 'scrub';
 }
 
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
@@ -36,14 +49,18 @@ const chapterAt = (p: number) => {
 };
 
 /**
- * Desktop: sticky stage inside ~4.5 viewport heights of ordinary document scroll.
- * Scroll progress maps to film time (reverse scroll reverses). One rAF-coalesced
- * update per frame, seeks never queue (latest target wins on `seeked`), no React
- * state per frame. Mobile / reduced motion: poster + manual inline player.
+ * Sticky stage inside a section whose scroll length comes from `tour.scroll` (media.ts).
+ * Scroll progress maps directly to film time: down advances, stop stops, up reverses; there is
+ * no smoothing, so the camera never drifts after the visitor stops. One rAF-coalesced update per
+ * frame, seeks never queue (latest target wins on `seeked`), no React state per frame.
+ * Progress uses the stage's own (svh) height, not innerHeight, so mobile address-bar changes
+ * do not move it. Reduced motion: still poster + optional manual player.
  */
 export function TourHero() {
   const [scrubFailed, setScrubFailed] = useState(false);
-  const mode = useTourMode(scrubFailed);
+  const wide = useMedia(WIDE_QUERY);
+  const reduced = useMedia(REDUCED_QUERY);
+  const mode = pickMode(scrubFailed, reduced);
   const [ready, setReady] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [playError, setPlayError] = useState(false);
@@ -78,7 +95,7 @@ export function TourHero() {
     const update = () => {
       raf = 0;
       const rect = section.getBoundingClientRect();
-      const travel = rect.height - window.innerHeight;
+      const travel = rect.height - stage.offsetHeight;
       const p = travel > 0 ? clamp01(-rect.top / travel) : 0;
       stage.style.setProperty('--p', p.toFixed(4));
       const ch = chapterAt(p);
@@ -112,6 +129,7 @@ export function TourHero() {
 
     const onLoaded = () => {
       if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+      video.pause();
       canSeek = true;
       setReady(true);
       schedule();
@@ -127,11 +145,13 @@ export function TourHero() {
     const startLoading = () => {
       if (video.getAttribute('src')) return;
       video.preload = 'auto';
-      video.src = tour.desktopSrc;
+      video.src = wide ? tour.desktopSrc : tour.mobileSrc;
       video.load();
+      // iOS may hold back decoding until playback starts; a muted inline play→pause primes it.
+      video.play()?.then(() => video.pause()).catch(() => {});
     };
     const queueLoad = () => {
-      if ("requestIdleCallback" in window) idle = window.requestIdleCallback(startLoading, { timeout: 1500 });
+      if ("requestIdleCallback" in window) idle = window.requestIdleCallback(startLoading, { timeout: 300 });
       else timer = setTimeout(startLoading, 300) as unknown as number;
     };
     if (document.readyState === 'complete') queueLoad();
@@ -155,7 +175,7 @@ export function TourHero() {
       video.load(); // release the decoder
       setReady(false);
     };
-  }, [mode]);
+  }, [mode, wide]);
 
   // ---- Manual player ------------------------------------------------------
   useEffect(() => {
@@ -175,13 +195,14 @@ export function TourHero() {
   };
 
   const isScrub = mode === 'scrub';
-  const filmSrc = window.matchMedia('(min-width: 62.5rem)').matches ? tour.desktopSrc : tour.mobileSrc;
+  const filmSrc = wide ? tour.desktopSrc : tour.mobileSrc;
 
   return (
     <section
       ref={sectionRef}
       className={`hero hero--${mode}${playing ? ' hero--playing' : ''}`}
       data-ready={isScrub && ready}
+      style={{ '--travel': wide ? tour.scroll.wide : tour.scroll.narrow } as CSSProperties}
       aria-labelledby="hero-title"
     >
       <div id="hero-sentinel" className="hero__sentinel" aria-hidden="true" />
@@ -233,7 +254,9 @@ export function TourHero() {
           </div>
 
           <div className="hero__foot">
-            {mode === 'static' && <p className="hero__status">{hero.tourPending}</p>}
+            {mode === 'static' && (
+              <p className="hero__status">{tour.status === 'ready' ? hero.tourUnavailable : hero.tourPending}</p>
+            )}
 
             {isScrub && (
               <p className="hero__status hero__chapter" aria-hidden="true">
