@@ -1,0 +1,50 @@
+.wordmark {
+  --horizon: 64%;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  line-height: 1;
+}
+
+.wordmark__mark {
+  position: relative;
+  display: inline-grid;
+  font-family: var(--font-latin);
+  font-weight: 500;
+  font-size: 1.5rem;
+  letter-spacing: 0.3em;
+  /* cancel trailing tracking (this element is LTR, so inline-end = right) */
+  margin-inline-end: -0.3em;
+  padding-block: 0.1em;
+}
+
+.wordmark__word,
+.wordmark__below {
+  grid-area: 1 / 1;
+}
+
+.wordmark__word {
+  clip-path: inset(0 0 calc(100% - var(--horizon)) 0);
+}
+
+.wordmark__below {
+  clip-path: inset(var(--horizon) 0 0 0);
+  opacity: 0.55;
+}
+
+.wordmark__mark::after {
+  content: '';
+  position: absolute;
+  inset-inline: -0.5em;
+  inset-block-start: var(--horizon);
+  block-size: 1px;
+  background: var(--bronze);
+}
+
+.wordmark__descriptor {
+  font-family: var(--font-body);
+  font-size: var(--fs-micro);
+  font-weight: 400;
+  color: var(--light-muted);
+}

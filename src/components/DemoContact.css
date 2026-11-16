@@ -1,0 +1,150 @@
+.contact {
+  padding-block: var(--section-space) calc(var(--section-space) * 0.75);
+  background: var(--ink);
+  color: var(--light);
+}
+
+.contact__grid {
+  display: grid;
+  gap: 2.5rem;
+}
+
+.contact__intro {
+  display: grid;
+  gap: 1.25rem;
+  align-content: start;
+}
+
+.contact__intro h2 {
+  font-size: var(--fs-h2);
+}
+
+.contact__notice {
+  max-inline-size: 30rem;
+  padding-inline-start: 1rem;
+  border-inline-start: 1px solid var(--bronze);
+  color: var(--light-muted);
+}
+
+.contact__form {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.field label {
+  font-size: var(--fs-small);
+  font-weight: 400;
+}
+
+.field__optional {
+  color: var(--light-muted);
+  font-weight: 300;
+}
+
+.field input,
+.field textarea {
+  inline-size: 100%;
+  min-block-size: 3rem;
+  padding: 0.75rem 0;
+  border: 0;
+  border-block-end: 1px solid var(--rule-light);
+  border-radius: 0;
+  background: transparent;
+  color: var(--light);
+  font: 300 1.0625rem / 1.5 var(--font-body);
+  transition: border-color var(--dur-hover) ease;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.field input:focus-visible,
+.field textarea:focus-visible {
+  outline: none;
+  border-block-end-color: var(--light);
+  box-shadow: 0 1px 0 var(--light);
+}
+
+.contact__submit {
+  justify-self: start;
+  margin-block-start: 0.5rem;
+}
+
+.contact__status {
+  min-block-size: 1.75em;
+  color: var(--light);
+}
+
+/* Real studio conversion, kept visibly separate from the demo form */
+.studio {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+  margin-block-start: 1.5rem;
+  padding-block-start: 2.5rem;
+  border-block-start: 1px solid var(--rule-light);
+}
+
+.studio__title {
+  font-size: var(--fs-h3);
+}
+
+.studio__text {
+  color: var(--light-muted);
+}
+
+.studio__pending {
+  font-size: var(--fs-micro);
+  color: var(--light-muted);
+}
+
+@media (min-width: 62.5rem) {
+  .contact__grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 1.5rem;
+  }
+
+  .contact__intro {
+    grid-column: 1 / span 5;
+  }
+
+  .contact__form {
+    grid-column: 7 / -1;
+  }
+
+  .studio {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 1.5rem;
+    align-items: end;
+    margin-block-start: 4rem;
+  }
+
+  .studio__title {
+    grid-column: 1 / span 5;
+  }
+
+  .studio__text {
+    grid-column: 6 / span 4;
+  }
+
+  .studio > :last-child {
+    grid-column: 10 / -1;
+    justify-self: end;
+  }
+}
+
+.field__error {
+  font-size: var(--fs-small);
+  color: #f2c6b8; /* light coral on ink: 11:1 */
+}
+
+.field input[aria-invalid='true'] {
+  border-block-end-color: #f2c6b8;
+}

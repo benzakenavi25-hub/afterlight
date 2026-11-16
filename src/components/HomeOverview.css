@@ -1,0 +1,86 @@
+.overview {
+  padding-block: var(--section-space);
+  background: var(--paper);
+}
+
+.overview__grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.overview__label {
+  font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  letter-spacing: 0.22em;
+  color: var(--text);
+  text-align: end; /* LTR label aligned to the Hebrew (right) edge */
+}
+
+.overview__title {
+  font-size: var(--fs-h2);
+}
+
+.overview__text {
+  max-inline-size: 36rem;
+  font-size: var(--fs-lead);
+  color: var(--text-muted);
+}
+
+/* Open row with fine separators, not cards */
+.overview__features {
+  display: grid;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  border-block-start: 1px solid var(--rule-dark);
+}
+
+.overview__features li {
+  padding-block: 1.125rem;
+  border-block-end: 1px solid var(--rule-dark);
+  font-family: var(--font-display);
+  font-size: var(--fs-lead);
+}
+
+@media (min-width: 48rem) {
+  .overview__features {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-block-end: 1px solid var(--rule-dark);
+  }
+
+  .overview__features li {
+    padding-block: 1.5rem;
+    padding-inline: 0 1.5rem;
+    border-block-end: 0;
+  }
+
+  .overview__features li + li {
+    padding-inline-start: 1.5rem;
+    border-inline-start: 1px solid var(--rule-dark);
+  }
+}
+
+@media (min-width: 62.5rem) {
+  .overview__grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 1.5rem;
+    row-gap: 2rem;
+  }
+
+  .overview__label {
+    grid-column: 1 / -1;
+  }
+
+  .overview__title {
+    grid-column: 1 / span 5;
+  }
+
+  .overview__text {
+    grid-column: 7 / -1;
+    align-self: end;
+  }
+
+  .overview__features {
+    grid-column: 1 / -1;
+    margin-block-start: 3rem;
+  }
+}

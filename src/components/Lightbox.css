@@ -1,0 +1,75 @@
+html.is-scroll-locked {
+  overflow: hidden;
+}
+
+.lightbox {
+  inline-size: 100%;
+  max-inline-size: 100%;
+  block-size: 100%;
+  max-block-size: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgb(17 24 32 / 0.97);
+  color: var(--light);
+}
+
+.lightbox::backdrop {
+  background: rgb(17 24 32 / 0.7);
+}
+
+.lightbox__inner {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 1rem;
+  block-size: 100%;
+  padding: 1rem var(--gutter) 1.25rem;
+}
+
+.lightbox__close {
+  justify-self: end;
+  min-block-size: 2.75rem;
+  padding-inline: 0.75rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: 400 var(--fs-small) / 1 var(--font-body);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.35em;
+  text-decoration-color: var(--bronze);
+}
+
+.lightbox__figure {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 0.75rem;
+  min-block-size: 0;
+  margin: 0;
+}
+
+/* Reserve room for the close row, caption and nav so nothing overlaps */
+.lightbox__img {
+  inline-size: auto;
+  max-inline-size: 100%;
+  block-size: auto;
+  max-block-size: calc(100dvh - 12rem);
+  object-fit: contain;
+}
+
+.lightbox__caption {
+  inline-size: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  font-size: var(--fs-small);
+  color: var(--light-muted);
+}
+
+.lightbox__nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}

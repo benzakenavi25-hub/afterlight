@@ -1,0 +1,300 @@
+.hero {
+  position: relative;
+  background: var(--ink);
+  color: var(--light);
+}
+
+/* Desktop scrub: ~4.5 viewport heights of ordinary scroll, the stage stays pinned */
+.hero--scrub {
+  block-size: 450svh;
+}
+
+.hero__stage {
+  --p: 0;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-block-size: 100svh;
+  overflow: clip; /* clip, not hidden: must not become a scroll container for sticky */
+}
+
+.hero--scrub .hero__stage {
+  position: sticky;
+  inset-block-start: 0;
+  block-size: 100svh;
+}
+
+.hero__media,
+.hero__shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.hero__shade,
+.hero__sentinel {
+  pointer-events: none;
+}
+
+.hero__poster,
+.hero__video {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  /* Keep the central walking axis (entrance → terrace) in frame on every crop */
+  object-position: 50% 50%;
+}
+
+/* The film sits on the poster (identical first frame) and appears only once it can seek */
+.hero__video {
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.hero[data-ready='true'] .hero__video {
+  opacity: 1;
+}
+
+/* Local shading: header band and the foot. The centre stays clear. */
+.hero__shade {
+  background:
+    linear-gradient(to bottom, rgb(17 24 32 / 0.55), rgb(17 24 32 / 0) 9rem),
+    linear-gradient(to top, rgb(17 24 32 / 0.88) 0%, rgb(17 24 32 / 0.5) 38%, rgb(17 24 32 / 0) 64%);
+}
+
+.hero__sentinel {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  /* Ends well above the hero's bottom edge so the header is solid before paper sections reach it */
+  block-size: calc(100% - var(--header-h) * 2);
+}
+
+.hero__inner {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding-block: calc(var(--header-h) + 1rem) 1.75rem;
+  /* Let clicks reach the native video controls; controls inside re-enable it */
+  pointer-events: none;
+}
+
+.hero__inner a,
+.hero__inner button {
+  pointer-events: auto;
+}
+
+.hero__label {
+  font-size: var(--fs-micro);
+  font-weight: 400;
+  color: var(--light-muted);
+}
+
+/* Fades out early as the camera starts moving (first ~10% of the tour) */
+.hero__copy {
+  align-self: end;
+  max-inline-size: 34rem;
+  padding-block-end: 2.5rem;
+  opacity: clamp(0, calc(1 - var(--p) * 10), 1);
+  visibility: var(--copy-visibility, visible);
+}
+
+.hero h1 {
+  font-size: var(--fs-h1);
+  line-height: 1.04;
+}
+
+.hero__subtitle {
+  margin-block-start: 1.25rem;
+  max-inline-size: 26rem;
+  font-size: var(--fs-lead);
+  line-height: 1.65;
+  color: var(--light-muted);
+}
+
+.hero__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+  padding-block-start: 1.25rem;
+  border-block-start: 1px solid var(--rule-light);
+}
+
+.hero__status {
+  font-size: var(--fs-micro);
+  color: var(--light-muted);
+}
+
+.hero__chapter {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+  font-size: var(--fs-small);
+  color: var(--light);
+}
+
+.hero__hint {
+  font-size: var(--fs-micro);
+  color: var(--light-muted);
+  opacity: clamp(0, calc(1 - var(--p) * 12), 1);
+}
+
+.hero__play {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.hero__play .btn {
+  gap: 0.75rem;
+}
+
+.hero__play-icon {
+  inline-size: 0;
+  block-size: 0;
+  border-block: 0.4rem solid transparent;
+  border-inline-end: 0.65rem solid currentColor; /* RTL: points left = forward */
+}
+
+.hero__discover,
+.hero__skip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-block-size: 2.75rem;
+  font-size: var(--fs-small);
+  font-weight: 400;
+  text-decoration: none;
+}
+
+.hero__discover {
+  margin-block-start: 1.25rem;
+}
+
+/* Short hairline leading into the page */
+.hero__discover::after,
+.hero__skip::after {
+  content: '';
+  inline-size: 2.5rem;
+  block-size: 1px;
+  background: var(--bronze);
+  transition: inline-size var(--dur-hover) var(--ease-out);
+}
+
+.hero__discover:hover::after,
+.hero__skip:hover::after {
+  inline-size: 3.5rem;
+}
+
+/* Manual player: the film at its natural 16:9 ratio, never cropped */
+.hero__film {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: calc(var(--header-h) + 3rem);
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+
+.hero--playing .hero__poster {
+  visibility: hidden;
+}
+
+@media (min-width: 62.5rem) {
+  .hero__shade {
+    background:
+      linear-gradient(to bottom, rgb(17 24 32 / 0.5), rgb(17 24 32 / 0) 10rem),
+      linear-gradient(to right, rgb(17 24 32 / 0) 45%, rgb(17 24 32 / 0.5) 72%, rgb(17 24 32 / 0.72) 100%),
+      linear-gradient(to top, rgb(17 24 32 / 0.55), rgb(17 24 32 / 0) 30%);
+  }
+
+  .hero__inner {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 1.5rem;
+    padding-block-end: 2.25rem;
+  }
+
+  .hero__label,
+  .hero__foot {
+    grid-column: 1 / -1;
+  }
+
+  /* Right side (RTL start), raised so the centre axis stays open */
+  .hero__copy {
+    grid-column: 1 / span 6;
+    align-self: center;
+    max-inline-size: none;
+    padding-block-end: 4rem;
+  }
+
+  .hero__subtitle {
+    max-inline-size: 22rem;
+  }
+
+  /* Wide manual playback (e.g. reduced motion): film fills the stage, copy steps aside */
+  .hero__film {
+    inset-block: calc(var(--header-h) + 2.5rem) 6rem;
+    block-size: auto;
+    aspect-ratio: auto;
+    object-fit: contain;
+    background: transparent;
+  }
+
+  .hero--playing .hero__copy {
+    --copy-visibility: hidden;
+  }
+}
+
+@media (min-width: 80rem) {
+  .hero__copy {
+    grid-column: 1 / span 5;
+  }
+
+  .hero__subtitle {
+    max-inline-size: 24rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__video {
+    transition: none;
+  }
+}
+
+/* Short landscape phones: keep headline, subtitle and the play control inside the first screen */
+@media (orientation: landscape) and (max-height: 30rem) {
+  .hero h1 {
+    font-size: clamp(1.75rem, 1rem + 4vh, 2.5rem);
+  }
+
+  .hero__inner {
+    padding-block: calc(var(--header-h) + 0.25rem) 0.75rem;
+  }
+
+  .hero__label {
+    display: none;
+  }
+
+  .hero__copy {
+    align-self: center;
+    padding-block-end: 0.75rem;
+  }
+
+  .hero__subtitle {
+    margin-block-start: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .hero__discover {
+    display: none; /* the play control and the page below remain; avoids pushing them off-screen */
+  }
+
+  .hero__foot {
+    padding-block-start: 0.5rem;
+  }
+}

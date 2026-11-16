@@ -1,0 +1,76 @@
+.materials {
+  padding-block: var(--section-space);
+  background: var(--ink);
+  color: var(--light);
+  overflow: hidden;
+}
+
+/* Large selective English word, decorative (the Hebrew H2 carries the meaning) */
+.materials__word {
+  font-size: clamp(3rem, 0.6rem + 9.6vw, 9.25rem);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: 0.04em;
+  color: var(--light);
+  opacity: 0.16;
+  text-align: start; /* LTR element: sits on the left, opposite the Hebrew heading */
+  overflow-wrap: anywhere;
+}
+
+.materials__title {
+  margin-block-start: 1.5rem;
+  font-size: var(--fs-h2);
+}
+
+.materials__list {
+  display: grid;
+  gap: 2.5rem;
+  margin: clamp(2.5rem, 1.5rem + 4vw, 5rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.materials__item {
+  display: grid;
+  gap: 1rem;
+}
+
+.materials__img {
+  inline-size: 100%;
+  aspect-ratio: 1122 / 1402;
+  object-fit: cover;
+  background: var(--ink-2);
+}
+
+.materials__item p {
+  color: var(--light-muted);
+}
+
+.materials__item strong {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.25rem;
+  color: var(--light);
+}
+
+@media (min-width: 40rem) and (max-width: 62.49rem) {
+  .materials__item {
+    max-inline-size: 26rem;
+  }
+}
+
+@media (min-width: 62.5rem) {
+  .materials__list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: clamp(1.5rem, 3vw, 3.5rem);
+  }
+
+  /* Varied vertical placement on spacious desktop only */
+  .materials__item:nth-child(2) {
+    margin-block-start: 6rem;
+  }
+
+  .materials__item:nth-child(3) {
+    margin-block-start: 2.5rem;
+  }
+}
