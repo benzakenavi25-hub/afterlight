@@ -1,7 +1,7 @@
 # AFTERLIGHT — Progress
 
 ## Current stage
-Stage 5 complete. All stages done. **Not published. Not ready for publication** (blockers below). Details: docs/HANDOFF.md.
+Stage 5 complete. All stages done. **Deployed (2026-11-16) to https://benzakenavi25-hub.github.io/afterlight/ (repo benzakenavi25-hub/afterlight, GitHub Pages via Actions). Still not ready for final launch** (blockers below). Details: docs/HANDOFF.md.
 
 ## Working rules (Abraham, 2026-11-16)
 Token-frugal: read only stage-relevant brief sections/files, concise PROGRESS, no full rescans, checks proportional to change, short report, stop for approval.
@@ -73,7 +73,7 @@ Token-frugal: read only stage-relevant brief sections/files, concise PROGRESS, n
 - [x] Tour film integrated (Stage 4).
 - [ ] Real Benzaken Studio contact link for the B2B CTA (`studio.contactHref`).
 - [ ] Real-device QA: iPhone Safari + Android Chrome (player, scrub fallback).
-- [ ] Hosting/domain/deploy decision — not authorised.
+- [x] GitHub Pages demo deployed (no custom domain). Studio site (benzaken-studio repo) untouched.
 
 ## Known limitations
 - Stills max 1672px wide → hero is not fully crisp on very large/retina desktop screens.

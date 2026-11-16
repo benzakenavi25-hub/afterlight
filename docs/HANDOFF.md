@@ -1,7 +1,7 @@
 # AFTERLIGHT — Handoff
 
 Concept single-page site (Hebrew RTL) for a fictional coastal penthouse, by Benzaken Studio.
-**Status: not published. Not ready for publication** until the launch blockers below are resolved.
+**Status: demo deployed to https://benzakenavi25-hub.github.io/afterlight/ (GitHub Pages, repo `benzakenavi25-hub/afterlight`). Not ready for final launch** until the blockers below are resolved. Deploy = push to `main` (workflow `.github/workflows/pages.yml`, `npm run build:pages`, base `/afterlight/`).
 
 ## Setup and commands
 
