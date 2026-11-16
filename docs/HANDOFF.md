@@ -52,7 +52,7 @@ bash scripts/build-media.sh "/path/to/incoming-media"
 
 ## Behaviour summary
 
-- Opening: elevator-doors overlay (`ElevatorDoors.tsx`, code-drawn, 0.9 s, `transform` only). Plays once per tab session; skipped with reduced motion, a `#hash` URL or a scrolled page; decided by the inline script in `index.html`. Overlay is inert, `pointer-events: none`, removed when finished.
+- Opening: elevator-doors overlay (`ElevatorDoors.tsx`, code-drawn, 0.9 s, `transform` only). Plays on every page load/refresh; skipped only with reduced motion; decided by the inline script in `index.html`. Overlay is inert, `pointer-events: none`, removed when finished.
 - Tour on every device (desktop and mobile): pinned stage, scroll position ↔ film time (down = forward, stop = stop, up = reverse; no smoothing/inertia added). Progress uses the stage's `svh` height, not `innerHeight`, so mobile address-bar changes do not shift it. Chapter label + skip link "לדלג לפרטי הבית". Film fetched after page load (first scroll triggers it earlier); `Save-Data` visitors keep the poster.
 - Portrait phones/tablets: film framed at 3:2 (≈7% trimmed per side; dining table and kitchen island stay in frame) inside the dark stage, headline below it.
 - Reduced motion: still poster + optional "צפייה בסיור הבית" player (no film request before the tap, no doors, no pinning). Film error / Save-Data: still poster + "הסיור אינו זמין כרגע", page continues normally.

@@ -5,15 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#111820" />
     <script>
-      // Elevator-doors intro (see src/components/ElevatorDoors.tsx): decided once, before first paint.
-      // Plays on the first visit in this tab session only; never with reduced motion, a #hash link or a scrolled page.
+      // Elevator-doors intro (see src/components/ElevatorDoors.tsx): decided before first paint.
+      // Plays on every page load/refresh, except with reduced motion.
       try {
-        if (
-          !sessionStorage.getItem('afterlight-doors-seen') &&
-          !location.hash &&
-          !matchMedia('(prefers-reduced-motion: reduce)').matches &&
-          (window.scrollY || 0) < 8
-        ) {
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
           document.documentElement.setAttribute('data-doors', 'pending');
         }
       } catch (e) {}

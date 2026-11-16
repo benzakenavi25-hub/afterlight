@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react';
 import './ElevatorDoors.css';
 
-const SEEN_KEY = 'afterlight-doors-seen';
 const OPEN_MS = 900; // keep in sync with the transition in ElevatorDoors.css
 const POSTER_WAIT_MS = 1500; // never wait longer than this for the poster
 
 /**
  * Elevator-doors intro: two code-drawn panels meet at the centre and slide apart over the hero.
- * Whether it plays is decided once, before first paint, by the inline script in index.html
- * (sets html[data-doors="pending"]): first visit in this tab session only, never with reduced
- * motion, a #hash link, or a restored scroll position. Overlay is inert, never blocks scroll or
+ * Whether it plays is decided before first paint by the inline script in index.html
+ * (sets html[data-doors="pending"]): on every load/refresh, never with reduced motion. Overlay is inert, never blocks scroll or
  * clicks, takes no layout space, and is removed when the motion ends.
  */
 export function ElevatorDoors() {
@@ -20,12 +18,6 @@ export function ElevatorDoors() {
   // Open as soon as the hero poster is decoded (no blank reveal), at most POSTER_WAIT_MS later.
   useEffect(() => {
     if (phase !== 'closed') return;
-    try {
-      sessionStorage.setItem(SEEN_KEY, '1');
-    } catch {
-      /* private mode: the intro may repeat, nothing else is affected */
-    }
-
     let opened = false;
     let raf = 0;
     const open = () => {
