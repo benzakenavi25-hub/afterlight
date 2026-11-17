@@ -264,6 +264,16 @@
   color: var(--light-muted);
 }
 
+.hero__sub-short {
+  display: none;
+}
+
+@media (max-width: 62.49rem) and (orientation: portrait) {
+  .hero__sub-short {
+    display: inline;
+  }
+}
+
 .hero__foot {
   display: flex;
   flex-wrap: wrap;
@@ -437,14 +447,18 @@
    (--it/--ib/--ix, --word-size, --copy-top, --label-dy); per frame only --p changes (transform/opacity). */
 @media (max-width: 62.49rem) and (orientation: portrait) {
   /* Edge to edge, sized by the longest word so the size never jumps between chapters */
+  /* The word sits fully above the card (no part hidden behind it) */
   .hero__words {
-    --word-shift: -50%; /* card top runs through the middle of the capitals */
+    inset-block-start: var(--word-top, 4rem);
+    translate: none;
     font-size: var(--word-size, 14vw);
+    opacity: calc(0.22 * var(--k));
   }
 
-  /* Soft dark gradient at the card's bottom so the headline reads on the image; fades with it */
-  .hero__shade::after {
-    background: linear-gradient(to bottom, rgb(var(--ink-rgb) / 0) 62%, rgb(var(--ink-rgb) / 0.55));
+  /* Short one-line subtitle; no concept label here */
+  .hero__sub-full,
+  .hero__label {
+    display: none;
   }
 
   /* Progress: 2px bronze line inside the card's bottom edge, filling from the right */
@@ -481,17 +495,8 @@
     text-shadow: 0 1px 1.25rem rgb(var(--ink-rgb) / 0.5);
   }
 
-  /* Concept label: top of the hero, right under the header (positioned against the copy block) */
-  .hero__label {
-    position: absolute;
-    inset-block-start: var(--label-dy, -50svh);
-    inset-inline: 0;
-    margin: 0;
-    font-size: var(--fs-micro);
-  }
-
   .hero__subtitle {
-    margin-block-start: 1rem;
+    margin-block-start: 0.5rem;
   }
 
   /* The skip link already leads into the page */

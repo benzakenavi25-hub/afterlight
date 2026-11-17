@@ -26,6 +26,8 @@ export const hero = {
   conceptLabel: 'פרויקט קונספט',
   title: 'העיר נשארת למטה.',
   subtitle: 'פנטהאוז מול האופק. חלל פתוח, אור רך וקו אחד שמחבר בין הבית לעיר.',
+  /** Phone portrait: one short line */
+  subtitleShort: 'פנטהאוז מול האופק.',
   discover: { href: '#spaces', label: 'לגלות את הבית' },
   tourPending: 'סיור הווידאו בבית נמצא בהכנה',
   scrollHint: 'גללו כדי להיכנס',

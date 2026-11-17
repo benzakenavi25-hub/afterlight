@@ -212,27 +212,24 @@ export function TourHero() {
       const header = document.querySelector<HTMLElement>('.site-header')?.offsetHeight ?? 72;
       let w0: number, h0: number, top0: number;
       if (portrait) {
-        // Phone portrait, top to bottom: concept label under the header, the chapter word (its upper half
-        // above the card, the rest behind it), the vertical card, the headline straddling the card's
-        // bottom edge, subtitle + scroll cue, and whatever the foot still holds (play control / status).
+        // Phone portrait, top to bottom: the chapter word in full (fit to width), the vertical card, the
+        // headline + one-line subtitle + scroll cue below the card, and whatever the foot still holds.
+        // Everything fits one screen: the card takes what is left (at most 70svh).
         const gutter = parseFloat(getComputedStyle(inner).paddingInlineStart) || 20;
         const copy = inner.querySelector<HTMLElement>('.hero__copy')!;
-        const label = copy.querySelector<HTMLElement>('.hero__label')!;
-        const title = copy.querySelector<HTMLElement>('h1')!;
         const foot = inner.querySelector<HTMLElement>('.hero__foot')!;
         const word = stage.querySelector<HTMLElement>('.hero__word');
         const ws = word ? fitWordSize(W, word) : W / 6;
-        const labelTop = header + 8;
-        const titleHalf = title.offsetHeight / 2;
-        // Card top cuts the word through the middle of its capitals (cap top ≈ 0.19em, cap middle ≈ 0.5em)
-        top0 = labelTop + label.offsetHeight + 12 + 0.32 * ws;
-        const below = copy.offsetHeight - titleHalf + (foot.offsetHeight ? foot.offsetHeight + 12 : 0) + 16;
+        // Capitals span ≈ 0.19em–0.78em of the word box: cap top sits 8px under the header, 8px gap above the card
+        const wordTop = header + 8 - 0.19 * ws;
+        top0 = wordTop + 0.78 * ws + 8;
+        const gap = 12;
+        const below = gap + copy.offsetHeight + (foot.offsetHeight ? foot.offsetHeight + 12 : 0) + 16;
         w0 = W - 2 * gutter;
-        h0 = Math.max(H * 0.36, Math.min(H * tourCard.start.vertical.h, H - top0 - below));
-        const copyTop = top0 + h0 - titleHalf;
+        h0 = Math.max(H * 0.36, Math.min(H * 0.7, H - top0 - below));
         stage.style.setProperty('--word-size', `${ws}px`);
-        stage.style.setProperty('--copy-top', `${copyTop}px`);
-        stage.style.setProperty('--label-dy', `${labelTop - copyTop}px`);
+        stage.style.setProperty('--word-top', `${wordTop}px`);
+        stage.style.setProperty('--copy-top', `${top0 + h0 + gap}px`);
       } else {
         w0 = W * tourCard.start.wide.w;
         h0 = H * tourCard.start.wide.h;
@@ -382,7 +379,10 @@ export function TourHero() {
               {hero.conceptLabel} · <span dir="ltr">{studio.name}</span>
             </p>
             <h1 id="hero-title">{hero.title}</h1>
-            <p className="hero__subtitle">{hero.subtitle}</p>
+            <p className="hero__subtitle">
+              <span className="hero__sub-full">{hero.subtitle}</span>
+              <span className="hero__sub-short">{hero.subtitleShort}</span>
+            </p>
             <a className="hero__discover" href={hero.discover.href}>
               {hero.discover.label}
             </a>
