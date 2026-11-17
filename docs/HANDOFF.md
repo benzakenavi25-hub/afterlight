@@ -21,7 +21,8 @@ npm run preview      # serve dist/ locally (port 4173 via .claude/launch.json)
 
 - `src/data/content.ts` — all Hebrew copy, nav, plan zones, form text, footer. **Studio contact config lives here** (`studio.contactHref`).
 - `src/data/media.ts` — typed media manifest (stills with role/status/alt, hero poster, tour status, chapter boundaries).
-- `src/components/` — Header, TourHero, HomeOverview, SpacesGallery (+ Lightbox), ConceptPlan, MaterialDetails, Terrace, DemoContact, Footer, Wordmark, ResponsiveImage.
+- `src/components/` — Header, ElevatorDoors, TourHero, ExteriorReveal, Facts, SpacesStack (+ PlanDialog), MaterialDetails, Terrace, Location, DemoContact (+ SlotPicker), Footer, MobileBar, Wordmark, ResponsiveImage.
+- `src/useReveal.ts` — text reveal system (headings by word, bronze rule, latin tracking, paragraphs). `src/useScrollTone.ts` — scroll-linked `--tone` (terrace surface, location drawing).
 - `src/useReveal.ts` — secondary reveals (progressive enhancement, off under reduced motion).
 - `src/styles/tokens.css`, `base.css` — palette, type scale, layout tokens.
 - `docs/PROGRESS.md` — stage log and checks. `docs/MEDIA-MAP.md` — media identification, audit and encode details.

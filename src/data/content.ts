@@ -14,6 +14,7 @@ export const nav = [
   { href: '#reveal', label: 'הבית' },
   { href: '#spaces', label: 'החללים' },
   { href: PLAN_HREF, label: 'תכנית הבית' },
+  { href: '#location', label: 'מיקום' },
   { href: '#contact', label: 'יצירת קשר' },
 ] as const;
 
@@ -144,13 +145,46 @@ export const terrace = {
   caption: 'המרפסת. הדמיית קונספט.',
 };
 
+/** Location: a fictional coastal city (no real city name). Concept data. */
+export const location = {
+  label: 'THE LOCATION',
+  heading: 'הקו הראשון לים.',
+  text: 'עיר חוף בדיונית, בין הטיילת לרחובות הישנים. הבית עומד בקו הראשון: הים מלפנים, העיר מאחור, והאופק פתוח לכל אורכו.',
+  /** Text equivalent of the illustration. */
+  mapDescription: 'איור סכמטי, לא מפה: קו החוף עובר לאורך האיור, הבית ממוקם ממש מעליו, הים מצידו האחד והעיר מצידו האחר.',
+  places: [
+    { id: 'sea', name: 'הים', time: '3 דק׳ הליכה' },
+    { id: 'promenade', name: 'הטיילת', time: '2 דק׳' },
+    { id: 'center', name: 'מרכז העיר', time: '8 דק׳ נסיעה' },
+  ],
+  home: 'הבית',
+  sea: 'ים',
+};
+
 export const contact = {
   heading: 'כך ייראה תיאום הביקור.',
   notice: 'זהו אתר קונספט. הנכס אינו מוצע למכירה, והטופס מדגים את חוויית הפנייה בלבד. הפרטים אינם נשלחים או נשמרים.',
   fields: { name: 'שם מלא', reach: 'טלפון או אימייל', message: 'הודעה', optional: 'לא חובה' },
   submit: 'הדגמת שליחה',
   success: 'זו הדגמה בלבד — לא נשלחה פנייה.',
+  /** Visit slot picker (demo): the next 7 days, then one of these times. */
+  slots: {
+    dayLegend: 'יום לביקור',
+    timeLegend: 'שעה',
+    pickDayFirst: 'בחרו יום כדי לראות שעות פנויות.',
+    times: [
+      { time: '10:00' },
+      { time: '13:00' },
+      { time: '16:30' },
+      { time: '18:30', note: 'שעת השקיעה' },
+    ],
+  },
+  confirm: {
+    title: 'הביקור שלכם',
+    again: 'לבחור מועד אחר',
+  },
   errors: {
+    slot: 'נא לבחור יום ושעה לביקור.',
     name: 'נא למלא שם מלא.',
     reachEmpty: 'נא למלא טלפון או אימייל.',
     reachInvalid: 'נא להזין מספר טלפון (לפחות 9 ספרות) או כתובת אימייל תקינה.',
