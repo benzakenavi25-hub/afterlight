@@ -205,6 +205,25 @@ export const reveal = {
   overshoot: 1.2,
   /** Photo crop (CSS object-position). Portrait keeps the penthouse glazing column in frame. */
   objectPosition: { landscape: '50% 50%', portrait: '54% 50%' },
+  /**
+   * Exit after the reveal has ended (name + descriptor shown): the facade shrinks into a card on the
+   * plaster while the facts strip rises over it. Added after the reveal; the reveal itself keeps its
+   * own scroll distance (`scroll`) unchanged.
+   */
+  exit: {
+    /** Extra scroll distance of the exit, in viewport heights (wide ≥ 62.5rem / narrow). */
+    scroll: { wide: 0.8, narrow: 0.8 },
+    /** Share of the exit (0–1) after which the facts strip starts rising from the bottom edge. */
+    factsFrom: 0.35,
+    /** Final card inset as a share of the stage: x = each side (0.07 → 86% wide), y = top and bottom. */
+    inset: { x: 0.07, y: 0.1 },
+    /** Final corner radius in px. */
+    radius: 6,
+    /** Final scale of the facade inside the card (moves slightly away). */
+    scale: 0.96,
+    /** Final darkening of the facade (opacity of a dark layer, 0 = none). */
+    dim: 0.22,
+  },
 };
 
 /**

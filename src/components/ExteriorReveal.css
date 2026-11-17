@@ -7,7 +7,7 @@
 /* Pinned stage inside a section sized up front (stage + scroll distance): no layout shift when the
    animation engine loads. lvh keeps the stage stable when a mobile address bar shows or hides. */
 .rw--scrub {
-  block-size: calc(100vh * (1 + var(--rw-travel, 1.5)));
+  block-size: calc(100vh * (1 + var(--rw-travel, 1.5) + var(--rw-exit, 0)));
 }
 
 .rw__stage {
@@ -24,12 +24,32 @@
 
 @supports (height: 100lvh) {
   .rw--scrub {
-    block-size: calc(100lvh * (1 + var(--rw-travel, 1.5)));
+    block-size: calc(100lvh * (1 + var(--rw-travel, 1.5) + var(--rw-exit, 0)));
   }
 
   .rw--scrub .rw__stage {
     block-size: 100lvh;
   }
+}
+
+/* Exit card (scrub only): full stage until the exit; ExteriorReveal sets clip-path / transform.
+   In the static / plain fallbacks the wrappers do not exist for layout. */
+.rw__card,
+.rw__cardin {
+  position: absolute;
+  inset: 0;
+}
+
+.rw:not(.rw--scrub) :is(.rw__card, .rw__cardin) {
+  display: contents;
+}
+
+.rw__dim {
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* One photograph for the whole stage; it never scales — only the letter cut-out does */

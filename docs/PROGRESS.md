@@ -1,7 +1,7 @@
 # AFTERLIGHT — Progress
 
 ## Current stage
-Round 3 stages 1–2 done (tour card, materials layers) — on the branch, waiting for approval to merge. Round 2 (6 stages) merged and deployed.
+Round 3 stages 1–3 done (tour card, materials layers, exterior-reveal exit) — on the branch, waiting for approval. Round 2 (6 stages) merged and deployed.
 
 Stage 5 complete. All stages done. **Deployed (2026-11-16) to https://benzakenavi25-hub.github.io/afterlight/ (repo benzakenavi25-hub/afterlight, GitHub Pages via Actions). Still not ready for final launch** (blockers below). Details: docs/HANDOFF.md.
 
@@ -23,6 +23,14 @@ Stage 5 complete. All stages done. **Deployed (2026-11-16) to https://benzakenav
 - `flow` (reduced motion, max-height 32em incl. landscape phones, content that does not fit, GSAP failure): the previous cards. useReveal skips the stacked list.
 - Tunables: `materials` in media.ts (scroll 2.5 / 2, transitions [0.12–0.42], [0.58–0.88], zoom 1.12, frameNarrow 0.55, textOffset 10).
 - Checks (Playwright Chromium, vite preview, emulation): 360/390/768/1024/1440/1920: stack, 0 overflow; 844×390 → flow. Reversible: state at mid-progress identical after scrolling past and back. Sweeps: 390 4×CPU and 1440: 0 slow frames (p95 18 / 17 ms). Nav "מיקום" lands 88px from the top (same as main); skip link → #main; no focusable elements inside the stage. Reduced motion / GSAP blocked: flow with 3 images with alt.
+
+### Stage 3 — exit from the exterior reveal — completed
+- Added after the reveal's end only; letters, mask, name and descriptor untouched. The section gets `reveal.exit.scroll` extra viewport heights; the reveal timeline's end is now section − stage − exit px, i.e. exactly its previous distance (390: 1012.8px = 1.2 × 844; 1440: 1350px = 1.5 × 900).
+- Stage content wrapped in `.rw__card` > `.rw__cardin` (no styles until the exit; `display: contents` in static/plain). Second scrubbed ScrollTrigger (same engine, CSS sticky, no pin-spacer): card clip-path inset → x 7% (86% wide) / y 10%, radius 0 → 6px (power1.inOut), facade scale 1 → 0.96, dark layer 0 → 0.22. At t = 0 all inline styles are cleared (exact full screen).
+- Facts strip rises over the card: ExteriorReveal sets `--facts-pull` on :root while scrubbing ((1 − factsFrom) × exit = 0.52 viewport heights); `.facts` is pulled up by it (relative, z-index 1). The card's bottom inset follows the strip's top edge, so the strip reads as sliding over the card with the fixed plaster behind it (no extra background, no seam). Facts start rising at 35% of the exit.
+- Tunables: `reveal.exit` (scroll, factsFrom, inset, radius, scale, dim).
+- Reduced motion / GSAP failure: static reveal as before, no pull (facts margin 0, gap 0).
+- Checks (Playwright Chromium, vite preview): 360/390/768/1440/1920/844×390: 0 overflow, stage pinned at 0 through the exit, scrolling back to the reveal end restores the full screen (no inline clip/transform, name opacity 1). Sweeps through the exit: 390 4×CPU and 1440: 0 slow frames. Nav #reveal / #spaces / #location land 88px from the top; skip link → #main.
 
 ## Round 2 (2026-11-17) — 6 stages, approval after each. Off-limits: ElevatorDoors, TourHero, ExteriorReveal. Phone (390×844) first.
 
