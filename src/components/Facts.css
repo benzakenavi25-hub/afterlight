@@ -1,0 +1,64 @@
+/* On the shared plaster surface (transparent section) */
+.facts {
+  padding-block: var(--section-space);
+  color: var(--light);
+}
+
+.facts__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2.25rem 1.5rem;
+  margin: 0;
+}
+
+/* Number above, label below (dt first in source for the pairing; order swaps it visually) */
+.facts__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.facts__value {
+  order: -1;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(3rem, 2rem + 4vw, 5.5rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.facts__label {
+  font-size: var(--fs-small);
+  color: var(--light-muted);
+}
+
+.facts__line {
+  margin-block-start: clamp(2.5rem, 1.5rem + 3vw, 4rem);
+  font-family: var(--font-display);
+  font-size: var(--fs-lead);
+}
+
+.facts__note {
+  margin-block-start: 0.5rem;
+  font-size: var(--fs-micro);
+  color: var(--light-muted);
+}
+
+/* Desktop: one row, thin dividers between figures */
+@media (min-width: 62.5rem) {
+  .facts__list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .facts__item {
+    padding-inline: 2rem;
+    border-inline-start: 1px solid var(--rule-light);
+  }
+
+  .facts__item:first-child {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+}

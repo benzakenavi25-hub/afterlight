@@ -66,10 +66,11 @@
 }
 
 .ss--scrub:not([data-ready]) .ss__card:not(:first-child) {
-  transform: translateY(100%);
+  opacity: 0;
+  visibility: hidden;
 }
 
-/* Clipped frame; cards are stacked absolutely and only ever moved with transform */
+/* Clipped frame; cards are stacked absolutely and crossfade (opacity + a slight scale) */
 .ss__media {
   position: relative;
   overflow: clip;
@@ -93,7 +94,7 @@
 .ss__card {
   position: absolute;
   inset: 0;
-  will-change: transform;
+  will-change: opacity, transform;
 }
 
 .ss__img {

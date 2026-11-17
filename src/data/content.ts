@@ -41,6 +41,26 @@ export type ZoneId = 'entry' | 'kitchen' | 'living' | 'suite' | 'terrace';
  * `theme` picks the text palette: 'dark' text on light backgrounds, 'light' text on the dark surface.
  * `crop` is the CSS object-position per layout (narrow = phone/tablet, where the frame is near-square).
  */
+/** Key figures right after the opening. Concept data, illustrative only. */
+export const facts = {
+  heading: 'הבית במספרים',
+  items: [
+    { value: 320, label: 'מ״ר בנוי' },
+    { value: 5, label: 'חדרים' },
+    { value: 24, label: 'קומה' },
+    { value: 110, label: 'מ״ר מרפסת' },
+  ],
+  line: 'הקומה העליונה. דירה אחת בלבד.',
+  note: 'נתוני קונספט להמחשה',
+};
+
+/** Fixed action bar on phones (< 62.5rem). */
+export const mobileBar = {
+  label: 'פעולות מהירות',
+  visit: { href: '#visit', label: 'לתיאום ביקור' },
+  plan: { href: PLAN_HREF, label: 'תכנית הבית' },
+};
+
 export const spacesStack = {
   /** Visually hidden section heading (the stage titles are the visible headings). */
   heading: 'שלושה חללים בבית',
@@ -108,6 +128,7 @@ export const plan = {
 
 export const materials = {
   label: 'MATERIALITY',
+  listLabel: 'חומרים — גלילה אופקית',
   heading: 'היוקרה נמצאת בפרטים.',
   items: [
     { still: 'detail-walnut', name: 'אגוז כהה', text: 'עומק טבעי וקווים נקיים.' },
@@ -140,7 +161,6 @@ export const b2b = {
   heading: 'רוצים להציג נכס בצורה כזאת?',
   text: 'אתרי נדל״ן קולנועיים בהתאמה אישית — Benzaken Studio.',
   cta: 'לדבר על האתר שלכם',
-  pendingNote: 'קישור יצירת הקשר של הסטודיו יתווסף לפני העלייה לאוויר.',
 };
 
 export const footer = {

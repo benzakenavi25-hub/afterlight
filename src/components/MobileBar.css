@@ -1,0 +1,44 @@
+.mbar {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: 40; /* under the header (50) and its menu */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.625rem;
+  padding: 0.625rem var(--gutter) max(0.625rem, env(safe-area-inset-bottom));
+  background: rgb(var(--ink-rgb) / 0.86);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-block-start: 1px solid var(--rule-light);
+  color: var(--light);
+  transition:
+    transform 320ms var(--ease-out),
+    visibility 0s linear 0s;
+}
+
+.mbar[data-shown='false'] {
+  transform: translateY(100%);
+  visibility: hidden;
+  transition:
+    transform 320ms var(--ease-out),
+    visibility 0s linear 320ms;
+}
+
+.mbar__btn {
+  min-block-size: 2.75rem;
+  padding-inline: 0.75rem;
+  font-size: var(--fs-small);
+}
+
+/* Room at the end of the page so the bar never covers the last content */
+.has-mobilebar body {
+  padding-block-end: calc(4rem + env(safe-area-inset-bottom));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mbar,
+  .mbar[data-shown='false'] {
+    transition: none;
+  }
+}

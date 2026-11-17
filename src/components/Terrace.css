@@ -1,6 +1,7 @@
 .terrace {
   padding-block-end: var(--section-space);
-  background: var(--paper);
+  /* --tone (useScrollTone): 0 = the dark plaster above shows through, 1 = ivory. Without JS: ivory. */
+  background: color-mix(in srgb, var(--paper) calc(var(--tone, 1) * 100%), transparent);
 }
 
 .terrace__figure {
@@ -20,9 +21,16 @@
   padding-block-start: clamp(2rem, 1rem + 3vw, 3.5rem);
 }
 
+/* Follows the surface: invisible while it is still dark, fully shown well before it is ivory */
+.terrace__text > * {
+  opacity: clamp(0, calc((var(--tone, 1) - 0.45) * 2.5), 1);
+}
+
 .terrace__label {
   font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  font-weight: 500;
   letter-spacing: 0.22em;
+  color: var(--text-muted); /* 6.3:1 on paper */
   text-align: end; /* LTR label aligned to the Hebrew (right) edge */
 }
 

@@ -67,7 +67,7 @@ export function DemoContact() {
     <section id="contact" className="contact" aria-labelledby="contact-title">
       <div className="container contact__grid">
         <div className="contact__intro">
-          <h2 id="contact-title">{contact.heading}</h2>
+          <h2 id="contact-title" className="ruled">{contact.heading}</h2>
           <p className="contact__notice">{contact.notice}</p>
         </div>
 
@@ -104,7 +104,7 @@ export function DemoContact() {
             </label>
             <textarea id="f-message" name="message" rows={4} />
           </div>
-          <button className="btn btn--light contact__submit" type="submit">
+          <button className="btn btn--primary contact__submit" type="submit">
             {contact.submit}
           </button>
           <p className="contact__status" role="status">
@@ -113,16 +113,14 @@ export function DemoContact() {
         </form>
 
         <aside className="studio" aria-labelledby="studio-title">
-          <h2 id="studio-title" className="studio__title">
+          <h2 id="studio-title" className="studio__title ruled">
             {b2b.heading}
           </h2>
           <p className="studio__text">{b2b.text}</p>
-          {studio.contactHref ? (
+          {studio.contactHref && (
             <a className="btn btn--light" href={studio.contactHref}>
               {b2b.cta}
             </a>
-          ) : (
-            <p className="studio__pending">{b2b.pendingNote}</p>
           )}
         </aside>
       </div>

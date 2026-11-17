@@ -1,7 +1,35 @@
 # AFTERLIGHT — Progress
 
 ## Current stage
+Round 2, stages 1–4 done (stages 2–4 approved to run without stopping). Next: stage 5 (location).
+
 Stage 5 complete. All stages done. **Deployed (2026-11-16) to https://benzakenavi25-hub.github.io/afterlight/ (repo benzakenavi25-hub/afterlight, GitHub Pages via Actions). Still not ready for final launch** (blockers below). Details: docs/HANDOFF.md.
+
+## Round 2 (2026-11-17) — 6 stages, approval after each. Off-limits: ElevatorDoors, TourHero, ExteriorReveal. Phone (390×844) first.
+
+### Stage 1 — phone fixes — completed
+- Small labels ≥15px: `--fs-micro` 13→15px (token only; reaches the hero hint/chapter without touching TourHero), footer, wordmark descriptor. Measured at 360/390/768/1440: hint, chapter, stage meta, footer all 15px; material captions / B2B 17–18px.
+- MATERIALITY: opacity 0.16 (1.6:1) → solid mix of light 45% / ink ≈3.7:1 (large-text AA). THE HORIZON: weight 500 + `--text-muted` (6.3:1 on paper).
+- SpacesStack: time-based intro → scrubbed by scroll (`top 90%` → `top top`): ivory → warm sand `#a88a6d` → plaster (no grey midpoint), text fades in over the last 30%. Cards crossfade (opacity + scale 1.04→1) instead of sliding: no ceiling/window cut. Tunables: `stack.intro`, `stack.cardScale` (media.ts). Flow mode (reduced motion) unchanged.
+- Materials → terrace: new `useScrollTone` (rAF, active only near view, off under reduced motion) sets `--tone` from the text block's position (100% → 55% of the viewport); terrace surface = color-mix(paper, transparent) over the plaster; terrace text opacity follows the tone, so it is never dark on dark. No JS / reduced motion → ivory as before.
+- B2B: pending note removed from the UI and from content.ts; empty `studio.contactHref` → heading + text only.
+- New `.btn--primary` (bronze fill, ink text 4.8:1, 52px). "הדגמת שליחה" uses it; full width under 40rem.
+- Checks (Playwright Chromium, dev server, emulation): 360/390/768/1440 × normal/reduced motion: 0 horizontal overflow over a full-page scroll, header no overflow at 360, console clean, scrub/flow modes as expected; build passes. Phone screenshots reviewed (spaces intro, crossfade, materials, terrace midway/settled, form, B2B/footer).
+- Note: the terrace → contact edge (ivory → dark) is still a hard edge (not in scope).
+
+### Stage 2 — text reveals — completed
+- `useReveal` rewritten as one system (IntersectionObserver + CSS in base.css, no library). Kinds: heading (bronze `::before` rule scaleX 0→1 from the right, 600ms; then words rise from translateY(100%) inside `overflow: clip` windows, 700ms, 40ms stagger, start 200ms), latin (letter-spacing `--ls-from` (default 0.1em) → own value + fade, 900ms), text (12px + fade, 550ms, delay 350ms = 150ms after the words), block (images, 16px).
+- Headings get `.ruled` (materials, terrace, contact, studio). Word split keeps the real text in a visually-hidden span; the word spans are aria-hidden. Word classes `.tw`/`.tw__i` (`.rw` is taken by ExteriorReveal).
+- Once only, only below the first screen, off under reduced motion / without JS. Opening (#reveal, hero, #spaces) is never targeted.
+- Fix: dev StrictMode double effect left headings hidden (second run skipped marked elements) → marked elements are re-observed.
+
+### Stage 3 — facts strip + phone action bar — completed
+- `Facts.tsx/.css` after ExteriorReveal, on the plaster: 320 מ״ר בנוי · 5 חדרים · 24 קומה · 110 מ״ר מרפסת + line + "נתוני קונספט להמחשה" (content.ts `facts`). `<dl>`; count-up 0→value 1.2s ease-out once at 40% visible, tabular-nums; final value always in a visually-hidden span; no count with reduced motion / when already on screen. Phone 2×2, desktop one row with thin dividers.
+- `MobileBar.tsx/.css` (< 62.5rem only): "לתיאום ביקור" (bronze primary → #visit) + "תכנית הבית" (link to #plan → existing plan dialog). Shown after #reveal has scrolled away (scroll check — an observer misses anchor jumps), hidden while #visit or the footer intersects; `inert` when hidden; safe-area padding; 44px targets; translucent ink + 10px blur; body gets bottom padding while it exists. Copy in `mobileBar`.
+
+### Stage 4 — materials in one screen — completed
+- Phones: horizontal scroll-snap row (RTL, card 85% so the next peeks ~15%, edge-to-edge bleed, hidden scrollbar, list focusable with aria-label for keyboard scrolling); tablets 45% cards; desktop three in a row (stagger removed). Card = 4:5 image (max 52svh) + h3 name + one line.
+- Checks (light, per instruction): build; 360/390/768/1440 × normal/reduced: 0 overflow, counters end at final values, bar shown at materials and hidden at the form, headings reach "in", console clean. One phone screenshot set.
 
 ## Working rules (Abraham, 2026-11-16)
 Token-frugal: read only stage-relevant brief sections/files, concise PROGRESS, no full rescans, checks proportional to change, short report, stop for approval.

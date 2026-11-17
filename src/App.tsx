@@ -1,6 +1,8 @@
 import { Header } from './components/Header';
 import { TourHero } from './components/TourHero';
 import { ExteriorReveal } from './components/ExteriorReveal';
+import { Facts } from './components/Facts';
+import { MobileBar } from './components/MobileBar';
 import { SpacesStack } from './components/SpacesStack';
 import { MaterialDetails } from './components/MaterialDetails';
 import { Terrace } from './components/Terrace';
@@ -25,12 +27,14 @@ export default function App() {
       <main id="main" tabIndex={-1}>
         <TourHero />
         <ExteriorReveal />
+        <Facts />
         <SpacesStack />
         <MaterialDetails />
         <Terrace />
         <DemoContact />
       </main>
       <Footer />
+      <MobileBar />
     </>
   );
 }

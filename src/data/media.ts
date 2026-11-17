@@ -201,9 +201,12 @@ export const stack = {
   ] as [number, number][],
   /** Vertical offset of the incoming / outgoing text, in px. */
   textOffset: 8,
+  /** Starting scale of an incoming card (it settles to 1 while fading in). 1 = no movement. */
+  cardScale: 1.04,
   /**
-   * Time-based intro (seconds): ivory → plaster background, then the first text fades in.
-   * Starts when the section top reaches `start` (ScrollTrigger syntax); reverses above it.
+   * Scroll-scrubbed intro while the section rises into place (ScrollTrigger start/end; end = when the
+   * pin starts). Background ivory → `mid` → plaster in the first `split[0]` of it, text fades in over
+   * the last `split[1]`. `mid` is a warm stop so the change never passes through grey.
    */
-  intro: { start: 'top 15%', bg: 0.9, text: 0.6 },
+  intro: { start: 'top 90%', end: 'top top', mid: '#a88a6d', split: [0.7, 0.3] as [number, number] },
 };
