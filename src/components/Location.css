@@ -158,6 +158,17 @@
   max-block-size: 52svh;
 }
 
+/* Animated: the coast (and the horizon line that becomes it) keeps one thin width through the zoom
+   (non-scaling stroke), drawn whole — it is revealed by the morph, not by dashes */
+.location--anim .location__coast {
+  stroke-width: 1.5;
+  stroke-dasharray: none;
+}
+
+.location--anim:not([data-ready]) .location__horizon {
+  visibility: hidden;
+}
+
 .location--anim .location__walker {
   visibility: hidden;
 }

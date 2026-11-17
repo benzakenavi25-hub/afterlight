@@ -75,6 +75,8 @@ export const spacesStack = {
       id: 'living',
       num: '01',
       label: 'סלון',
+      word: 'LIVING',
+      plaque: 'סלון · 48 מ״ר · פונה לים',
       title: 'מקום להישאר.',
       still: 'gallery-living',
       zone: 'living',
@@ -86,6 +88,8 @@ export const spacesStack = {
       id: 'kitchen',
       num: '02',
       label: 'מטבח',
+      word: 'KITCHEN',
+      plaque: 'מטבח · 32 מ״ר · אי אבן',
       title: 'במרכז הבית.',
       still: 'gallery-kitchen',
       zone: 'kitchen',
@@ -97,6 +101,8 @@ export const spacesStack = {
       id: 'suite',
       num: '03',
       label: 'סוויטת השינה',
+      word: 'SUITE',
+      plaque: 'סוויטת השינה · 40 מ״ר · מול העיר',
       title: 'השקט שלכם.',
       still: 'gallery-bedroom',
       zone: 'suite',
@@ -108,6 +114,10 @@ export const spacesStack = {
     id: string;
     num: string;
     label: string;
+    /** Large decorative English word behind the photo (aria-hidden). */
+    word: string;
+    /** Museum-label line under the photo (concept data). */
+    plaque: string;
     title: string;
     still: StillId;
     zone: ZoneId;
@@ -136,10 +146,11 @@ export const materials = {
   listLabel: 'חומרים — גלילה אופקית',
   heading: 'היוקרה נמצאת בפרטים.',
   items: [
-    { still: 'detail-walnut', name: 'אגוז כהה', text: 'עומק טבעי וקווים נקיים.' },
-    { still: 'detail-stone', name: 'אבן', text: 'משטח שקט עם עורקים עדינים.' },
-    { still: 'detail-textile', name: 'טקסטיל', text: 'מרקם רך שמאזן את החומריות.' },
-  ] satisfies { still: StillId; name: string; text: string }[],
+    // still = detail photo (flow cards); sample = square texture in the zoom's sample card
+    { still: 'detail-walnut', sample: 'material-walnut', name: 'אגוז כהה', text: 'עומק טבעי וקווים נקיים.' },
+    { still: 'detail-stone', sample: 'material-stone', name: 'אבן', text: 'משטח שקט עם עורקים עדינים.' },
+    { still: 'detail-textile', sample: 'material-textile', name: 'טקסטיל', text: 'מרקם רך שמאזן את החומריות.' },
+  ] satisfies { still: StillId; sample: StillId; name: string; text: string }[],
 };
 
 export const terrace = {

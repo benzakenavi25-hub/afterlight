@@ -21,7 +21,11 @@ export type StillId =
   | 'detail-walnut'
   | 'detail-stone'
   | 'detail-textile'
-  | 'exterior-facade';
+  | 'exterior-facade'
+  | 'facade-vertical'
+  | 'material-walnut'
+  | 'material-stone'
+  | 'material-textile';
 
 export interface Still {
   id: StillId;
@@ -36,6 +40,7 @@ export interface Still {
 
 const LANDSCAPE = { width: 1672, height: 941, widths: [640, 960, 1280, 1672] };
 const PORTRAIT = { width: 1122, height: 1402, widths: [480, 800, 1122] };
+const SQUARE = { width: 1254, height: 1254, widths: [480, 800, 1254] };
 
 const missingTour = (id: StillId, alt: string): Still => ({
   id,
@@ -135,6 +140,38 @@ export const stills: Record<StillId, Still> = {
     ...PORTRAIT,
     alt: 'ריפוד הספה ושמיכת צמר עם פרנזים',
   },
+  // Portrait-phone facade for the exterior reveal (941×1672 source, new-media/).
+  'facade-vertical': {
+    id: 'facade-vertical',
+    role: 'exterior',
+    status: 'ready',
+    width: 941,
+    height: 1672,
+    widths: [640, 941],
+    alt: 'חזית בניין מגורים מאבן בהירה בשעה הכחולה, עם מרפסות מוארות ופנטהאוז זכוכית בקומה העליונה, ומאחור מפרץ ועיר. הדמיית קונספט.',
+  },
+  // Square texture samples for the materials sample card (1254×1254 sources, new-media/).
+  'material-walnut': {
+    id: 'material-walnut',
+    role: 'detail',
+    status: 'ready',
+    ...SQUARE,
+    alt: 'דוגמת עץ אגוז כהה בסיבים אנכיים',
+  },
+  'material-stone': {
+    id: 'material-stone',
+    role: 'detail',
+    status: 'ready',
+    ...SQUARE,
+    alt: 'דוגמת אבן טבעית בגוון חם',
+  },
+  'material-textile': {
+    id: 'material-textile',
+    role: 'detail',
+    status: 'ready',
+    ...SQUARE,
+    alt: 'דוגמת אריג קלוע בגוון טאופ חם, מקופל',
+  },
 };
 
 /**
@@ -216,7 +253,12 @@ export const reveal = {
   /** Safety margin on the final scale so the opened mask always overshoots the screen. */
   overshoot: 1.2,
   /** Photo crop (CSS object-position). Portrait keeps the penthouse glazing column in frame. */
-  objectPosition: { landscape: '50% 50%', portrait: '54% 50%' },
+  objectPosition: { landscape: '50% 50%', portrait: '54% 50%', vertical: '48% 48%' },
+  /**
+   * Portrait phones/tablets (< 62.5rem, portrait) use facade-vertical in the reveal and the exit.
+   * `vertical` above = its crop; 48% 48% keeps the penthouse floor centred behind the letters.
+   */
+  verticalMedia: '(max-width: 62.4375rem) and (orientation: portrait)',
   /**
    * Exit after the reveal has ended (name + descriptor shown): the facade shrinks into a card on the
    * plaster while the facts strip rises over it. Added after the reveal; the reveal itself keeps its
@@ -227,12 +269,16 @@ export const reveal = {
     scroll: { wide: 0.8, narrow: 0.8 },
     /** Share of the exit (0–1) after which the facts strip starts rising from the bottom edge. */
     factsFrom: 0.35,
-    /** Final card inset as a share of the stage: x = each side (0.07 → 86% wide), y = top and bottom. */
-    inset: { x: 0.07, y: 0.1 },
-    /** Final corner radius in px. */
+    /**
+     * The whole layer (photo + name) scales down uniformly into a card — never cropped, so the whole
+     * building stays in it. Final scale = the largest that fits both `maxScale` and the free band
+     * between `top` (share of the stage) and the risen facts strip minus `gap` px; centred in that band.
+     */
+    maxScale: 0.86,
+    top: 0.08,
+    gap: 16,
+    /** Final corner radius in px (on screen, compensated for the scale). */
     radius: 6,
-    /** Final scale of the facade inside the card (moves slightly away). */
-    scale: 0.96,
     /** Final darkening of the facade (opacity of a dark layer, 0 = none). */
     dim: 0.22,
   },
@@ -258,6 +304,11 @@ export const stack = {
   /** Starting scale of an incoming card (it settles to 1 while fading in). 1 = no movement. */
   cardScale: 1.04,
   /**
+   * Parallax of the photo inside its frame: yPercent from +parallax to −parallax over the pinned
+   * sequence. The photo is over-scaled in CSS (SpacesStack.css --ss-over, 1.14) so no edge shows.
+   */
+  parallax: 6,
+  /**
    * Scroll-scrubbed intro while the section rises into place (ScrollTrigger start/end; end = when the
    * pin starts). Background ivory → `mid` → plaster in the first `split[0]` of it, text fades in over
    * the last `split[1]`. `mid` is a warm stop so the change never passes through grey.
@@ -267,8 +318,9 @@ export const stack = {
 
 /**
  * Materials — "from the room to the detail" (MaterialDetails). Pinned section on gallery-living; per
- * material: spotlight → leader line + label → camera zoom → crossfade to the detail photo → pull-back.
- * Copy and detail photos are in content.ts (materials).
+ * material: spotlight → gentle camera zoom (the room never disappears) → a square sample card pops in
+ * beside the spot (thin bronze leader line, caption under it) → card out → pull-back.
+ * Copy and sample stills are in content.ts (materials).
  */
 export const materials = {
   /** Extra scroll distance in viewport heights beyond the pinned stage. Lower = shorter/faster. */
@@ -284,21 +336,27 @@ export const materials = {
   ],
   /** Spotlight radius as a share of the photo width (soft edge), and how dark the rest gets (0–1). */
   spotRadius: 0.11,
-  dim: 0.62,
-  /** Camera zoom at the peak (scale of the room photo). */
-  zoom: 2.6,
+  dim: 0.55,
+  /** Camera zoom at the peak (scale of the room photo). Kept ≤ 2 so the room stays sharp. */
+  zoom: 2,
   /**
-   * Phases inside each material's share of the scroll (0–1): spotlight + label, zoom in, crossfade to
-   * the detail photo, pull-back (not after the last one).
+   * Sample card (square) as a share of the frame width, phones (< 62.5rem) / desktop; `gap` = px between
+   * the spot and the card, `margin` = px kept free from the frame edges.
+   */
+  card: { narrow: 0.42, wide: 0.28, gap: 30, margin: 12 },
+  /**
+   * Phases inside each material's share of the scroll (0–1): spotlight, zoom in, sample card in
+   * (scale 0.92 → 1 + fade, line draws), card out (reverse), pull-back (none after the last one).
    */
   phases: {
     spot: [0, 0.14] as [number, number],
-    zoom: [0.14, 0.46] as [number, number],
-    detail: [0.4, 0.5] as [number, number],
+    zoom: [0.14, 0.44] as [number, number],
+    cardIn: [0.44, 0.54] as [number, number],
+    cardOut: [0.7, 0.8] as [number, number],
     out: [0.8, 1] as [number, number],
   },
-  /** Phones: frame width / height (full screen width), and which point of the photo stays in view (%). */
-  narrowRatio: 4 / 3,
+  /** Phones: frame height in svh (full screen width), and which point of the photo stays in view (%). */
+  narrowHeight: 55,
   focus: { x: 40, y: 55 },
   /** Vertical offset of the incoming / outgoing caption, in px. */
   textOffset: 10,
@@ -328,25 +386,36 @@ export const terrace = {
     /** Reduced motion / no GSAP: static crop of the panorama (CSS object-position). */
     staticPosition: '70% 45%',
   },
+  /** Sea horizon in the panorama file, as a share of its height (the bronze line starts on it). */
+  horizon: 0.435,
+  /**
+   * Shares of the pan (0–1): the text on the sky fades in, the bronze horizon line draws (right → left).
+   * Then the line continues across the ivory band below (`run`, ScrollTrigger start/end on the band)
+   * and bends into the coastline of the location map (location.phases.line).
+   */
+  textAt: [0.6, 0.9] as [number, number],
+  lineAt: [0.72, 1] as [number, number],
+  run: { start: 'top bottom', end: 'top 40%' },
 };
 
 /**
- * Location map (Location.tsx): pinned, scrubbed. The map pulls back from the home while the coastline
- * draws, then a bronze dot walks to each place (order = content.ts location.places) with a minutes counter.
+ * Location map (Location.tsx): pinned, scrubbed. The terrace's horizon line arrives straight across the
+ * top of the drawing and bends into the coastline (same 7 points), the map pulls back from the home, then
+ * a bronze dot walks to each place (order = content.ts location.places) with a minutes counter.
  */
 export const location = {
   /** Extra scroll distance in viewport heights beyond the pinned stage. Lower = shorter/faster. */
   scroll: { wide: 2.2, narrow: 2 },
   /** Starting zoom on the home (1 = the whole map). */
   zoom: 2.6,
-  /** Timeline shares (0–1): pull-back, coastline drawing, and one [start, arrival] per walk. */
+  /** Timeline shares (0–1): horizon line → coastline morph, pull-back, and one [start, arrival] per walk. */
   phases: {
-    zoom: [0, 0.3] as [number, number],
-    coast: [0.04, 0.32] as [number, number],
+    line: [0, 0.16] as [number, number],
+    zoom: [0.16, 0.38] as [number, number],
     walks: [
-      [0.34, 0.54],
-      [0.58, 0.72],
-      [0.76, 0.96],
+      [0.42, 0.6],
+      [0.63, 0.77],
+      [0.8, 0.96],
     ] as [number, number][],
   },
   /** Sideways drift of the wave lines over the whole sequence, in drawing units. */

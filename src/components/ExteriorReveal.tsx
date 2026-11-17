@@ -172,7 +172,6 @@ export function ExteriorReveal() {
       const final = finalRef.current!;
       const shade = shadeRef.current!;
       const card = cardRef.current!;
-      const cardIn = cardInRef.current!;
       const dim = dimRef.current!;
       const texts = [...svg.querySelectorAll<SVGTextElement>('.rw__text')];
 
@@ -274,28 +273,30 @@ export function ExteriorReveal() {
         .fromTo(final, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.1 }, z1);
       tl.to({}, { duration: Math.max(0, 1 - tl.duration()) }, tl.duration());
 
-      // ---- Exit: facade → card on the plaster, facts strip rising over it (scrubbed, reversible) ----
-      const facts = document.getElementById('facts');
+      // ---- Exit: the whole layer scales down into a card on the plaster (never cropped, so the whole
+      // building stays in view), facts strip rising under it (scrubbed, reversible) ----
       const shrinkEase = gsap.parseEase('power1.inOut');
       const ex = { t: 0 };
       const applyExit = () => {
         if (ex.t <= 0) {
           // exactly the full-screen state of the reveal's end
+          card.style.transform = '';
           card.style.clipPath = '';
-          cardIn.style.transform = '';
           dim.style.opacity = '';
           return;
         }
         const k = shrinkEase(ex.t);
-        const W = stage.clientWidth;
         const H = stage.clientHeight;
-        const ix = k * cfg.exit.inset.x * W;
-        const iy = k * cfg.exit.inset.y * H;
-        // the card ends where the rising facts strip begins (it reads as sliding over the card)
-        const factsTop = facts ? facts.getBoundingClientRect().top - stage.getBoundingClientRect().top : H;
-        const ib = Math.max(iy, H - factsTop);
-        card.style.clipPath = 'inset(' + iy + 'px ' + ix + 'px ' + ib + 'px ' + ix + 'px round ' + k * cfg.exit.radius + 'px)';
-        cardIn.style.transform = 'scale(' + (1 - (1 - cfg.exit.scale) * k) + ')';
+        // final band: from `top` down to where the risen facts strip will stop (its pull is in stage heights)
+        const factsTop = H * (1 - (1 - cfg.exit.factsFrom) * exitScroll);
+        const bandTop = cfg.exit.top * H;
+        const band = Math.max(H * 0.2, factsTop - cfg.exit.gap - bandTop);
+        const sEnd = Math.min(cfg.exit.maxScale, band / H);
+        const tyEnd = bandTop + (band - sEnd * H) / 2; // card top (origin = top centre)
+        const s = 1 - (1 - sEnd) * k;
+        card.style.transform = 'translate3d(0,' + k * tyEnd + 'px,0) scale(' + s + ')';
+        // radius on screen = k × radius; the clip lives inside the scaled layer, so divide by the scale
+        card.style.clipPath = 'inset(0 round ' + (k * cfg.exit.radius) / s + 'px)';
         dim.style.opacity = String(k * cfg.exit.dim);
       };
       const exitTween = gsap.to(ex, {
@@ -337,8 +338,8 @@ export function ExteriorReveal() {
         tl.kill();
         exitTween.scrollTrigger?.kill();
         exitTween.kill();
+        card.style.transform = '';
         card.style.clipPath = '';
-        cardIn.style.transform = '';
         dim.style.opacity = '';
         gsap.set([kicker, veil, wall, final, shade], { clearProps: 'all' });
         word.removeAttribute('transform');
@@ -370,15 +371,22 @@ export function ExteriorReveal() {
     '--rw-exit': exitScroll,
     '--rw-pos-landscape': cfg.objectPosition.landscape,
     '--rw-pos-portrait': cfg.objectPosition.portrait,
+    '--rw-pos-vertical': cfg.objectPosition.vertical,
   } as CSSProperties;
 
   return (
     <section ref={sectionRef} id="reveal" className={'rw rw--' + mode} style={style} aria-labelledby="rw-title">
       <div ref={stageRef} className="rw__stage">
-        {/* Exit card: no effect until the exit starts (then clip-path on the card, scale + dim inside) */}
+        {/* Exit card: no effect until the exit starts (then the card scales down with rounded corners + dim) */}
         <div ref={cardRef} className="rw__card">
         <div ref={cardInRef} className="rw__cardin">
-        <ResponsiveImage still={stills['exterior-facade']} sizes="(max-aspect-ratio: 16/9) 178vh, 100vw" eagerLow className="rw__img" />
+        <ResponsiveImage
+          still={stills['exterior-facade']}
+          sizes="(max-aspect-ratio: 16/9) 178vh, 100vw"
+          art={{ still: stills['facade-vertical'], media: cfg.verticalMedia, sizes: '(max-aspect-ratio: 9/16) 56vh, 100vw' }}
+          eagerLow
+          className="rw__img"
+        />
 
         {mode === 'scrub' && (
           <svg ref={svgRef} className="rw__mask" aria-hidden="true" focusable="false">

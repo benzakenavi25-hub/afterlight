@@ -54,20 +54,30 @@ function StageText({
         <span className="ss__num latin" aria-hidden="true">
           {stage.num}
         </span>
-        <span className="ss__sep" aria-hidden="true">
-          /
-        </span>
         <span className="ss__label">{stage.label}</span>
       </p>
       <h3 className="ss__title">{stage.title}</h3>
       <span className="ss__rule" aria-hidden="true" />
       <button type="button" className="ss__btn" onClick={onPlan}>
         {spacesStack.planButton}
-        <span aria-hidden="true">&nbsp;↗</span>
+        {/* SVG, not a text arrow: iOS draws ↗ as a blue emoji */}
+        <svg className="ss__arrow" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+          <path d="M4.5 11.5 11.5 4.5M5.5 4.5h6v6" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </button>
     </div>
   );
 }
+
+/** Large decorative word behind the photo (its upper part shows above the frame). */
+const Word = ({ stage }: { stage: Stage }) => (
+  <span className="ss__word latin" lang="en" aria-hidden="true">
+    {stage.word}
+  </span>
+);
+
+/** Museum-style label under the photo. */
+const Plaque = ({ stage }: { stage: Stage }) => <p className="ss__plaque">{stage.plaque}</p>;
 
 const cropStyle = (stage: Stage) =>
   ({ '--crop-wide': stage.crop.wide, '--crop-narrow': stage.crop.narrow }) as CSSProperties;
@@ -137,7 +147,11 @@ export function SpacesStack() {
       const endColor = `rgba(${r}, ${g}, ${b}, 0)`;
       const ctx = gsap.context(() => {
         const cards = gsap.utils.toArray<HTMLElement>('.ss__card', section);
+        const imgs = cards.map((c) => c.querySelector('img')!);
         const texts = gsap.utils.toArray<HTMLElement>('.ss__text', section);
+        const words = gsap.utils.toArray<HTMLElement>('.ss__word', section);
+        const plaques = gsap.utils.toArray<HTMLElement>('.ss__plaque', section);
+        const firstOnly = { autoAlpha: (i: number) => (i === 0 ? 1 : 0) };
         const textBox = section.querySelector<HTMLElement>('.ss__texts')!;
         const off = cfg.textOffset;
 
@@ -146,6 +160,10 @@ export function SpacesStack() {
         // Cards change by crossfade, never by sliding: no moment where one room's ceiling cuts across another.
         gsap.set(cards, { autoAlpha: (i: number) => (i === 0 ? 1 : 0), scale: (i: number) => (i === 0 ? 1 : cfg.cardScale) });
         gsap.set(texts, { y: (i: number) => (i === 0 ? 0 : off), autoAlpha: (i: number) => (i === 0 ? 1 : 0) });
+        gsap.set(words, firstOnly);
+        gsap.set(plaques, firstOnly);
+        // parallax inside the frame (the image is over-scaled in CSS so no edge ever shows)
+        gsap.set(imgs, { yPercent: cfg.parallax });
 
         // Intro, scrubbed by scroll while the section rises into place: ivory → warm sand → plaster
         // (the sand stop keeps the midpoint warm instead of grey), then the first text fades in.
@@ -181,7 +199,12 @@ export function SpacesStack() {
           // previous text out in the first part, next text in during the last part
           tl.to(texts[i], { autoAlpha: 0, y: -off, duration: d * 0.4 }, a);
           tl.to(texts[i + 1], { autoAlpha: 1, y: 0, duration: d * 0.4 }, a + d * 0.6);
+          // word and museum label swap with the text
+          tl.to([words[i], plaques[i]], { autoAlpha: 0, duration: d * 0.4 }, a);
+          tl.to([words[i + 1], plaques[i + 1]], { autoAlpha: 1, duration: d * 0.4 }, a + d * 0.6);
         });
+        // gentle parallax of every photo inside the frame over the whole pinned sequence
+        tl.fromTo(imgs, { yPercent: cfg.parallax }, { yPercent: -cfg.parallax, duration: 1 }, 0);
         // pad the timeline to exactly 1 so the shares in cfg.transitions are timeline fractions
         tl.to({}, { duration: Math.max(0, 1 - tl.duration()) }, tl.duration());
       }, section);
@@ -302,6 +325,11 @@ export function SpacesStack() {
               ))}
             </div>
             <div className="ss__media">
+              <div className="ss__words">
+                {stages.map((s) => (
+                  <Word key={s.id} stage={s} />
+                ))}
+              </div>
               {stages.map((s) => (
                 <div key={s.id} className="ss__card" style={cropStyle(s)}>
                   <ResponsiveImage
@@ -312,6 +340,11 @@ export function SpacesStack() {
                   />
                 </div>
               ))}
+              <div className="ss__plaques">
+                {stages.map((s) => (
+                  <Plaque key={s.id} stage={s} />
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -325,11 +358,21 @@ export function SpacesStack() {
           >
             <div className="container ss-flow__grid">
               <StageText stage={s} onPlan={(e) => openPlan(i, e.currentTarget)} />
-              <ResponsiveImage
-                still={stills[s.still]}
-                sizes="(min-width: 62.5rem) 60vw, 100vw"
-                className="ss__img ss-flow__img"
-              />
+              <div className="ss__media ss-flow__media">
+                <div className="ss__words">
+                  <Word stage={s} />
+                </div>
+                <div className="ss__card">
+                  <ResponsiveImage
+                    still={stills[s.still]}
+                    sizes="(min-width: 62.5rem) 60vw, 100vw"
+                    className="ss__img"
+                  />
+                </div>
+                <div className="ss__plaques">
+                  <Plaque stage={s} />
+                </div>
+              </div>
             </div>
           </article>
         ))

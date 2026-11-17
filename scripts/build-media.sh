@@ -30,6 +30,42 @@ if [[ -f "$MASTER" ]]; then
   SRC_POSTER="$TMP"
 fi
 
+# Round 5 sources (new-media/ in the project root, or the Hebrew folder name it was delivered in).
+# `--new-only` builds just these. Material textures are squares; facade-vertical is the phone facade.
+ROOT="$(dirname "$0")/.."
+NEW=""
+for c in "$ROOT/new-media" "$ROOT/תמונות חדשות"; do [[ -d "$c" ]] && { NEW="$c"; break; }; done
+NEW_MAP=(
+  "Dark Walnut Vertical Grain.png|material-walnut|480,800,1254"
+  "material-stone|material-stone|480,800,1254"
+  "Warm taupe woven blanket fold.png|material-textile|480,800,1254"
+  "Coastal Penthouse at Blue Hour.png|facade-vertical|640,941"
+)
+build_one() { # in name widths
+  local in="$1" name="$2" w
+  IFS=',' read -ra ws <<<"$3"
+  for w in "${ws[@]}"; do
+    ffmpeg -v error -y -i "$in" -vf "scale=${w}:-2:flags=lanczos" \
+      -c:v libwebp -quality 78 -compression_level 6 "$OUT/${name}-${w}.webp"
+    ffmpeg -v error -y -i "$in" -vf "scale=${w}:-2:flags=lanczos,format=yuv420p" \
+      -c:v libaom-av1 -still-picture 1 -crf 30 -b:v 0 -cpu-used 4 "$OUT/${name}-${w}.avif"
+  done
+  echo "done: $name"
+}
+if [[ -n "$NEW" ]]; then
+  for row in "${NEW_MAP[@]}"; do
+    IFS='|' read -r file name widths <<<"$row"
+    in="$NEW/$file"
+    # Accept the plain output name too (e.g. new-media/material-walnut.png).
+    [[ -f "$in" ]] || in="$(ls "$NEW/$name".* 2>/dev/null | head -n1 || true)"
+    if [[ -z "$in" || ! -f "$in" ]]; then echo "missing: $name" >&2; continue; fi
+    build_one "$in" "$name" "$widths"
+  done
+else
+  echo "missing: new-media/" >&2
+fi
+[[ "${1:-}" == "--new-only" ]] && exit 0
+
 for row in "${MAP[@]}"; do
   read -r file name widths <<<"$row"
   in="$SRC/$file"

@@ -10,7 +10,29 @@ const POINTS: Record<string, { x: number; y: number; lx: number; ly: number; anc
   center: { x: 318, y: 92, lx: 318, ly: 70, anchor: 'start' },
 };
 const HOME = { x: 176, y: 160 };
-const COAST = 'M 150 0 C 118 52, 176 96, 146 150 S 112 250, 160 320';
+/** Coastline as two absolute cubics (7 points), so the horizon line can morph into it point by point. */
+const COAST_PTS: [number, number][] = [
+  [150, 0],
+  [118, 52],
+  [176, 96],
+  [146, 150],
+  [116, 204],
+  [112, 250],
+  [160, 320],
+];
+const toPath = (p: [number, number][]) =>
+  `M ${p[0][0]} ${p[0][1]} C ${p[1][0]} ${p[1][1]}, ${p[2][0]} ${p[2][1]}, ${p[3][0]} ${p[3][1]} C ${p[4][0]} ${p[4][1]}, ${p[5][0]} ${p[5][1]}, ${p[6][0]} ${p[6][1]}`;
+const COAST = toPath(COAST_PTS);
+/**
+ * The terrace's horizon line as it arrives: straight across the top of the drawing (screen y = 4,
+ * x −60…460), written in the camera's own coordinates at the starting zoom, so the same 7 points can
+ * slide onto the coastline while the camera is still close on the home.
+ */
+const horizonPts = (zoom: number): [number, number][] =>
+  COAST_PTS.map((_, i) => {
+    const sx = -60 + (520 * i) / 6;
+    return [HOME.x + (sx - HOME.x) / zoom, HOME.y + (4 - HOME.y) / zoom];
+  });
 /** Thin wave lines on the sea side (left of the coast). */
 const WAVES = [
   'M 18 58 q 10 -5 20 0 t 20 0 t 20 0',
@@ -85,6 +107,14 @@ export function Location() {
         const svg = svgRef.current!;
         const cam = svg.querySelector('.location__cam')!;
         const coast = svg.querySelector('.location__coast')!;
+        const horizon = svg.querySelector<SVGPathElement>('.location__horizon')!;
+        const from = horizonPts(cfg.zoom);
+        const morph = { t: 0 };
+        const setMorph = () =>
+          horizon.setAttribute(
+            'd',
+            toPath(from.map(([x, y], i) => [x + (COAST_PTS[i][0] - x) * morph.t, y + (COAST_PTS[i][1] - y) * morph.t])),
+          );
         const homePt = svg.querySelector('.location__pt--home')!;
         const pts = gsap.utils.toArray<SVGGElement>('.location__pt--place', svg);
         const walker = svg.querySelector('.location__walker')!;
@@ -94,7 +124,9 @@ export function Location() {
         const setCount = (v: number) => (count.textContent = `${Math.round(v)} ${unit}`);
 
         gsap.set(cam, { svgOrigin: `${HOME.x} ${HOME.y}`, scale: cfg.zoom });
-        gsap.set(coast, { strokeDashoffset: 1 });
+        // the coast itself waits hidden (fully drawn) until the horizon line has become it
+        gsap.set(coast, { autoAlpha: 0 });
+        setMorph();
         gsap.set(pts, { autoAlpha: 0.22 });
         gsap.set(walker, { x: HOME.x, y: HOME.y, autoAlpha: 0 });
         gsap.set(homePt, { autoAlpha: 1 });
@@ -110,11 +142,14 @@ export function Location() {
           },
         });
 
-        // (a) pull back + coastline
+        // (a) the horizon line (arriving from the terrace) bends into the coastline, close on the home
+        const [l0, l1] = cfg.phases.line;
+        tl.to(morph, { t: 1, ease: 'power1.inOut', duration: l1 - l0, onUpdate: setMorph }, l0);
+        tl.set(horizon, { autoAlpha: 0 }, l1);
+        tl.set(coast, { autoAlpha: 1 }, l1);
+        // (b) then the camera pulls back
         const [z0, z1] = cfg.phases.zoom;
         tl.to(cam, { scale: 1, ease: 'power1.inOut', duration: z1 - z0 }, z0);
-        const [c0, c1] = cfg.phases.coast;
-        tl.to(coast, { strokeDashoffset: 0, duration: c1 - c0 }, c0);
 
         // (b) walks: home → place, minutes counter, label lights up on arrival
         location.places.forEach((p, i) => {
@@ -192,7 +227,9 @@ export function Location() {
                 <text x="40" y="240" className="location__sea" direction="rtl" unicodeBidi="plaintext">
                   {location.sea}
                 </text>
-                <path d={COAST} pathLength={1} className="location__coast" />
+                <path d={COAST} pathLength={1} className="location__coast" vectorEffect={anim ? 'non-scaling-stroke' : undefined} />
+                {/* animated only: the terrace's horizon line, morphing into the coast (reduced motion: none) */}
+                {anim && <path className="location__coast location__horizon" vectorEffect="non-scaling-stroke" />}
                 {location.places.map((p, i) => {
                   const pt = POINTS[p.id];
                   return (

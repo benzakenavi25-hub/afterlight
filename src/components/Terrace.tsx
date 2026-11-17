@@ -10,16 +10,18 @@ const WIDE_QUERY = '(min-width: 62.5rem)';
 /**
  * The terrace panorama in a frame wider than the screen: while the section passes through the viewport
  * the photo pans sideways (scrubbed, no pin) from the sofa and lantern to the towers and the sea, ending
- * on the horizon. Text below fades in towards the end. Reduced motion / GSAP failure: a static crop.
+ * on the horizon. Towards the end the text appears on the sky and a thin bronze line draws along the
+ * horizon; it runs on across the ivory band below and becomes the location map's coastline (Location).
+ * Reduced motion / GSAP failure: a static crop with the text on it, no line.
  */
 export function Terrace() {
   const ref = useRef<HTMLElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
+  const runRef = useRef<HTMLDivElement>(null);
   const [pan, setPan] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  // Plaster → ivory while the area below the photograph rises from the bottom edge to 55% of the
-  // screen; the text fades in with it (CSS), so it is never dark-on-dark.
-  useScrollTone(ref, 1, 0.55, textRef);
+  // Plaster → ivory while the band below the photograph rises from the bottom edge to 55% of the screen.
+  useScrollTone(ref, 1, 0.55, runRef);
 
   useEffect(() => {
     if (!pan) return;
@@ -41,26 +43,36 @@ export function Terrace() {
       ScrollTrigger.config({ ignoreMobileResize: true });
       const frame = frameRef.current!;
       const img = frame.querySelector('img')!;
+      const over = textRef.current!;
+      const horizon = frame.querySelector<HTMLElement>('.terrace__horizon')!;
+      const runLine = runRef.current!.querySelector<HTMLElement>('.terrace__line')!;
       const mm = gsap.matchMedia();
       mm.add({ wide: WIDE_QUERY, narrow: `not all and ${WIDE_QUERY}` }, (c) => {
         const d = c.conditions!.wide ? cfg.pan.distance.wide : cfg.pan.distance.narrow;
         // Available sideways overflow (px), negative = photo moves left
         const travel = () => -Math.max(0, img.offsetWidth - frame.clientWidth) * d;
         const ltr = cfg.pan.direction === 'ltr';
-        gsap.fromTo(
-          img,
-          { x: () => (ltr ? 0 : travel()) },
-          {
-            x: () => (ltr ? travel() : 0),
-            ease: 'none',
-            scrollTrigger: {
-              trigger: frame,
-              start: cfg.pan.start,
-              end: cfg.pan.end,
-              scrub: true,
-              invalidateOnRefresh: true,
-            },
+        const tl = gsap.timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: {
+            trigger: frame,
+            start: cfg.pan.start,
+            end: cfg.pan.end,
+            scrub: true,
+            invalidateOnRefresh: true,
           },
+        });
+        tl.fromTo(img, { x: () => (ltr ? 0 : travel()) }, { x: () => (ltr ? travel() : 0), duration: 1 }, 0);
+        // towards the end: the text appears on the sky, the bronze line draws along the horizon
+        const [t0, t1] = cfg.textAt;
+        tl.fromTo(over, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: t1 - t0, ease: 'power1.out' }, t0);
+        const [h0, h1] = cfg.lineAt;
+        tl.fromTo(horizon, { scaleX: 0 }, { scaleX: 1, duration: h1 - h0 }, h0);
+        // the same line runs on across the ivory band as the photo leaves the screen
+        gsap.fromTo(
+          runLine,
+          { scaleX: 0 },
+          { scaleX: 1, ease: 'none', scrollTrigger: { trigger: runRef.current, start: cfg.run.start, end: cfg.run.end, scrub: true } },
         );
       });
       if (!img.complete) img.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
@@ -81,23 +93,34 @@ export function Terrace() {
     '--crop-wide': p.cropBottom.wide,
     '--crop-narrow': p.cropBottom.narrow,
     '--static-pos': p.staticPosition,
+    '--horizon': cfg.horizon,
   } as CSSProperties;
   const sizes = `(min-width: 62.5rem) calc(${p.height.wide}vh * ${(p.ratio * (1 + p.cropBottom.wide)).toFixed(2)}), calc(${p.height.narrow}vh * ${(p.ratio * (1 + p.cropBottom.narrow)).toFixed(2)})`;
 
   return (
     <section ref={ref} className={'terrace' + (pan ? ' terrace--pan' : '')} style={style} aria-labelledby="terrace-title">
-      <figure className="terrace__figure">
-        <div ref={frameRef} className="terrace__frame">
-          <ResponsiveImage still={stills[cfg.still]} sizes={pan ? sizes : '100vw'} className="terrace__img" />
+      <div className="terrace__stage">
+        <figure className="terrace__figure">
+          <div ref={frameRef} className="terrace__frame">
+            <ResponsiveImage still={stills[cfg.still]} sizes={pan ? sizes : '100vw'} className="terrace__img" />
+            {pan && <span className="terrace__horizon" aria-hidden="true" />}
+          </div>
+          <figcaption className="visually-hidden">{terrace.caption}</figcaption>
+        </figure>
+        {/* On the sky, over a soft top gradient (static with reduced motion) */}
+        <div ref={textRef} className="terrace__over">
+          <div className="container terrace__text">
+            <p className="terrace__label latin" lang="en">
+              {terrace.label}
+            </p>
+            <h2 id="terrace-title">{terrace.heading}</h2>
+            <p className="terrace__copy">{terrace.text}</p>
+          </div>
         </div>
-        <figcaption className="visually-hidden">{terrace.caption}</figcaption>
-      </figure>
-      <div ref={textRef} className="container terrace__text">
-        <p className="terrace__label latin" lang="en">
-          {terrace.label}
-        </p>
-        <h2 id="terrace-title" className="ruled">{terrace.heading}</h2>
-        <p className="terrace__copy">{terrace.text}</p>
+      </div>
+      {/* Ivory band: the horizon line runs on across it towards the location map */}
+      <div ref={runRef} className="terrace__run" aria-hidden="true">
+        {pan && <span className="terrace__line" />}
       </div>
     </section>
   );

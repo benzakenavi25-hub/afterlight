@@ -1,5 +1,4 @@
 .terrace {
-  padding-block-end: var(--section-space);
   /* --tone (useScrollTone): 0 = the dark plaster above shows through, 1 = ivory. Without JS: ivory. */
   background: color-mix(in srgb, var(--paper) calc(var(--tone, 1) * 100%), transparent);
 }
@@ -52,32 +51,73 @@
   }
 }
 
-.terrace__text {
-  display: grid;
-  gap: 1rem;
-  padding-block-start: clamp(2rem, 1rem + 3vw, 3.5rem);
+/* Thin bronze line on the sea horizon (pan only); draws right → left with the end of the pan */
+.terrace__horizon {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: calc(100% * (1 + var(--crop)) * var(--horizon, 0.435));
+  block-size: 1px;
+  background: var(--bronze);
+  transform: scaleX(0);
+  transform-origin: right;
+  pointer-events: none;
 }
 
-/* Follows the surface: invisible while it is still dark, fully shown well before it is ivory */
-.terrace__text > * {
-  opacity: clamp(0, calc((var(--tone, 1) - 0.45) * 2.5), 1);
+/* ---------- Text on the sky ---------- */
+.terrace__stage {
+  position: relative;
+}
+
+.terrace__over {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 0;
+  padding-block: clamp(1.25rem, 5svh, 3.25rem) clamp(2.5rem, 8svh, 5rem);
+  /* soft gradient from the top, only for legibility */
+  background: linear-gradient(to bottom, rgb(var(--ink-rgb) / 0.6), rgb(var(--ink-rgb) / 0.32) 55%, rgb(var(--ink-rgb) / 0));
+  color: var(--light);
+  pointer-events: none;
+}
+
+.terrace__text {
+  display: grid;
+  gap: 0.75rem;
 }
 
 .terrace__label {
   font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
   font-weight: 500;
   letter-spacing: 0.22em;
-  color: var(--text-muted); /* 6.3:1 on paper */
+  color: var(--light-muted);
   text-align: end; /* LTR label aligned to the Hebrew (right) edge */
 }
 
 .terrace__text h2 {
   font-size: var(--fs-h2);
+  color: var(--light);
+  text-shadow: 0 1px 14px rgb(0 0 0 / 0.35);
 }
 
 .terrace__copy {
   max-inline-size: 32rem;
-  color: var(--text-muted);
+  color: var(--light);
+  text-shadow: 0 1px 10px rgb(0 0 0 / 0.4);
+}
+
+/* ---------- Ivory band below: the horizon line runs on across it ---------- */
+.terrace__run {
+  position: relative;
+  block-size: clamp(5rem, 14svh, 9rem);
+}
+
+.terrace__line {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 50%;
+  block-size: 1px;
+  background: var(--bronze);
+  transform: scaleX(0);
+  transform-origin: right;
 }
 
 @media (min-width: 62.5rem) {
