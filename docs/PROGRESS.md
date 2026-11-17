@@ -1,9 +1,21 @@
 # AFTERLIGHT — Progress
 
 ## Current stage
-Round 2 complete (stages 1–6). Stages 1–4 merged to main (PR #2) and deployed; stages 5–6 on branch claude/wonderful-franklin-rs58ie.
+Round 3, stage 1 (tour card) done — waiting for approval of stage 2 (materials layers). Round 2 (6 stages) merged and deployed.
 
 Stage 5 complete. All stages done. **Deployed (2026-11-16) to https://benzakenavi25-hub.github.io/afterlight/ (repo benzakenavi25-hub/afterlight, GitHub Pages via Actions). Still not ready for final launch** (blockers below). Details: docs/HANDOFF.md.
+
+## Round 3 (2026-11-17) — tour card + materials layers. Off-limits: ElevatorDoors, ExteriorReveal, the tour scrub logic (progress → currentTime, film loading, fallbacks).
+
+### Stage 1 — tour in a card — completed
+- TourHero framing only. The film (poster + video) sits in a card on the plaster: `.hero__card` (full stage, transform scale(sx, sy) to the card size) → `.hero__view` (the film's 16:9 cover box, counter-scaled so the film's own scale is uniform). Start: desktop/landscape 86% × 76% of the stage, centred (76%, not 80%: at 80% the foot rule crossed the card); portrait < 62.5rem: full width minus gutter, 3:2, 44px under the header. Grows with the tour's own `--p` to the full stage at the terrace: slow drift (15%) until p 0.65, then smoothstep. All derived in CSS from `--p`; a ResizeObserver hands the start geometry to CSS as px vars. Tunables: `tourCard` (media.ts).
+- Rounded corners: 4 tiny plaster caps (counter-scaled, fade out), NOT an overflow+radius clip — measured at 1440: rounded clip 30–36 slow frames per 2 sweeps vs 2–5 without (it masks the playing film every frame). First attempt with clip-path inset: 15–29 slow frames; transform version + caps: 1–4 (current main measured in the same run: 0–2).
+- Shadow: separate box with the card's transform, opacity fades with growth. Corner shade under the headline (wide) = opacity-only layer.
+- Chapter word (ENTRY / KITCHEN / LIVING / TERRACE, `hero.chapterWords` in content.ts) behind the card: Cormorant, clamp(5rem, 13vw, 20rem) (18vw would not fit KITCHEN at 1440), opacity 0.14 × remaining card margin (swallowed as the card grows). Desktop: upper half above the card's top edge (overlaps the header zone); phones: above the card, sized to the screen width. Swap 500ms transform+opacity by chapter index, so it reverses with scroll direction. The only line added inside the scrub update: `stage.dataset.chapter` on chapter change (framing).
+- Headline block (label moved into it) on the plaster: desktop lower right overlapping the card corner; phones below the card as before. Fades as before.
+- Reduced motion / no film / Save-Data / failure mid-tour: static start card with the poster and ENTRY (`--p` and chapter cleared).
+- Checks (Playwright Chromium, vite preview, emulation): 360/390/768/1024/1440/1920/844×390: 0 overflow, at the end of the tour the card transform is identity and the film box covers the stage; hero → #reveal gap 0. LCP vs current main in the same run (slow-4G-like): 390 4×CPU 1.54–1.59 s vs 1.48–1.61 s; 1440 1.37–1.44 s vs 1.35–1.38 s (now the chapter word is the LCP element at 1440, poster preload unchanged). Sweeps: 390 4×CPU 0–2 slow frames (same as main). Reduced motion: no mp4 request, ENTRY shown, start card.
+- Not verified: real phones/GPU compositing, Safari/Firefox.
 
 ## Round 2 (2026-11-17) — 6 stages, approval after each. Off-limits: ElevatorDoors, TourHero, ExteriorReveal. Phone (390×844) first.
 

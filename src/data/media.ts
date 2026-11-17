@@ -163,6 +163,29 @@ export const tour = {
 };
 
 /**
+ * Tour card framing (TourHero). The film sits in a card on the plaster and grows with the same scroll
+ * progress as the film until it fills the stage at the terrace (seamless hand-off to the exterior reveal).
+ */
+export const tourCard = {
+  /**
+   * Card at the start of the tour (and the static card for reduced motion / no film).
+   * wide: share of the stage (width, height), centred — desktop and landscape screens.
+   * narrow: portrait phones/tablets (< 62.5rem): full width minus the page gutter on both sides,
+   * `ratio` = width / height of the film window, `top` = px between the header and the card
+   * (the chapter word sits there).
+   */
+  start: { wide: { w: 0.86, h: 0.76 }, narrow: { ratio: 3 / 2, top: 44 } },
+  /** Progress (0–1) where the main growth starts; the card grows mostly after it (last 35%). */
+  growFrom: 0.65,
+  /** Share of the growth that happens before growFrom (a slow drift). 0 = card still until then. */
+  early: 0.15,
+  /** Corner radius in px at the start; reaches 0 when the card fills the stage. */
+  radius: 6,
+  /** Opacity of the large chapter word behind the card (it also fades as the card grows). */
+  wordOpacity: 0.14,
+};
+
+/**
  * Exterior reveal (letters → facade). Everything tunable about the transition lives here.
  * See ExteriorReveal.tsx for how each value is used.
  */

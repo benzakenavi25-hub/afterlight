@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { hero, studio } from '../data/content';
-import { heroPoster, tour } from '../data/media';
+import { heroPoster, tour, tourCard } from '../data/media';
 import { ResponsiveImage } from './ResponsiveImage';
 import './TourHero.css';
 
-/** The poster is object-fit: cover, so on tall viewports it renders wider than 100vw. Mirrored in index.html preload. */
+/** The poster fills the film's 16:9 cover box, so on tall viewports it is wider than 100vw. Mirrored in index.html preload. */
 const HERO_SIZES = '(max-aspect-ratio: 16/9) 178vh, 100vw';
 
 const WIDE_QUERY = '(min-width: 62.5rem)';
@@ -71,6 +71,7 @@ export function TourHero() {
   const chapterRef = useRef<HTMLSpanElement>(null);
   const filmRef = useRef<HTMLVideoElement>(null);
   const playBtnRef = useRef<HTMLButtonElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
 
   // ---- Scrub engine -------------------------------------------------------
   useEffect(() => {
@@ -101,6 +102,7 @@ export function TourHero() {
       const ch = chapterAt(p);
       if (ch !== lastChapter && chapterRef.current) {
         chapterRef.current.textContent = tour.chapters[ch].label;
+        stage.dataset.chapter = String(ch); // framing only: drives the chapter word (CSS)
         lastChapter = ch;
       }
       if (canSeek) {
@@ -177,6 +179,59 @@ export function TourHero() {
     };
   }, [mode, wide]);
 
+  // ---- Card geometry (framing only; independent of the scrub engine) ------
+  // Measures the start card and the film's 16:9 cover box, and hands them to CSS as px vars. CSS
+  // then derives every frame from --p alone: clip-path inset on the card, scale/translate on the view.
+  useEffect(() => {
+    const stage = stageRef.current!;
+    const inner = innerRef.current!;
+    const measure = () => {
+      const W = stage.clientWidth;
+      const H = stage.clientHeight;
+      if (!W || !H) return;
+      const portrait = !window.matchMedia(WIDE_QUERY).matches && H > W;
+      const header = document.querySelector<HTMLElement>('.site-header')?.offsetHeight ?? 72;
+      let w0: number, h0: number, top0: number;
+      if (portrait) {
+        const gutter = parseFloat(getComputedStyle(inner).paddingInlineStart) || 20;
+        w0 = W - 2 * gutter;
+        h0 = w0 / tourCard.start.narrow.ratio;
+        top0 = header + tourCard.start.narrow.top;
+      } else {
+        w0 = W * tourCard.start.wide.w;
+        h0 = H * tourCard.start.wide.h;
+        top0 = (H - h0) / 2;
+      }
+      const Wc = Math.max(W, (H * 16) / 9); // the film's cover box at full size
+      const Hc = Math.max(H, (W * 9) / 16);
+      const v: Record<string, string> = {
+        '--ix': `${(W - w0) / 2}px`,
+        '--it': `${top0}px`,
+        '--ib': `${H - top0 - h0}px`,
+        '--dy': `${top0 + h0 / 2 - H / 2}px`,
+        '--s0': String(Math.max(w0 / Wc, h0 / Hc)),
+        '--sx0': String(w0 / W),
+        '--sy0': String(h0 / H),
+        '--vw': `${Wc}px`,
+        '--vh': `${Hc}px`,
+      };
+      for (const k in v) stage.style.setProperty(k, v[k]);
+      stage.dataset.layout = portrait ? 'portrait' : 'wide';
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(stage);
+    return () => ro.disconnect();
+  }, []);
+
+  // Outside scrub (reduced motion, no film, failure mid-tour): back to the static start card + ENTRY.
+  useEffect(() => {
+    if (mode === 'scrub') return;
+    const stage = stageRef.current!;
+    stage.style.removeProperty('--p');
+    delete stage.dataset.chapter;
+  }, [mode]);
+
   // ---- Manual player ------------------------------------------------------
   useEffect(() => {
     if (!playing) return;
@@ -202,25 +257,50 @@ export function TourHero() {
       ref={sectionRef}
       className={`hero hero--${mode}${playing ? ' hero--playing' : ''}`}
       data-ready={isScrub && ready}
-      style={{ '--travel': wide ? tour.scroll.wide : tour.scroll.narrow } as CSSProperties}
+      style={
+        {
+          '--travel': wide ? tour.scroll.wide : tour.scroll.narrow,
+          '--grow-from': tourCard.growFrom,
+          '--early': tourCard.early,
+          '--radius': `${tourCard.radius}px`,
+          '--word-opacity': tourCard.wordOpacity,
+        } as CSSProperties
+      }
       aria-labelledby="hero-title"
     >
       <div id="hero-sentinel" className="hero__sentinel" aria-hidden="true" />
       <div ref={stageRef} className="hero__stage">
         <div className="hero__media">
-          <ResponsiveImage still={heroPoster} sizes={HERO_SIZES} priority className="hero__poster" />
-          {isScrub && (
-            <video
-              ref={videoRef}
-              className="hero__video"
-              muted
-              playsInline
-              preload="none"
-              disablePictureInPicture
-              aria-hidden="true"
-              tabIndex={-1}
-            />
-          )}
+          {/* Chapter word behind the card (decorative; the Hebrew chapter label below carries it) */}
+          <div className="hero__words" aria-hidden="true">
+            {hero.chapterWords.map((w, i) => (
+              <span key={w} className="hero__word latin" data-i={i}>
+                {w}
+              </span>
+            ))}
+          </div>
+          <div className="hero__cardshadow" aria-hidden="true" />
+          <div className="hero__card">
+            <div className="hero__view">
+              <ResponsiveImage still={heroPoster} sizes={HERO_SIZES} priority className="hero__poster" />
+              {isScrub && (
+                <video
+                  ref={videoRef}
+                  className="hero__video"
+                  muted
+                  playsInline
+                  preload="none"
+                  disablePictureInPicture
+                  aria-hidden="true"
+                  tabIndex={-1}
+                />
+              )}
+            </div>
+            <div className="hero__shade" aria-hidden="true" />
+            {(['tl', 'tr', 'bl', 'br'] as const).map((c) => (
+              <span key={c} className="hero__corner" data-c={c} aria-hidden="true" />
+            ))}
+          </div>
           {playing && (
             <video
               ref={filmRef}
@@ -238,14 +318,12 @@ export function TourHero() {
             />
           )}
         </div>
-        <div className="hero__shade" aria-hidden="true" />
 
-        <div className="hero__inner container">
-          <p className="hero__label">
-            {hero.conceptLabel} · <span dir="ltr">{studio.name}</span>
-          </p>
-
+        <div ref={innerRef} className="hero__inner container">
           <div className="hero__copy">
+            <p className="hero__label">
+              {hero.conceptLabel} · <span dir="ltr">{studio.name}</span>
+            </p>
             <h1 id="hero-title">{hero.title}</h1>
             <p className="hero__subtitle">{hero.subtitle}</p>
             <a className="hero__discover" href={hero.discover.href}>

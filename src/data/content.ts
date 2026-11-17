@@ -32,6 +32,8 @@ export const hero = {
   play: 'צפייה בסיור הבית',
   playMeta: 'וידאו, 25 שניות, ללא קול',
   closePlayer: 'סגירת הסיור',
+  /** Large decorative word behind the tour card, one per chapter in tour.chapters (aria-hidden). */
+  chapterWords: ['ENTRY', 'KITCHEN', 'LIVING', 'TERRACE'],
 };
 
 export type ZoneId = 'entry' | 'kitchen' | 'living' | 'suite' | 'terrace';
