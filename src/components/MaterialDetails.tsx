@@ -44,7 +44,14 @@ export function MaterialDetails() {
   const stageRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => setOverflow(false), [wide]);
+  // Retry the zoom layout when the screen changes (width class or height, e.g. rotation)
+  const [vh, setVh] = useState(() => window.innerHeight);
+  useEffect(() => {
+    const onResize = () => setVh(window.innerHeight);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  useEffect(() => setOverflow(false), [wide, vh]);
 
   useEffect(() => {
     if (mode !== 'zoom') return;

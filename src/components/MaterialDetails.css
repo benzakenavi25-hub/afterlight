@@ -161,14 +161,18 @@
 /* Phones (one column): full-width frame on top, then heading, caption, progress */
 .materials--zoom .mat__grid {
   --pad: clamp(0.75rem, 2.5svh, 2rem);
+  /* Fixed bottom bar height, always reserved (also while it is hidden) so the stage never jumps */
+  --mbar-h: calc(4rem + env(safe-area-inset-bottom));
+  --rg: clamp(0.75rem, 2svh, 1.25rem);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: var(--narrow-h, 55svh) auto auto auto;
+  /* The frame takes what is left (1fr) but never less than the minimum */
+  grid-template-rows: minmax(var(--narrow-h, 38svh), 1fr) auto auto auto;
   grid-template-areas: 'frame' 'head' 'cap' 'prog';
   align-content: start;
-  row-gap: clamp(0.75rem, 2svh, 1.25rem);
+  row-gap: var(--rg);
   block-size: 100vh;
-  padding-block: calc(var(--header-h) + var(--pad)) max(var(--pad), env(safe-area-inset-bottom));
+  padding-block: calc(var(--header-h) + var(--pad)) calc(var(--mbar-h) + var(--pad));
   overflow: hidden; /* fit check: content taller than this falls back to flow */
 }
 
@@ -184,6 +188,17 @@
 
 .materials--zoom .materials__word {
   font-size: clamp(1.75rem, 1rem + 3vw, 5.5rem);
+}
+
+/* Phones: half of the big English word sits behind the bottom edge of the frame (the Hebrew title stays below) */
+.materials--zoom .mat__head {
+  position: relative;
+  z-index: 0;
+  margin-block-start: calc(-1 * var(--rg) - 0.45 * clamp(1.75rem, 1rem + 3vw, 5.5rem));
+}
+
+.materials--zoom .mat__room {
+  z-index: 1;
 }
 
 .materials--zoom .materials__title {
@@ -407,10 +422,12 @@
     column-gap: clamp(2.5rem, 5vw, 6rem);
     row-gap: 1.5rem;
     align-content: stretch;
+    padding-block-end: max(var(--pad), env(safe-area-inset-bottom));
   }
 
   .materials--zoom .mat__head {
     align-self: end;
+    margin-block-start: 0;
   }
 
   .materials--zoom :is(.mat__room, .mat__sample) {

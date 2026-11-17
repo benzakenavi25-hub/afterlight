@@ -355,8 +355,8 @@ export const materials = {
     cardOut: [0.7, 0.8] as [number, number],
     out: [0.8, 1] as [number, number],
   },
-  /** Phones: frame height in svh (full screen width), and which point of the photo stays in view (%). */
-  narrowHeight: 55,
+  /** Phones: MINIMUM frame height in svh (the frame takes whatever the screen leaves), and which point of the photo stays in view (%). */
+  narrowHeight: 38,
   focus: { x: 40, y: 55 },
   /** Vertical offset of the incoming / outgoing caption, in px. */
   textOffset: 10,

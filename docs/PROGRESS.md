@@ -173,6 +173,7 @@ Token-frugal: read only stage-relevant brief sections/files, concise PROGRESS, n
 - Stills max 1672px wide → hero is not fully crisp on very large/retina desktop screens.
 - Hero poster is a video frame (1920×1080), softer than the stills.
 - `.playwright-mcp/` holds local check screenshots (dev artefacts, not part of the site).
+- Materials on phones: frame now fills the screen height left by header, title and bottom bar (min 38svh), MATERIALITY half behind the frame, flow fallback only on truly short screens (build only, not checked on a device).
 
 ## Next step
 None. Remaining work is the launch blockers (real studio contact, real-device QA, hosting decision).
