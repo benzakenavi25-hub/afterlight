@@ -61,8 +61,8 @@
 /* Local shading: header band and the foot. The centre stays clear. */
 .hero__shade {
   background:
-    linear-gradient(to bottom, rgb(17 24 32 / 0.55), rgb(17 24 32 / 0) 9rem),
-    linear-gradient(to top, rgb(17 24 32 / 0.88) 0%, rgb(17 24 32 / 0.5) 38%, rgb(17 24 32 / 0) 64%);
+    linear-gradient(to bottom, rgb(var(--ink-rgb) / 0.55), rgb(var(--ink-rgb) / 0) 9rem),
+    linear-gradient(to top, rgb(var(--ink-rgb) / 0.88) 0%, rgb(var(--ink-rgb) / 0.5) 38%, rgb(var(--ink-rgb) / 0) 64%);
 }
 
 .hero__sentinel {
@@ -239,9 +239,9 @@
 @media (min-width: 62.5rem) {
   .hero__shade {
     background:
-      linear-gradient(to bottom, rgb(17 24 32 / 0.5), rgb(17 24 32 / 0) 10rem),
-      linear-gradient(to right, rgb(17 24 32 / 0) 45%, rgb(17 24 32 / 0.5) 72%, rgb(17 24 32 / 0.72) 100%),
-      linear-gradient(to top, rgb(17 24 32 / 0.55), rgb(17 24 32 / 0) 30%);
+      linear-gradient(to bottom, rgb(var(--ink-rgb) / 0.5), rgb(var(--ink-rgb) / 0) 10rem),
+      linear-gradient(to right, rgb(var(--ink-rgb) / 0) 45%, rgb(var(--ink-rgb) / 0.5) 72%, rgb(var(--ink-rgb) / 0.72) 100%),
+      linear-gradient(to top, rgb(var(--ink-rgb) / 0.55), rgb(var(--ink-rgb) / 0) 30%);
   }
 
   .hero__inner {

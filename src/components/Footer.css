@@ -1,6 +1,6 @@
 .footer {
   padding-block: 3rem 2.5rem;
-  background: var(--ink);
+  background: transparent; /* shared plaster surface: PlasterBackground */
   color: var(--light);
   border-block-start: 1px solid var(--rule-light);
 }

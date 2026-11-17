@@ -1,6 +1,6 @@
 .materials {
   padding-block: var(--section-space);
-  background: var(--ink);
+  background: transparent; /* shared plaster surface: PlasterBackground */
   color: var(--light);
   overflow: hidden;
 }

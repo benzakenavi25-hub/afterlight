@@ -1,6 +1,6 @@
 .rw {
   position: relative;
-  background: var(--ink);
+  background: transparent; /* plain fallback: the shared plaster surface shows through */
   color: var(--light);
 }
 
@@ -48,7 +48,7 @@
   }
 }
 
-/* Dark veil with the name cut out. Covers everything until the engine has laid out the letters. */
+/* Veil with the name cut out. Covers everything until the engine has laid out the letters. */
 .rw__mask {
   position: absolute;
   inset: 0;
@@ -59,7 +59,46 @@
 }
 
 .rw__veil {
-  fill: var(--ink);
+  fill: var(--ink); /* fallback without plus-lighter: flat wall */
+}
+
+/* Textured wall around the letters, without masking a textured layer on every frame:
+   layer 1 = photo inside the letters, black outside (the veil above, solid fill);
+   layer 2 = the shared plaster surface with the letters in black (.rw__wall).
+   Adding them (plus-lighter) gives photo in the letters and plaster around them, with
+   complementary antialiasing at the edges. The wall is inert where the photo is. */
+.rw__wall {
+  display: none;
+}
+
+@supports (mix-blend-mode: plus-lighter) {
+  .rw__veil {
+    fill: #000;
+  }
+
+  .rw__wall {
+    display: block;
+    position: absolute;
+    inset: 0;
+    isolation: isolate;
+    mix-blend-mode: plus-lighter;
+    pointer-events: none;
+  }
+
+  /* Own compositing layers: the textured surface is painted once and only the letters repaint while
+     the name grows (one paint layer would re-raster the texture on every frame) */
+  .rw__wall .plaster--fill,
+  .rw__holes {
+    will-change: transform;
+  }
+}
+
+.rw__holes {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: hidden;
 }
 
 .rw__text {
@@ -89,7 +128,7 @@
   inset-inline: 0;
   inset-block-end: 0;
   block-size: 46%;
-  background: linear-gradient(to top, rgb(17 24 32 / 0.78), rgb(17 24 32 / 0));
+  background: linear-gradient(to top, rgb(var(--ink-rgb) / 0.78), rgb(var(--ink-rgb) / 0));
   opacity: 0;
   pointer-events: none;
 }

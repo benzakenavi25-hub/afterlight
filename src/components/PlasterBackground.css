@@ -1,0 +1,39 @@
+/* Shared warm plaster surface (see PlasterBackground.tsx).
+   z-index -1 in the root stacking context: painted above the page canvas but below every section's
+   own background. lvh: the layer does not resize when a mobile toolbar shows or hides.
+   Texture: one seamless tile (assets/plaster.svg, grey around 50%) overlay-blended on the warm base,
+   so it lightens and darkens the brown itself instead of greying it. The layer is its own stacking
+   context (fixed + z-index), so the blend only ever mixes with the plaster base below it. */
+.plaster {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-start: 0;
+  z-index: -1;
+  block-size: 100vh;
+  background: var(--plaster-lighting), var(--ink);
+  pointer-events: none;
+}
+
+@supports (height: 100lvh) {
+  .plaster {
+    block-size: 100lvh;
+  }
+}
+
+/* The same surface inside a full-viewport pinned stage (ExteriorReveal): while the stage is pinned it
+   lines up exactly with the fixed layer, so the wall reads as one continuous plaster. */
+.plaster--fill {
+  position: absolute;
+  inset: 0;
+  z-index: auto;
+  block-size: auto;
+}
+
+.plaster::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('../assets/plaster.svg') 0 0 / 1024px 1024px repeat;
+  mix-blend-mode: overlay;
+  opacity: var(--plaster-texture);
+}

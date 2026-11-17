@@ -1,6 +1,6 @@
 .contact {
   padding-block: var(--section-space) calc(var(--section-space) * 0.75);
-  background: var(--ink);
+  background: transparent; /* shared plaster surface: PlasterBackground */
   color: var(--light);
 }
 
@@ -142,7 +142,7 @@
 
 .field__error {
   font-size: var(--fs-small);
-  color: #f2c6b8; /* light coral on ink: 11:1 */
+  color: #f2c6b8; /* light coral on ink: 9.9:1 */
 }
 
 .field input[aria-invalid='true'] {
