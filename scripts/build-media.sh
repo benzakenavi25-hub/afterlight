@@ -64,6 +64,25 @@ if [[ -n "$NEW" ]]; then
 else
   echo "missing: new-media/" >&2
 fi
+
+# Vertical (9:16) tour film for phone portrait (TourHero, tour.verticalSrc) + its exact first frame as
+# the poster (tour-01-entry-vertical). Scrub-friendly: keyframe every 8 frames, no B-frames, no audio.
+# Width 1080 (or the source width if smaller). crf 27 + maxrate keeps the 25 s film at ~8 MB.
+VMASTER=""
+[[ -n "$NEW" ]] && VMASTER="$(ls "$NEW"/AFTERLIGHT-approved-tour-1080p.mp4 "$NEW"/*vertical*.mp4 2>/dev/null | head -n1 || true)"
+if [[ -n "$VMASTER" && -f "$VMASTER" ]]; then
+  vw=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=p=0 "$VMASTER")
+  (( vw > 1080 )) && vw=1080
+  ffmpeg -v error -y -i "$VMASTER" -an -vf "scale=${vw}:-2:flags=lanczos" -c:v libx264 -profile:v high \
+    -preset slow -crf 27 -maxrate 2600k -bufsize 5200k -pix_fmt yuv420p -g 8 -keyint_min 8 -sc_threshold 0 -bf 0 \
+    -colorspace bt709 -color_primaries bt709 -color_trc bt709 -movflags +faststart "$OUT/tour-master-vertical.mp4"
+  VTMP="$(mktemp -d)"
+  ffmpeg -v error -y -i "$VMASTER" -frames:v 1 "$VTMP/tour-01-entry-vertical.png"
+  build_one "$VTMP/tour-01-entry-vertical.png" tour-01-entry-vertical 480,720,1080
+  echo "done: tour-master-vertical"
+else
+  echo "missing: vertical tour film in new-media/" >&2
+fi
 [[ "${1:-}" == "--new-only" ]] && exit 0
 
 for row in "${MAP[@]}"; do

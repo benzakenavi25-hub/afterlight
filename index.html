@@ -15,13 +15,24 @@
       content="AFTERLIGHT — פרויקט קונספט של Benzaken Studio: אתר נכס יוקרה לפנטהאוז בדיוני מול האופק."
     />
     <!-- Hero poster preload. Keep in sync with the hero poster in src/data/media.ts
-         (tour-01-entry = first frame of the tour master). -->
+         (tour-01-entry = first frame of the tour master; tour-01-entry-vertical = first frame of the
+         vertical film, phone portrait only — same query as VERTICAL_QUERY in TourHero.tsx). -->
     <link
       rel="preload"
       as="image"
       type="image/avif"
+      media="(min-width: 62.5rem), (orientation: landscape)"
       imagesrcset="%BASE_URL%media/tour-01-entry-640.avif 640w, %BASE_URL%media/tour-01-entry-960.avif 960w, %BASE_URL%media/tour-01-entry-1280.avif 1280w, %BASE_URL%media/tour-01-entry-1920.avif 1920w"
       imagesizes="(max-aspect-ratio: 16/9) 178vh, 100vw"
+      fetchpriority="high"
+    />
+    <link
+      rel="preload"
+      as="image"
+      type="image/avif"
+      media="(max-width: 62.49rem) and (orientation: portrait)"
+      imagesrcset="%BASE_URL%media/tour-01-entry-vertical-480.avif 480w, %BASE_URL%media/tour-01-entry-vertical-720.avif 720w, %BASE_URL%media/tour-01-entry-vertical-1080.avif 1080w"
+      imagesizes="(max-aspect-ratio: 9/16) 56.25vh, 100vw"
       fetchpriority="high"
     />
   </head>

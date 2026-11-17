@@ -7,6 +7,7 @@ export type MediaStatus = 'ready' | 'interim' | 'missing';
 
 export type StillId =
   | 'tour-01-entry'
+  | 'tour-01-entry-vertical'
   | 'tour-02-kitchen-dining'
   | 'tour-03-living-entry'
   | 'tour-04-living'
@@ -60,6 +61,16 @@ export const stills: Record<StillId, Still> = {
     height: 1080,
     widths: [640, 960, 1280, 1920],
     alt: 'מבט מהכניסה: פינת האוכל משמאל, המטבח עם אי האבן מימין, והסלון והעיר לפנים',
+  },
+  // First frame of the vertical (9:16) tour film: the phone-portrait hero poster.
+  'tour-01-entry-vertical': {
+    id: 'tour-01-entry-vertical',
+    role: 'tour',
+    status: 'ready',
+    width: 1080,
+    height: 1920,
+    widths: [480, 720, 1080],
+    alt: 'מבט מהכניסה: פינת האוכל והמטבח עם אי האבן, והסלון והעיר לפנים',
   },
   'tour-02-kitchen-dining': missingTour('tour-02-kitchen-dining', 'בין פינת האוכל למטבח, לאורך הציר המרכזי'),
   'tour-03-living-entry': missingTour('tour-03-living-entry', 'הכניסה לסלון'),
@@ -183,24 +194,31 @@ const INTERIM_HERO: StillId = 'gallery-terrace';
 export const heroPoster: Still =
   stills['tour-01-entry'].status === 'ready' ? stills['tour-01-entry'] : stills[INTERIM_HERO];
 
+/** Phone portrait (< 62.5rem, portrait): first frame of the vertical film. Mirrored in index.html preload. */
+export const heroPosterVertical: Still = stills['tour-01-entry-vertical'];
+
 export type TourStatus = 'missing' | 'partial' | 'ready';
 
 /**
  * Tour film. Only 'ready' may expose a scroll tour or play control.
  * Both files are re-encodes of AFTERLIGHT-tour-master.mp4 (see docs/MEDIA-MAP.md):
  * desktop = 1080p, keyframe every 12 frames, no B-frames (seek-friendly scrub);
- * mobile  = 960x540, keyframe every 8 frames, no B-frames (scrub on phones).
+ * mobile  = 960x540, keyframe every 8 frames, no B-frames (scrub on landscape phones / small tablets).
+ * vertical = re-encode of the separate vertical (9:16) film, used on phone portrait.
  */
 export const tour = {
   status: 'ready' as TourStatus,
   /**
    * TOUR PACE — the one place to tune it. Scroll distance of the tour, in viewport heights,
    * BEYOND the pinned stage itself (the stage is 1 viewport tall). Lower = faster / shorter tour.
-   * `wide` applies at ≥ 62.5rem, `narrow` below. Starting values, to be tuned by feel.
+   * `wide` applies at ≥ 62.5rem, `narrow` below, `vertical` on phone portrait (the vertical film is
+   * also 25 s, so the same distance keeps the same pace). Starting values, to be tuned by feel.
    */
-  scroll: { wide: 2.5, narrow: 2 },
+  scroll: { wide: 2.5, narrow: 2, vertical: 2 },
   desktopSrc: `${import.meta.env.BASE_URL}media/tour-master-desktop.mp4`,
   mobileSrc: `${import.meta.env.BASE_URL}media/tour-master-mobile.mp4`,
+  /** Phone portrait: the vertical (9:16) film, 1080x1920, keyframe every 8 frames, no B-frames. */
+  verticalSrc: `${import.meta.env.BASE_URL}media/tour-master-vertical.mp4`,
   duration: 25,
   /** Chapter label by fraction of the film (straight rail, entrance → terrace). */
   chapters: [
@@ -208,6 +226,16 @@ export const tour = {
     { from: 0.1, label: 'מטבח ופינת אוכל' },
     { from: 0.32, label: 'סלון' },
     { from: 0.74, label: 'מרפסת' },
+  ],
+  /**
+   * The same chapters on the vertical film (phone portrait), read from its contact sheet: kitchen and
+   * stools from ~2.5 s, living (sofa, armchair) from ~9 s, terrace once the glass doors are passed (~22 s).
+   */
+  chaptersVertical: [
+    { from: 0, label: 'כניסה' },
+    { from: 0.1, label: 'מטבח ופינת אוכל' },
+    { from: 0.36, label: 'סלון' },
+    { from: 0.88, label: 'מרפסת' },
   ],
 };
 
@@ -219,11 +247,11 @@ export const tourCard = {
   /**
    * Card at the start of the tour (and the static card for reduced motion / no film).
    * wide: share of the stage (width, height), centred — desktop and landscape screens.
-   * narrow: portrait phones/tablets (< 62.5rem): full width minus the page gutter on both sides,
-   * `ratio` = width / height of the film window, `top` = px between the header and the card
-   * (the chapter word sits there).
+   * vertical: portrait phones/tablets (< 62.5rem, portrait; vertical 9:16 film): full width minus the
+   * page gutter on both sides, `h` = share of the stage height. Shorter on short screens, so the label
+   * and chapter word above and the headline block below always fit.
    */
-  start: { wide: { w: 0.86, h: 0.76 }, narrow: { ratio: 3 / 2, top: 44 } },
+  start: { wide: { w: 0.86, h: 0.76 }, vertical: { h: 0.66 } },
   /** Progress (0–1) where the main growth starts; the card grows mostly after it (last 35%). */
   growFrom: 0.65,
   /** Share of the growth that happens before growFrom (a slow drift). 0 = card still until then. */
@@ -231,7 +259,7 @@ export const tourCard = {
   /** Corner radius in px at the start; reaches 0 when the card fills the stage. */
   radius: 6,
   /** Opacity of the large chapter word behind the card (it also fades as the card grows). */
-  wordOpacity: 0.14,
+  wordOpacity: 0.25,
 };
 
 /**

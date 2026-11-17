@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { hero, studio } from '../data/content';
-import { heroPoster, tour, tourCard } from '../data/media';
+import { heroPoster, heroPosterVertical, tour, tourCard } from '../data/media';
 import { ResponsiveImage } from './ResponsiveImage';
 import './TourHero.css';
 
@@ -9,6 +9,23 @@ const HERO_SIZES = '(max-aspect-ratio: 16/9) 178vh, 100vw';
 
 const WIDE_QUERY = '(min-width: 62.5rem)';
 const REDUCED_QUERY = '(prefers-reduced-motion: reduce)';
+/** Phone portrait: vertical (9:16) film and poster, vertical card. Mirrored in index.html preload and TourHero.css. */
+const VERTICAL_QUERY = '(max-width: 62.49rem) and (orientation: portrait)';
+/** The vertical poster fills the film's 9:16 cover box: wider than 100vw only on very tall screens. */
+const HERO_SIZES_VERTICAL = '(max-aspect-ratio: 9/16) 56.25vh, 100vw';
+
+/** Font size (px) at which the longest chapter word spans `width` edge to edge (0.12em tracking + indent). */
+let measureCtx: CanvasRenderingContext2D | null = null;
+function fitWordSize(width: number, sample: HTMLElement): number {
+  measureCtx ??= document.createElement('canvas').getContext('2d');
+  if (!measureCtx) return width / 6;
+  const cs = getComputedStyle(sample);
+  measureCtx.font = `${cs.fontWeight} 100px ${cs.fontFamily}`;
+  const widest = Math.max(
+    ...hero.chapterWords.map((w) => measureCtx!.measureText(w).width + (w.length + 1) * 12),
+  );
+  return ((width - 2) / widest) * 100;
+}
 
 type Mode = 'static' | 'scrub' | 'manual';
 
@@ -40,9 +57,9 @@ function pickMode(failed: boolean, reduced: boolean): Mode {
 }
 
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
-const chapterAt = (p: number) => {
+const chapterAt = (p: number, chapters: typeof tour.chapters) => {
   let i = 0;
-  tour.chapters.forEach((c, idx) => {
+  chapters.forEach((c, idx) => {
     if (p >= c.from) i = idx;
   });
   return i;
@@ -60,6 +77,8 @@ export function TourHero() {
   const [scrubFailed, setScrubFailed] = useState(false);
   const wide = useMedia(WIDE_QUERY);
   const reduced = useMedia(REDUCED_QUERY);
+  const vertical = useMedia(VERTICAL_QUERY);
+  const chapters = vertical ? tour.chaptersVertical : tour.chapters;
   const mode = pickMode(scrubFailed, reduced);
   const [ready, setReady] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -99,9 +118,9 @@ export function TourHero() {
       const travel = rect.height - stage.offsetHeight;
       const p = travel > 0 ? clamp01(-rect.top / travel) : 0;
       stage.style.setProperty('--p', p.toFixed(4));
-      const ch = chapterAt(p);
+      const ch = chapterAt(p, chapters);
       if (ch !== lastChapter && chapterRef.current) {
-        chapterRef.current.textContent = tour.chapters[ch].label;
+        chapterRef.current.textContent = chapters[ch].label;
         stage.dataset.chapter = String(ch); // framing only: drives the chapter word (CSS)
         lastChapter = ch;
       }
@@ -147,7 +166,7 @@ export function TourHero() {
     const startLoading = () => {
       if (video.getAttribute('src')) return;
       video.preload = 'auto';
-      video.src = wide ? tour.desktopSrc : tour.mobileSrc;
+      video.src = wide ? tour.desktopSrc : vertical ? tour.verticalSrc : tour.mobileSrc;
       video.load();
       // iOS may hold back decoding until playback starts; a muted inline play→pause primes it.
       video.play()?.then(() => video.pause()).catch(() => {});
@@ -177,7 +196,7 @@ export function TourHero() {
       video.load(); // release the decoder
       setReady(false);
     };
-  }, [mode, wide]);
+  }, [mode, wide, vertical, chapters]);
 
   // ---- Card geometry (framing only; independent of the scrub engine) ------
   // Measures the start card and the film's 16:9 cover box, and hands them to CSS as px vars. CSS
@@ -189,21 +208,40 @@ export function TourHero() {
       const W = stage.clientWidth;
       const H = stage.clientHeight;
       if (!W || !H) return;
-      const portrait = !window.matchMedia(WIDE_QUERY).matches && H > W;
+      const portrait = window.matchMedia(VERTICAL_QUERY).matches;
       const header = document.querySelector<HTMLElement>('.site-header')?.offsetHeight ?? 72;
       let w0: number, h0: number, top0: number;
       if (portrait) {
+        // Phone portrait, top to bottom: concept label under the header, the chapter word (its upper half
+        // above the card, the rest behind it), the vertical card, the headline straddling the card's
+        // bottom edge, subtitle + scroll cue, and whatever the foot still holds (play control / status).
         const gutter = parseFloat(getComputedStyle(inner).paddingInlineStart) || 20;
+        const copy = inner.querySelector<HTMLElement>('.hero__copy')!;
+        const label = copy.querySelector<HTMLElement>('.hero__label')!;
+        const title = copy.querySelector<HTMLElement>('h1')!;
+        const foot = inner.querySelector<HTMLElement>('.hero__foot')!;
+        const word = stage.querySelector<HTMLElement>('.hero__word');
+        const ws = word ? fitWordSize(W, word) : W / 6;
+        const labelTop = header + 8;
+        const titleHalf = title.offsetHeight / 2;
+        // Card top cuts the word through the middle of its capitals (cap top ≈ 0.19em, cap middle ≈ 0.5em)
+        top0 = labelTop + label.offsetHeight + 12 + 0.32 * ws;
+        const below = copy.offsetHeight - titleHalf + (foot.offsetHeight ? foot.offsetHeight + 12 : 0) + 16;
         w0 = W - 2 * gutter;
-        h0 = w0 / tourCard.start.narrow.ratio;
-        top0 = header + tourCard.start.narrow.top;
+        h0 = Math.max(H * 0.36, Math.min(H * tourCard.start.vertical.h, H - top0 - below));
+        const copyTop = top0 + h0 - titleHalf;
+        stage.style.setProperty('--word-size', `${ws}px`);
+        stage.style.setProperty('--copy-top', `${copyTop}px`);
+        stage.style.setProperty('--label-dy', `${labelTop - copyTop}px`);
       } else {
         w0 = W * tourCard.start.wide.w;
         h0 = H * tourCard.start.wide.h;
         top0 = (H - h0) / 2;
       }
-      const Wc = Math.max(W, (H * 16) / 9); // the film's cover box at full size
-      const Hc = Math.max(H, (W * 9) / 16);
+      // The film's cover box at full size: 16:9, or 9:16 for the vertical film (centred crop)
+      const ar = portrait ? 9 / 16 : 16 / 9;
+      const Wc = Math.max(W, H * ar);
+      const Hc = Math.max(H, W / ar);
       const v: Record<string, string> = {
         '--ix': `${(W - w0) / 2}px`,
         '--it': `${top0}px`,
@@ -221,7 +259,14 @@ export function TourHero() {
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(stage);
-    return () => ro.disconnect();
+    // Phone portrait also depends on the text blocks around the card (web fonts, foot content per mode)
+    inner.querySelectorAll('.hero__copy, .hero__foot').forEach((el) => ro.observe(el));
+    let alive = true;
+    document.fonts?.ready.then(() => alive && measure());
+    return () => {
+      alive = false;
+      ro.disconnect();
+    };
   }, []);
 
   // Outside scrub (reduced motion, no film, failure mid-tour): back to the static start card + ENTRY.
@@ -250,7 +295,7 @@ export function TourHero() {
   };
 
   const isScrub = mode === 'scrub';
-  const filmSrc = wide ? tour.desktopSrc : tour.mobileSrc;
+  const filmSrc = wide ? tour.desktopSrc : vertical ? tour.verticalSrc : tour.mobileSrc;
 
   return (
     <section
@@ -259,7 +304,7 @@ export function TourHero() {
       data-ready={isScrub && ready}
       style={
         {
-          '--travel': wide ? tour.scroll.wide : tour.scroll.narrow,
+          '--travel': wide ? tour.scroll.wide : vertical ? tour.scroll.vertical : tour.scroll.narrow,
           '--grow-from': tourCard.growFrom,
           '--early': tourCard.early,
           '--radius': `${tourCard.radius}px`,
@@ -282,7 +327,13 @@ export function TourHero() {
           <div className="hero__cardshadow" aria-hidden="true" />
           <div className="hero__card">
             <div className="hero__view">
-              <ResponsiveImage still={heroPoster} sizes={HERO_SIZES} priority className="hero__poster" />
+              <ResponsiveImage
+                still={heroPoster}
+                sizes={HERO_SIZES}
+                art={{ still: heroPosterVertical, media: VERTICAL_QUERY, sizes: HERO_SIZES_VERTICAL }}
+                priority
+                className="hero__poster"
+              />
               {isScrub && (
                 <video
                   ref={videoRef}
@@ -301,6 +352,12 @@ export function TourHero() {
               <span key={c} className="hero__corner" data-c={c} aria-hidden="true" />
             ))}
           </div>
+          {/* Phone portrait: tour progress along the card's bottom edge (hidden on wide screens) */}
+          {isScrub && (
+            <div className="hero__progress" aria-hidden="true">
+              <span />
+            </div>
+          )}
           {playing && (
             <video
               ref={filmRef}
@@ -329,6 +386,12 @@ export function TourHero() {
             <a className="hero__discover" href={hero.discover.href}>
               {hero.discover.label}
             </a>
+            {/* Phone portrait: a short bronze line in place of the scroll hint (text kept for screen readers) */}
+            {isScrub && (
+              <span className="hero__cue">
+                <span className="visually-hidden">{hero.scrollHint}</span>
+              </span>
+            )}
           </div>
 
           <div className="hero__foot">

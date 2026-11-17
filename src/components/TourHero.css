@@ -36,6 +36,10 @@
   position: absolute;
   inset: 0;
   z-index: -1;
+}
+
+/* Declared on the stage so the copy layer (phone-portrait chapter label) can follow the card too */
+.hero__stage {
   --g1: clamp(0, var(--p) / var(--grow-from, 0.65), 1);
   --g2: clamp(0, (var(--p) - var(--grow-from, 0.65)) / (1 - var(--grow-from, 0.65)), 1);
   --g: calc(var(--early, 0.15) * var(--g1) + (1 - var(--early, 0.15)) * var(--g2) * var(--g2) * (3 - 2 * var(--g2)));
@@ -337,25 +341,6 @@
   inline-size: 3.5rem;
 }
 
-/* Portrait phones/tablets: the start card is the 3:2 film window (deliberate, ~7% trimmed per side so
-   the dining table and kitchen island stay in frame), full width minus the gutter, under the header.
-   The chapter word sits fully above it, as wide as the screen. */
-@media (max-width: 62.49rem) and (orientation: portrait) {
-  .hero__words {
-    --word-shift: -78%;
-    font-size: min(clamp(3rem, 14vw, 8rem), calc((100vw - 2 * var(--gutter)) / 5.6));
-  }
-
-  /* Manual player: in the card window */
-  .hero__film {
-    inset-block-start: var(--it, 7rem);
-    inset-inline: var(--gutter);
-    inline-size: auto;
-    aspect-ratio: 3 / 2;
-    object-fit: cover;
-  }
-}
-
 /* Short portrait phones: the skip link already leads into the page; drop the duplicate link so
    the headline block never overlaps the framed film */
 @media (max-width: 62.49rem) and (orientation: portrait) and (max-height: 47.5rem) {
@@ -439,9 +424,184 @@
   }
 }
 
+/* Only in the phone-portrait layout */
+.hero__progress,
+.hero__cue {
+  display: none;
+}
+
+/* ---------- Phone portrait: vertical film in a tall card ----------
+   Top to bottom: concept label under the header, the chapter word cut in half by the card's top edge,
+   the 9:16 card (cover crop, centred), the headline straddling the card's bottom edge, subtitle, a
+   bronze scroll cue; the skip link alone at the side. Positions come from TourHero's measure()
+   (--it/--ib/--ix, --word-size, --copy-top, --label-dy); per frame only --p changes (transform/opacity). */
+@media (max-width: 62.49rem) and (orientation: portrait) {
+  /* Edge to edge, sized by the longest word so the size never jumps between chapters */
+  .hero__words {
+    --word-shift: -50%; /* card top runs through the middle of the capitals */
+    font-size: var(--word-size, 14vw);
+  }
+
+  /* Soft dark gradient at the card's bottom so the headline reads on the image; fades with it */
+  .hero__shade::after {
+    background: linear-gradient(to bottom, rgb(var(--ink-rgb) / 0) 62%, rgb(var(--ink-rgb) / 0.55));
+  }
+
+  /* Progress: 2px bronze line inside the card's bottom edge, filling from the right */
+  .hero__progress {
+    display: block;
+    position: absolute;
+    inset-inline: var(--radius, 6px);
+    inset-block-end: 0;
+    block-size: 2px;
+    transform: translateY(calc(var(--ib, 0px) * var(--k) * -1)) scaleX(var(--sx));
+    opacity: calc(1 - var(--g2));
+    pointer-events: none;
+  }
+
+  .hero__progress > span {
+    display: block;
+    block-size: 100%;
+    background: var(--bronze);
+    transform: scaleX(var(--p));
+    transform-origin: right;
+  }
+
+  .hero__inner {
+    position: relative;
+    padding-block-end: 1rem;
+  }
+
+  .hero__copy {
+    position: absolute;
+    inset-block-start: var(--copy-top, 62svh);
+    inset-inline: var(--gutter);
+    max-inline-size: none;
+    padding-block-end: 0;
+    text-shadow: 0 1px 1.25rem rgb(var(--ink-rgb) / 0.5);
+  }
+
+  /* Concept label: top of the hero, right under the header (positioned against the copy block) */
+  .hero__label {
+    position: absolute;
+    inset-block-start: var(--label-dy, -50svh);
+    inset-inline: 0;
+    margin: 0;
+    font-size: var(--fs-micro);
+  }
+
+  .hero__subtitle {
+    margin-block-start: 1rem;
+  }
+
+  /* The skip link already leads into the page */
+  .hero--scrub .hero__discover {
+    display: none;
+  }
+
+  /* Scroll cue: a short bronze line that runs down and fades, slowly; gone once scrolling starts */
+  .hero__cue {
+    display: block;
+    position: relative;
+    block-size: 2.75rem;
+    margin-block-start: 0.75rem;
+    opacity: clamp(0, calc(1 - var(--p) * 12), 1);
+  }
+
+  .hero__cue::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 1px;
+    block-size: 28px;
+    background: var(--bronze);
+    transform-origin: top;
+    animation: hero-cue 2.4s var(--ease-out) infinite;
+  }
+
+  /* No rule and no bottom row; what remains of the foot (play control, status) sits at the bottom */
+  .hero__foot {
+    grid-row: 2;
+    padding-block-start: 0;
+    border-block-start: 0;
+  }
+
+  /* Chapter label: small, in the card's top-right corner, following the card; fades as it fills */
+  .hero__chapter {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.75rem 0.875rem;
+    font-size: var(--fs-micro);
+    transform: translate(calc(var(--ix, 0px) * var(--k) * -1), calc(var(--it, 0px) * var(--k)));
+    opacity: calc(1 - var(--g2));
+    text-shadow: 0 1px 0.75rem rgb(var(--ink-rgb) / 0.6);
+  }
+
+  .hero__chapter::before {
+    content: '01 · ';
+    white-space: pre;
+  }
+
+  .hero__stage[data-chapter='1'] .hero__chapter::before {
+    content: '02 · ';
+  }
+
+  .hero__stage[data-chapter='2'] .hero__chapter::before {
+    content: '03 · ';
+  }
+
+  .hero__stage[data-chapter='3'] .hero__chapter::before {
+    content: '04 · ';
+  }
+
+  .hero__hint {
+    display: none;
+  }
+
+  /* Skip link: alone and small, at the side, level with the scroll cue */
+  .hero__skip {
+    position: absolute;
+    inset-block-end: 1rem;
+    inset-inline-end: var(--gutter);
+    font-size: var(--fs-micro);
+  }
+
+  /* Manual player: in the card window */
+  .hero__film {
+    inset-block: var(--it, 7rem) var(--ib, 20svh);
+    inset-inline: var(--gutter);
+    inline-size: auto;
+    block-size: auto;
+    aspect-ratio: auto;
+    object-fit: cover;
+  }
+}
+
+@keyframes hero-cue {
+  0% {
+    transform: scaleY(0);
+    opacity: 1;
+  }
+  45% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0.875rem) scaleY(1);
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero__video {
     transition: none;
+  }
+
+  .hero__cue::before {
+    animation: none;
   }
 }
 
