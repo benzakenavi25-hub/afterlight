@@ -73,4 +73,4 @@ Reproducible via `scripts/build-media.sh`.
 
 ## Update — exterior facade (2026-11-17)
 - `AFTERLIGHT-exterior.webp` (1672×941, supplied as an image in chat) → copied to incoming-media (original kept), derivatives `public/media/exterior-facade-{640,960,1280,1672}.{avif,webp}` (largest AVIF 112 KB). Used only by the exterior reveal. Built by scripts/build-media.sh.
-- Fonts/deps added for the reveal: `@fontsource/barlow-semi-condensed` (latin-800 only), `gsap` (lazy-loaded).
+- Fonts/deps added for the reveal: `@fontsource/cormorant-garamond` latin-700 (reveal lettering; Barlow removed), `gsap` (lazy-loaded).
