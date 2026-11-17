@@ -1,7 +1,18 @@
 /* On the shared plaster surface (transparent section) */
 .facts {
+  /* Over the end of the pinned exterior reveal: pulled up by --facts-pull (set by ExteriorReveal while
+     its exit runs) so the strip rises over the shrinking facade card */
+  position: relative;
+  z-index: 1;
+  margin-block-start: calc(var(--facts-pull, 0) * -100vh);
   padding-block: var(--section-space);
   color: var(--light);
+}
+
+@supports (height: 100lvh) {
+  .facts {
+    margin-block-start: calc(var(--facts-pull, 0) * -100lvh);
+  }
 }
 
 .facts__list {

@@ -1,6 +1,6 @@
 .hero {
   position: relative;
-  background: var(--ink);
+  background: transparent; /* the card sits on the shared plaster surface (PlasterBackground) */
   color: var(--light);
 }
 
@@ -25,11 +25,102 @@
   block-size: 100svh;
 }
 
-.hero__media,
-.hero__shade {
+/* ---------- Tour card ----------
+   Geometry vars come from TourHero (measured on resize): --it/--ib/--ix start insets, --dy start
+   offset of the card centre, --s0 start scale of the view, --sx0/--sy0 start size as a share of the
+   stage, --vw/--vh the film's 16:9 cover box. Per frame only --p changes (scrub engine); the rest is
+   derived here. Growth curve: a slow drift (--early share) until --grow-from, then the main growth
+   (smoothstep) to a full, square-cornered stage at the end of the tour. Without --p (static / manual
+   player) the card stays at its start size. Tuning: tourCard in media.ts. */
+.hero__media {
   position: absolute;
   inset: 0;
   z-index: -1;
+  --g1: clamp(0, var(--p) / var(--grow-from, 0.65), 1);
+  --g2: clamp(0, (var(--p) - var(--grow-from, 0.65)) / (1 - var(--grow-from, 0.65)), 1);
+  --g: calc(var(--early, 0.15) * var(--g1) + (1 - var(--early, 0.15)) * var(--g2) * var(--g2) * (3 - 2 * var(--g2)));
+  --k: calc(1 - var(--g)); /* 1 = start card, 0 = full stage */
+  /* card size as a share of the stage, and the film's own (uniform) scale */
+  --sx: calc(1 - (1 - var(--sx0, 1)) * var(--k));
+  --sy: calc(1 - (1 - var(--sy0, 1)) * var(--k));
+  --s: calc(var(--s0, 1) + (1 - var(--s0, 1)) * var(--g));
+}
+
+/* Transform only (composited, no repaint per frame): the full-stage card is scaled to the card size,
+   its content is counter-scaled so it never looks stretched. */
+.hero__card,
+.hero__cardshadow {
+  position: absolute;
+  inset: 0;
+  transform: translateY(calc(var(--dy, 0px) * var(--k))) scale(var(--sx), var(--sy));
+  will-change: transform;
+}
+
+/* Square clip on purpose: a rounded overflow clip masks the playing film on every frame (measured:
+   ~10× more slow frames at 1440). The rounding comes from .hero__corner caps instead. */
+.hero__card {
+  overflow: hidden;
+}
+
+/* Rounded corners without a mask: four tiny plaster-coloured caps, counter-scaled to stay round,
+   fading out as the card fills the stage */
+.hero__corner {
+  --r: var(--radius, 6px);
+  position: absolute;
+  inline-size: var(--r);
+  block-size: var(--r);
+  transform: scale(calc(1 / var(--sx)), calc(1 / var(--sy)));
+  opacity: var(--k);
+  pointer-events: none;
+}
+
+.hero__corner[data-c='tl'] {
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+  background: radial-gradient(circle at 100% 100%, transparent calc(var(--r) - 0.75px), var(--ink) var(--r));
+}
+
+.hero__corner[data-c='tr'] {
+  top: 0;
+  right: 0;
+  transform-origin: top right;
+  background: radial-gradient(circle at 0 100%, transparent calc(var(--r) - 0.75px), var(--ink) var(--r));
+}
+
+.hero__corner[data-c='bl'] {
+  bottom: 0;
+  left: 0;
+  transform-origin: bottom left;
+  background: radial-gradient(circle at 100% 0, transparent calc(var(--r) - 0.75px), var(--ink) var(--r));
+}
+
+.hero__corner[data-c='br'] {
+  bottom: 0;
+  right: 0;
+  transform-origin: bottom right;
+  background: radial-gradient(circle at 0 0, transparent calc(var(--r) - 0.75px), var(--ink) var(--r));
+}
+
+/* The film's 16:9 cover box: uniform scale --s on screen (card scale × this counter-scale) */
+.hero__view {
+  position: absolute;
+  top: 50%;
+  left: 50%; /* physical: centring does not depend on direction */
+  inline-size: var(--vw, 100%);
+  block-size: var(--vh, 100%);
+  translate: -50% -50%;
+  transform: scale(calc(var(--s) / var(--sx)), calc(var(--s) / var(--sy)));
+  will-change: transform;
+}
+
+/* Soft, deep shadow (same box as the card), fading out as the card fills */
+.hero__cardshadow {
+  border-radius: calc(var(--radius, 6px) / var(--sx)) / calc(var(--radius, 6px) / var(--sy));
+  box-shadow:
+    0 2.5rem 5rem -1.5rem rgb(0 0 0 / 0.6),
+    0 0.75rem 1.75rem rgb(0 0 0 / 0.28);
+  opacity: var(--k);
 }
 
 .hero__shade,
@@ -43,9 +134,7 @@
   inset: 0;
   inline-size: 100%;
   block-size: 100%;
-  object-fit: cover;
-  /* Keep the central walking axis (entrance → terrace) in frame on every crop */
-  object-position: 50% 50%;
+  object-fit: cover; /* the box is already 16:9: nothing is cropped inside it */
 }
 
 /* The film sits on the poster (identical first frame) and appears only once it can seek */
@@ -58,11 +147,67 @@
   opacity: 1;
 }
 
-/* Local shading: header band and the foot. The centre stays clear. */
+/* ---------- Chapter word behind the card ---------- */
+.hero__words {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: var(--it, 6rem);
+  translate: 0 var(--word-shift, -48%); /* wide: the upper half shows above the card edge */
+  block-size: 1em;
+  font-size: clamp(5rem, 13vw, 20rem);
+  line-height: 1;
+  opacity: calc(var(--word-opacity, 0.14) * var(--k)); /* swallowed by the growing card */
+  pointer-events: none;
+}
+
+.hero__word {
+  position: absolute;
+  inset: 0;
+  display: block;
+  font-family: var(--font-latin);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-indent: 0.12em; /* balances the trailing tracking */
+  white-space: nowrap;
+  color: var(--light);
+  opacity: 0;
+  transform: translateY(40%); /* waiting below */
+  transition:
+    transform 500ms var(--ease-out),
+    opacity 500ms var(--ease-out);
+}
+
+/* Before any chapter is set (static card, manual player): ENTRY */
+.hero__stage:not([data-chapter]) .hero__word[data-i='0'],
+.hero__stage[data-chapter='0'] .hero__word[data-i='0'],
+.hero__stage[data-chapter='1'] .hero__word[data-i='1'],
+.hero__stage[data-chapter='2'] .hero__word[data-i='2'],
+.hero__stage[data-chapter='3'] .hero__word[data-i='3'] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Words of chapters already passed wait above: scrolling down they rise out, scrolling up they come back down */
+.hero__stage[data-chapter='1'] .hero__word[data-i='0'],
+.hero__stage[data-chapter='2'] .hero__word:is([data-i='0'], [data-i='1']),
+.hero__stage[data-chapter='3'] .hero__word:is([data-i='0'], [data-i='1'], [data-i='2']) {
+  transform: translateY(-40%);
+}
+
+/* Inside the card: header band (always); ::after = corner shade under the headline (wide screens),
+   faded with opacity only, like the headline */
 .hero__shade {
-  background:
-    linear-gradient(to bottom, rgb(var(--ink-rgb) / 0.55), rgb(var(--ink-rgb) / 0) 9rem),
-    linear-gradient(to top, rgb(var(--ink-rgb) / 0.88) 0%, rgb(var(--ink-rgb) / 0.5) 38%, rgb(var(--ink-rgb) / 0) 64%);
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgb(var(--ink-rgb) / 0.5), rgb(var(--ink-rgb) / 0) 9rem);
+}
+
+.hero__shade::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: clamp(0, 1 - var(--p) * 10, 1);
 }
 
 .hero__sentinel {
@@ -75,7 +220,7 @@
 
 .hero__inner {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: 1fr auto;
   padding-block: calc(var(--header-h) + 1rem) 1.75rem;
   /* Let clicks reach the native video controls; controls inside re-enable it */
   pointer-events: none;
@@ -87,6 +232,7 @@
 }
 
 .hero__label {
+  margin-block-end: 1rem;
   font-size: var(--fs-micro);
   font-weight: 400;
   color: var(--light-muted);
@@ -191,25 +337,21 @@
   inline-size: 3.5rem;
 }
 
-/* Portrait phones/tablets: the 16:9 film is framed at 3:2 (deliberate, ~7% trimmed per side so the
-   dining table and kitchen island stay in frame) instead of being cropped to the full tall screen */
+/* Portrait phones/tablets: the start card is the 3:2 film window (deliberate, ~7% trimmed per side so
+   the dining table and kitchen island stay in frame), full width minus the gutter, under the header.
+   The chapter word sits fully above it, as wide as the screen. */
 @media (max-width: 62.49rem) and (orientation: portrait) {
-  .hero__media {
-    inset: auto;
-    inset-inline: 0;
-    inset-block-start: calc(var(--header-h) + 2.75rem);
-    aspect-ratio: 3 / 2;
+  .hero__words {
+    --word-shift: -78%;
+    font-size: min(clamp(3rem, 14vw, 8rem), calc((100vw - 2 * var(--gutter)) / 5.6));
   }
 
-  .hero__shade {
-    display: none;
-  }
-
+  /* Manual player: in the card window */
   .hero__film {
-    inset: 0;
-    inline-size: 100%;
-    block-size: 100%;
-    aspect-ratio: auto;
+    inset-block-start: var(--it, 7rem);
+    inset-inline: var(--gutter);
+    inline-size: auto;
+    aspect-ratio: 3 / 2;
     object-fit: cover;
   }
 }
@@ -236,13 +378,19 @@
   visibility: hidden;
 }
 
-@media (min-width: 62.5rem) {
-  .hero__shade {
-    background:
-      linear-gradient(to bottom, rgb(var(--ink-rgb) / 0.5), rgb(var(--ink-rgb) / 0) 10rem),
-      linear-gradient(to right, rgb(var(--ink-rgb) / 0) 45%, rgb(var(--ink-rgb) / 0.5) 72%, rgb(var(--ink-rgb) / 0.72) 100%),
-      linear-gradient(to top, rgb(var(--ink-rgb) / 0.55), rgb(var(--ink-rgb) / 0) 30%);
+/* Wide screens: the headline sits on the plaster in the lower right, overlapping the card's corner a
+   little; a corner shade inside the card keeps it legible there and fades out with it. */
+@media (min-width: 62.5rem), (orientation: landscape) {
+  .hero__shade::after {
+    background: radial-gradient(60% 65% at 100% 100%, rgb(var(--ink-rgb) / 0.8), rgb(var(--ink-rgb) / 0) 100%);
   }
+
+  .hero__copy {
+    text-shadow: 0 1px 1.5rem rgb(var(--ink-rgb) / 0.6);
+  }
+}
+
+@media (min-width: 62.5rem) {
 
   .hero__inner {
     grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -250,17 +398,17 @@
     padding-block-end: 2.25rem;
   }
 
-  .hero__label,
   .hero__foot {
     grid-column: 1 / -1;
   }
 
-  /* Right side (RTL start), raised so the centre axis stays open */
+  /* Lower right (RTL start), on the plaster, overlapping the card's corner */
   .hero__copy {
     grid-column: 1 / span 6;
-    align-self: center;
+    align-self: end;
     max-inline-size: none;
-    padding-block-end: 4rem;
+    margin-inline-start: calc(var(--gutter) * -0.5);
+    padding-block-end: 0.5rem;
   }
 
   .hero__subtitle {
@@ -309,15 +457,6 @@
 
   .hero__label {
     display: none;
-  }
-
-  /* label is hidden: pin copy and foot to their own rows so the foot stays at the bottom */
-  .hero__copy {
-    grid-row: 2;
-  }
-
-  .hero__foot {
-    grid-row: 3;
   }
 
   .hero__copy {

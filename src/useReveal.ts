@@ -20,7 +20,7 @@ const KINDS: [selector: string, kind: string][] = [
   ],
   ['.materials__item, .facts__item', 'block'],
 ];
-const SKIP = '.hero, #reveal, #spaces'; // opening + pinned stages
+const SKIP = '.hero, #reveal, #spaces, .materials--stack .materials__list'; // opening + pinned stages
 
 /** Replaces a heading's text with word windows; keeps the real text for assistive tech. */
 function splitWords(h: HTMLElement) {

@@ -163,6 +163,29 @@ export const tour = {
 };
 
 /**
+ * Tour card framing (TourHero). The film sits in a card on the plaster and grows with the same scroll
+ * progress as the film until it fills the stage at the terrace (seamless hand-off to the exterior reveal).
+ */
+export const tourCard = {
+  /**
+   * Card at the start of the tour (and the static card for reduced motion / no film).
+   * wide: share of the stage (width, height), centred — desktop and landscape screens.
+   * narrow: portrait phones/tablets (< 62.5rem): full width minus the page gutter on both sides,
+   * `ratio` = width / height of the film window, `top` = px between the header and the card
+   * (the chapter word sits there).
+   */
+  start: { wide: { w: 0.86, h: 0.76 }, narrow: { ratio: 3 / 2, top: 44 } },
+  /** Progress (0–1) where the main growth starts; the card grows mostly after it (last 35%). */
+  growFrom: 0.65,
+  /** Share of the growth that happens before growFrom (a slow drift). 0 = card still until then. */
+  early: 0.15,
+  /** Corner radius in px at the start; reaches 0 when the card fills the stage. */
+  radius: 6,
+  /** Opacity of the large chapter word behind the card (it also fades as the card grows). */
+  wordOpacity: 0.14,
+};
+
+/**
  * Exterior reveal (letters → facade). Everything tunable about the transition lives here.
  * See ExteriorReveal.tsx for how each value is used.
  */
@@ -182,6 +205,25 @@ export const reveal = {
   overshoot: 1.2,
   /** Photo crop (CSS object-position). Portrait keeps the penthouse glazing column in frame. */
   objectPosition: { landscape: '50% 50%', portrait: '54% 50%' },
+  /**
+   * Exit after the reveal has ended (name + descriptor shown): the facade shrinks into a card on the
+   * plaster while the facts strip rises over it. Added after the reveal; the reveal itself keeps its
+   * own scroll distance (`scroll`) unchanged.
+   */
+  exit: {
+    /** Extra scroll distance of the exit, in viewport heights (wide ≥ 62.5rem / narrow). */
+    scroll: { wide: 0.8, narrow: 0.8 },
+    /** Share of the exit (0–1) after which the facts strip starts rising from the bottom edge. */
+    factsFrom: 0.35,
+    /** Final card inset as a share of the stage: x = each side (0.07 → 86% wide), y = top and bottom. */
+    inset: { x: 0.07, y: 0.1 },
+    /** Final corner radius in px. */
+    radius: 6,
+    /** Final scale of the facade inside the card (moves slightly away). */
+    scale: 0.96,
+    /** Final darkening of the facade (opacity of a dark layer, 0 = none). */
+    dim: 0.22,
+  },
 };
 
 /**
@@ -209,4 +251,27 @@ export const stack = {
    * the last `split[1]`. `mid` is a warm stop so the change never passes through grey.
    */
   intro: { start: 'top 90%', end: 'top top', mid: '#a88a6d', split: [0.7, 0.3] as [number, number] },
+};
+
+/**
+ * Materials layers (MaterialDetails). Pinned section; the three photos are laid over each other with
+ * scroll. Copy and photos are in content.ts (materials).
+ */
+export const materials = {
+  /** Extra scroll distance in viewport heights beyond the pinned stage. Lower = shorter/faster. */
+  scroll: { wide: 2.5, narrow: 2 },
+  /**
+   * Share of the timeline (0–1) for each layer change [starts, ends]: stone over walnut, then textile
+   * over stone. The gaps before, between and after are the settled, readable holds.
+   */
+  transitions: [
+    [0.12, 0.42],
+    [0.58, 0.88],
+  ] as [number, number][],
+  /** Each photo zooms from this scale to 1 over its own reveal and hold (texture becomes tangible). */
+  zoom: 1.12,
+  /** Phones: frame height as a share of the smallest viewport height (svh). */
+  frameNarrow: 0.55,
+  /** Vertical offset of the incoming / outgoing caption, in px. */
+  textOffset: 10,
 };

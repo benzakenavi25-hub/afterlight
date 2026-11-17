@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { revealCopy } from '../data/content';
 import { reveal as cfg, stills } from '../data/media';
 import { ResponsiveImage } from './ResponsiveImage';
@@ -111,8 +111,23 @@ export function ExteriorReveal() {
   const kickerRef = useRef<HTMLParagraphElement>(null);
   const finalRef = useRef<HTMLDivElement>(null);
   const shadeRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const cardInRef = useRef<HTMLDivElement>(null);
+  const dimRef = useRef<HTMLDivElement>(null);
 
   const mode = imgFailed ? 'plain' : reduced || engineFailed ? 'static' : 'scrub';
+  const exitScroll = wide ? cfg.exit.scroll.wide : cfg.exit.scroll.narrow;
+
+  // Exit: the facts strip is pulled up so it starts rising from the bottom edge at `factsFrom` of the
+  // exit (it lies over the pinned stage; the card is clipped at its top edge). Only while scrubbing.
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    if (mode !== 'scrub') return;
+    root.style.setProperty('--facts-pull', String((1 - cfg.exit.factsFrom) * exitScroll));
+    return () => {
+      root.style.removeProperty('--facts-pull');
+    };
+  }, [mode, exitScroll]);
 
   // A failed photo must never block the page: fall back to a plain dark block with the name.
   useEffect(() => {
@@ -156,6 +171,9 @@ export function ExteriorReveal() {
       const kicker = kickerRef.current!;
       const final = finalRef.current!;
       const shade = shadeRef.current!;
+      const card = cardRef.current!;
+      const cardIn = cardInRef.current!;
+      const dim = dimRef.current!;
       const texts = [...svg.querySelectorAll<SVGTextElement>('.rw__text')];
 
       const metrics = measureStem();
@@ -234,13 +252,16 @@ export function ExteriorReveal() {
       layout();
 
       const [z0, z1] = cfg.zoom;
+      // The exit's scroll distance is added after the reveal; the reveal keeps exactly its own distance.
+      const exitPx = () => exitScroll * stage.offsetHeight;
+      const revealPx = () => Math.max(1, section.offsetHeight - stage.offsetHeight - exitPx());
       const tl = gsap.timeline({
         defaults: { ease: 'none' },
         scrollTrigger: {
           trigger: section,
           start: 'top top',
-          // distance = section minus stage, in px: independent of the (mobile) visual viewport height
-          end: () => '+=' + Math.max(1, section.offsetHeight - stage.offsetHeight),
+          // distance = section minus stage minus exit, in px: independent of the (mobile) visual viewport height
+          end: () => '+=' + revealPx(),
           scrub: true,
           invalidateOnRefresh: true,
         },
@@ -252,6 +273,44 @@ export function ExteriorReveal() {
         .fromTo(shade, { opacity: 0 }, { opacity: 1, duration: 0.1 }, z1)
         .fromTo(final, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.1 }, z1);
       tl.to({}, { duration: Math.max(0, 1 - tl.duration()) }, tl.duration());
+
+      // ---- Exit: facade → card on the plaster, facts strip rising over it (scrubbed, reversible) ----
+      const facts = document.getElementById('facts');
+      const shrinkEase = gsap.parseEase('power1.inOut');
+      const ex = { t: 0 };
+      const applyExit = () => {
+        if (ex.t <= 0) {
+          // exactly the full-screen state of the reveal's end
+          card.style.clipPath = '';
+          cardIn.style.transform = '';
+          dim.style.opacity = '';
+          return;
+        }
+        const k = shrinkEase(ex.t);
+        const W = stage.clientWidth;
+        const H = stage.clientHeight;
+        const ix = k * cfg.exit.inset.x * W;
+        const iy = k * cfg.exit.inset.y * H;
+        // the card ends where the rising facts strip begins (it reads as sliding over the card)
+        const factsTop = facts ? facts.getBoundingClientRect().top - stage.getBoundingClientRect().top : H;
+        const ib = Math.max(iy, H - factsTop);
+        card.style.clipPath = 'inset(' + iy + 'px ' + ix + 'px ' + ib + 'px ' + ix + 'px round ' + k * cfg.exit.radius + 'px)';
+        cardIn.style.transform = 'scale(' + (1 - (1 - cfg.exit.scale) * k) + ')';
+        dim.style.opacity = String(k * cfg.exit.dim);
+      };
+      const exitTween = gsap.to(ex, {
+        t: 1,
+        ease: 'none',
+        onUpdate: applyExit,
+        scrollTrigger: {
+          trigger: section,
+          start: () => 'top+=' + revealPx() + ' top',
+          end: () => '+=' + exitPx(),
+          scrub: true,
+          invalidateOnRefresh: true,
+          onRefresh: applyExit,
+        },
+      });
 
       let first = true;
       let raf = 0;
@@ -276,6 +335,11 @@ export function ExteriorReveal() {
         ro.disconnect();
         tl.scrollTrigger?.kill();
         tl.kill();
+        exitTween.scrollTrigger?.kill();
+        exitTween.kill();
+        card.style.clipPath = '';
+        cardIn.style.transform = '';
+        dim.style.opacity = '';
         gsap.set([kicker, veil, wall, final, shade], { clearProps: 'all' });
         word.removeAttribute('transform');
         delete section.dataset.ready;
@@ -299,10 +363,11 @@ export function ExteriorReveal() {
       clearTimeout(timer);
       teardown?.();
     };
-  }, [mode, wide]);
+  }, [mode, wide, exitScroll]);
 
   const style = {
     '--rw-travel': wide ? cfg.scroll.wide : cfg.scroll.narrow,
+    '--rw-exit': exitScroll,
     '--rw-pos-landscape': cfg.objectPosition.landscape,
     '--rw-pos-portrait': cfg.objectPosition.portrait,
   } as CSSProperties;
@@ -310,6 +375,9 @@ export function ExteriorReveal() {
   return (
     <section ref={sectionRef} id="reveal" className={'rw rw--' + mode} style={style} aria-labelledby="rw-title">
       <div ref={stageRef} className="rw__stage">
+        {/* Exit card: no effect until the exit starts (then clip-path on the card, scale + dim inside) */}
+        <div ref={cardRef} className="rw__card">
+        <div ref={cardInRef} className="rw__cardin">
         <ResponsiveImage still={stills['exterior-facade']} sizes="(max-aspect-ratio: 16/9) 178vh, 100vw" eagerLow className="rw__img" />
 
         {mode === 'scrub' && (
@@ -351,11 +419,14 @@ export function ExteriorReveal() {
         )}
 
         <div ref={shadeRef} className="rw__shade" aria-hidden="true" />
+        <div ref={dimRef} className="rw__dim" aria-hidden="true" />
         <div ref={finalRef} className="rw__final">
           <h2 id="rw-title" className="latin" lang="en">
             {revealCopy.name}
           </h2>
           <p>{revealCopy.descriptor}</p>
+        </div>
+        </div>
         </div>
       </div>
     </section>

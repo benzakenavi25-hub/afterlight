@@ -1,9 +1,36 @@
 # AFTERLIGHT — Progress
 
 ## Current stage
-Round 2 complete (stages 1–6). Stages 1–4 merged to main (PR #2) and deployed; stages 5–6 on branch claude/wonderful-franklin-rs58ie.
+Round 3 stages 1–3 done (tour card, materials layers, exterior-reveal exit) — on the branch, waiting for approval. Round 2 (6 stages) merged and deployed.
 
 Stage 5 complete. All stages done. **Deployed (2026-11-16) to https://benzakenavi25-hub.github.io/afterlight/ (repo benzakenavi25-hub/afterlight, GitHub Pages via Actions). Still not ready for final launch** (blockers below). Details: docs/HANDOFF.md.
+
+## Round 3 (2026-11-17) — tour card + materials layers. Off-limits: ElevatorDoors, ExteriorReveal, the tour scrub logic (progress → currentTime, film loading, fallbacks).
+
+### Stage 1 — tour in a card — completed
+- TourHero framing only. The film (poster + video) sits in a card on the plaster: `.hero__card` (full stage, transform scale(sx, sy) to the card size) → `.hero__view` (the film's 16:9 cover box, counter-scaled so the film's own scale is uniform). Start: desktop/landscape 86% × 76% of the stage, centred (76%, not 80%: at 80% the foot rule crossed the card); portrait < 62.5rem: full width minus gutter, 3:2, 44px under the header. Grows with the tour's own `--p` to the full stage at the terrace: slow drift (15%) until p 0.65, then smoothstep. All derived in CSS from `--p`; a ResizeObserver hands the start geometry to CSS as px vars. Tunables: `tourCard` (media.ts).
+- Rounded corners: 4 tiny plaster caps (counter-scaled, fade out), NOT an overflow+radius clip — measured at 1440: rounded clip 30–36 slow frames per 2 sweeps vs 2–5 without (it masks the playing film every frame). First attempt with clip-path inset: 15–29 slow frames; transform version + caps: 1–4 (current main measured in the same run: 0–2).
+- Shadow: separate box with the card's transform, opacity fades with growth. Corner shade under the headline (wide) = opacity-only layer.
+- Chapter word (ENTRY / KITCHEN / LIVING / TERRACE, `hero.chapterWords` in content.ts) behind the card: Cormorant, clamp(5rem, 13vw, 20rem) (18vw would not fit KITCHEN at 1440), opacity 0.14 × remaining card margin (swallowed as the card grows). Desktop: upper half above the card's top edge (overlaps the header zone); phones: above the card, sized to the screen width. Swap 500ms transform+opacity by chapter index, so it reverses with scroll direction. The only line added inside the scrub update: `stage.dataset.chapter` on chapter change (framing).
+- Headline block (label moved into it) on the plaster: desktop lower right overlapping the card corner; phones below the card as before. Fades as before.
+- Reduced motion / no film / Save-Data / failure mid-tour: static start card with the poster and ENTRY (`--p` and chapter cleared).
+- Checks (Playwright Chromium, vite preview, emulation): 360/390/768/1024/1440/1920/844×390: 0 overflow, at the end of the tour the card transform is identity and the film box covers the stage; hero → #reveal gap 0. LCP vs current main in the same run (slow-4G-like): 390 4×CPU 1.54–1.59 s vs 1.48–1.61 s; 1440 1.37–1.44 s vs 1.35–1.38 s (now the chapter word is the LCP element at 1440, poster preload unchanged). Sweeps: 390 4×CPU 0–2 slow frames (same as main). Reduced motion: no mp4 request, ENTRY shown, start card.
+- Not verified: real phones/GPU compositing, Safari/Firefox.
+
+### Stage 2 — materials as layered samples — completed
+- MaterialDetails: `stack` mode = CSS-sticky stage (section height reserved in CSS: 100lvh × (1 + travel), no pin-spacer). One scrubbed GSAP timeline (lazy, `scrub: true`, `ignoreMobileResize`, gsap.context revert): stone then textile laid over the previous sample from the bottom up (clip-path inset 100% → 0), thin shadow on the incoming top edge (transform, fades at the end), each photo zooms 1.12 → 1 over its reveal and hold, caption "01 — אגוז כהה" / "02 — אבן" / "03 — טקסטיל" swaps (transform + opacity), three-part bronze progress line fills right → left. Desktop: frame on the left (6fr of the container, ≤72svh), MATERIALITY + heading + caption + progress on the right; phones: frame 55svh on top, text below.
+- The materials stay a real list: ul/li with subgrid (every item shares the frame and caption cells); the animation only styles it. Number added to the h3 (visible in both modes).
+- `flow` (reduced motion, max-height 32em incl. landscape phones, content that does not fit, GSAP failure): the previous cards. useReveal skips the stacked list.
+- Tunables: `materials` in media.ts (scroll 2.5 / 2, transitions [0.12–0.42], [0.58–0.88], zoom 1.12, frameNarrow 0.55, textOffset 10).
+- Checks (Playwright Chromium, vite preview, emulation): 360/390/768/1024/1440/1920: stack, 0 overflow; 844×390 → flow. Reversible: state at mid-progress identical after scrolling past and back. Sweeps: 390 4×CPU and 1440: 0 slow frames (p95 18 / 17 ms). Nav "מיקום" lands 88px from the top (same as main); skip link → #main; no focusable elements inside the stage. Reduced motion / GSAP blocked: flow with 3 images with alt.
+
+### Stage 3 — exit from the exterior reveal — completed
+- Added after the reveal's end only; letters, mask, name and descriptor untouched. The section gets `reveal.exit.scroll` extra viewport heights; the reveal timeline's end is now section − stage − exit px, i.e. exactly its previous distance (390: 1012.8px = 1.2 × 844; 1440: 1350px = 1.5 × 900).
+- Stage content wrapped in `.rw__card` > `.rw__cardin` (no styles until the exit; `display: contents` in static/plain). Second scrubbed ScrollTrigger (same engine, CSS sticky, no pin-spacer): card clip-path inset → x 7% (86% wide) / y 10%, radius 0 → 6px (power1.inOut), facade scale 1 → 0.96, dark layer 0 → 0.22. At t = 0 all inline styles are cleared (exact full screen).
+- Facts strip rises over the card: ExteriorReveal sets `--facts-pull` on :root while scrubbing ((1 − factsFrom) × exit = 0.52 viewport heights); `.facts` is pulled up by it (relative, z-index 1). The card's bottom inset follows the strip's top edge, so the strip reads as sliding over the card with the fixed plaster behind it (no extra background, no seam). Facts start rising at 35% of the exit.
+- Tunables: `reveal.exit` (scroll, factsFrom, inset, radius, scale, dim).
+- Reduced motion / GSAP failure: static reveal as before, no pull (facts margin 0, gap 0).
+- Checks (Playwright Chromium, vite preview): 360/390/768/1440/1920/844×390: 0 overflow, stage pinned at 0 through the exit, scrolling back to the reveal end restores the full screen (no inline clip/transform, name opacity 1). Sweeps through the exit: 390 4×CPU and 1440: 0 slow frames. Nav #reveal / #spaces / #location land 88px from the top; skip link → #main.
 
 ## Round 2 (2026-11-17) — 6 stages, approval after each. Off-limits: ElevatorDoors, TourHero, ExteriorReveal. Phone (390×844) first.
 
