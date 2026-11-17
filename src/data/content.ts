@@ -140,7 +140,6 @@ export const b2b = {
   heading: 'רוצים להציג נכס בצורה כזאת?',
   text: 'אתרי נדל״ן קולנועיים בהתאמה אישית — Benzaken Studio.',
   cta: 'לדבר על האתר שלכם',
-  pendingNote: 'קישור יצירת הקשר של הסטודיו יתווסף לפני העלייה לאוויר.',
 };
 
 export const footer = {

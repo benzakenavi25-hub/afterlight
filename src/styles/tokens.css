@@ -39,7 +39,7 @@
   --fs-lead: clamp(1.125rem, 1.05rem + 0.35vw, 1.3125rem);
   --fs-body: clamp(1.0625rem, 1.03rem + 0.12vw, 1.125rem);
   --fs-small: 0.9375rem;
-  --fs-micro: 0.8125rem;
+  --fs-micro: 0.9375rem; /* 15px floor for small labels (scroll hint, chapter, footer, captions) */
 
   /* Layout */
   --content-max: 1320px;

@@ -138,6 +138,22 @@ main:focus {
 }
 
 
+/* Primary action: filled bronze, ink text (4.8:1) */
+.btn--primary {
+  min-block-size: 3.25rem;
+  padding-inline: 2rem;
+  border-color: var(--bronze);
+  background: var(--bronze);
+  color: var(--ink);
+  font-size: var(--fs-body);
+  font-weight: 500;
+}
+
+.btn--primary:hover {
+  border-color: var(--light);
+  background: var(--light);
+  color: var(--ink);
+}
 
 /* Secondary reveal (set up by useReveal only when motion is allowed) */
 [data-reveal] {

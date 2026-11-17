@@ -72,8 +72,15 @@
 }
 
 .contact__submit {
-  justify-self: start;
+  justify-self: stretch; /* full width on phones */
   margin-block-start: 0.5rem;
+}
+
+@media (min-width: 40rem) {
+  .contact__submit {
+    justify-self: start;
+    min-inline-size: 14rem;
+  }
 }
 
 .contact__status {
@@ -96,11 +103,6 @@
 }
 
 .studio__text {
-  color: var(--light-muted);
-}
-
-.studio__pending {
-  font-size: var(--fs-micro);
   color: var(--light-muted);
 }
 

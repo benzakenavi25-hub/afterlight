@@ -104,7 +104,7 @@ export function DemoContact() {
             </label>
             <textarea id="f-message" name="message" rows={4} />
           </div>
-          <button className="btn btn--light contact__submit" type="submit">
+          <button className="btn btn--primary contact__submit" type="submit">
             {contact.submit}
           </button>
           <p className="contact__status" role="status">
@@ -117,12 +117,10 @@ export function DemoContact() {
             {b2b.heading}
           </h2>
           <p className="studio__text">{b2b.text}</p>
-          {studio.contactHref ? (
+          {studio.contactHref && (
             <a className="btn btn--light" href={studio.contactHref}>
               {b2b.cta}
             </a>
-          ) : (
-            <p className="studio__pending">{b2b.pendingNote}</p>
           )}
         </aside>
       </div>

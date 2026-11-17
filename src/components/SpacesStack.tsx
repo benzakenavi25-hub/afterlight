@@ -75,9 +75,9 @@ const cropStyle = (stage: Stage) =>
 /**
  * Three spaces, one composition. The whole composition (text + image frame) is one CSS-sticky stage,
  * like the tour and the exterior reveal, so pins never fight. One scrubbed GSAP timeline maps scroll
- * to: incoming photo cards rising over the previous ones (transform only, inside a clipped frame),
- * and the stage text swapping. Before any of that, a short time-based intro (not scrubbed) turns the section
- * from warm ivory to the site's plaster surface, then fades the text in; it reverses when scrolling back above.
+ * to: incoming photo cards crossfading over the previous ones (opacity + a slight settle in scale),
+ * and the stage text swapping. Before that, while the section scrolls up into place, a scrubbed intro turns
+ * the section from warm ivory through warm sand to the site's plaster surface, then fades the text in.
  * Reduced motion, short viewports or text that would not fit fall back to a plain document flow.
  */
 export function SpacesStack() {
@@ -143,17 +143,21 @@ export function SpacesStack() {
 
         gsap.set(section, { backgroundColor: startColor });
         gsap.set(textBox, { autoAlpha: 0, y: off });
-        gsap.set(cards, { y: 0, yPercent: (i: number) => (i === 0 ? 0 : 100) });
+        // Cards change by crossfade, never by sliding: no moment where one room's ceiling cuts across another.
+        gsap.set(cards, { autoAlpha: (i: number) => (i === 0 ? 1 : 0), scale: (i: number) => (i === 0 ? 1 : cfg.cardScale) });
         gsap.set(texts, { y: (i: number) => (i === 0 ? 0 : off), autoAlpha: (i: number) => (i === 0 ? 1 : 0) });
 
-        // Intro, on time not scroll: background first, then the text. The image swaps come later (scrubbed).
+        // Intro, scrubbed by scroll while the section rises into place: ivory → warm sand → plaster
+        // (the sand stop keeps the midpoint warm instead of grey), then the first text fades in.
+        const [bgShare, textShare] = cfg.intro.split;
         gsap
           .timeline({
-            paused: true,
-            scrollTrigger: { trigger: section, start: cfg.intro.start, toggleActions: 'play none none reverse' },
+            defaults: { ease: 'none' },
+            scrollTrigger: { trigger: section, start: cfg.intro.start, end: cfg.intro.end, scrub: true },
           })
-          .to(section, { backgroundColor: endColor, duration: cfg.intro.bg, ease: 'power1.inOut' })
-          .to(textBox, { autoAlpha: 1, y: 0, duration: cfg.intro.text, ease: 'power2.out' });
+          .to(section, { backgroundColor: resolvedColor(cfg.intro.mid), duration: bgShare / 2 })
+          .to(section, { backgroundColor: endColor, duration: bgShare / 2 })
+          .to(textBox, { autoAlpha: 1, y: 0, duration: textShare }, 1 - textShare);
 
         const tl = gsap.timeline({
           defaults: { ease: 'none' },
@@ -172,8 +176,8 @@ export function SpacesStack() {
 
         cfg.transitions.forEach(([a, b], i) => {
           const d = b - a;
-          // the incoming card covers the previous one; the previous one stays put underneath
-          tl.to(cards[i + 1], { yPercent: 0, duration: d, ease: 'power1.inOut' }, a);
+          // the incoming card fades in over the previous one, which stays put underneath
+          tl.to(cards[i + 1], { autoAlpha: 1, scale: 1, duration: d, ease: 'power1.inOut' }, a);
           // previous text out in the first part, next text in during the last part
           tl.to(texts[i], { autoAlpha: 0, y: -off, duration: d * 0.4 }, a);
           tl.to(texts[i + 1], { autoAlpha: 1, y: 0, duration: d * 0.4 }, a + d * 0.6);

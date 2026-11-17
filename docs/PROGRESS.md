@@ -1,7 +1,21 @@
 # AFTERLIGHT — Progress
 
 ## Current stage
+Round 2, stage 1 done — waiting for approval of stage 2 (text animations).
+
 Stage 5 complete. All stages done. **Deployed (2026-11-16) to https://benzakenavi25-hub.github.io/afterlight/ (repo benzakenavi25-hub/afterlight, GitHub Pages via Actions). Still not ready for final launch** (blockers below). Details: docs/HANDOFF.md.
+
+## Round 2 (2026-11-17) — 6 stages, approval after each. Off-limits: ElevatorDoors, TourHero, ExteriorReveal. Phone (390×844) first.
+
+### Stage 1 — phone fixes — completed
+- Small labels ≥15px: `--fs-micro` 13→15px (token only; reaches the hero hint/chapter without touching TourHero), footer, wordmark descriptor. Measured at 360/390/768/1440: hint, chapter, stage meta, footer all 15px; material captions / B2B 17–18px.
+- MATERIALITY: opacity 0.16 (1.6:1) → solid mix of light 45% / ink ≈3.7:1 (large-text AA). THE HORIZON: weight 500 + `--text-muted` (6.3:1 on paper).
+- SpacesStack: time-based intro → scrubbed by scroll (`top 90%` → `top top`): ivory → warm sand `#a88a6d` → plaster (no grey midpoint), text fades in over the last 30%. Cards crossfade (opacity + scale 1.04→1) instead of sliding: no ceiling/window cut. Tunables: `stack.intro`, `stack.cardScale` (media.ts). Flow mode (reduced motion) unchanged.
+- Materials → terrace: new `useScrollTone` (rAF, active only near view, off under reduced motion) sets `--tone` from the text block's position (100% → 55% of the viewport); terrace surface = color-mix(paper, transparent) over the plaster; terrace text opacity follows the tone, so it is never dark on dark. No JS / reduced motion → ivory as before.
+- B2B: pending note removed from the UI and from content.ts; empty `studio.contactHref` → heading + text only.
+- New `.btn--primary` (bronze fill, ink text 4.8:1, 52px). "הדגמת שליחה" uses it; full width under 40rem.
+- Checks (Playwright Chromium, dev server, emulation): 360/390/768/1440 × normal/reduced motion: 0 horizontal overflow over a full-page scroll, header no overflow at 360, console clean, scrub/flow modes as expected; build passes. Phone screenshots reviewed (spaces intro, crossfade, materials, terrace midway/settled, form, B2B/footer).
+- Note: the terrace → contact edge (ivory → dark) is still a hard edge (not in scope).
 
 ## Working rules (Abraham, 2026-11-16)
 Token-frugal: read only stage-relevant brief sections/files, concise PROGRESS, no full rescans, checks proportional to change, short report, stop for approval.

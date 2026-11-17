@@ -11,8 +11,8 @@
   font-weight: 400;
   line-height: 0.9;
   letter-spacing: 0.04em;
-  color: var(--light);
-  opacity: 0.16;
+  /* Quiet but readable: about 3.7:1 on the plaster (large-text AA ≥3:1) */
+  color: color-mix(in srgb, var(--light) 45%, var(--ink));
   text-align: start; /* LTR element: sits on the left, opposite the Hebrew heading */
   overflow-wrap: anywhere;
 }
