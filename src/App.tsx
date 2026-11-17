@@ -5,6 +5,7 @@ import { Facts } from './components/Facts';
 import { MobileBar } from './components/MobileBar';
 import { SpacesStack } from './components/SpacesStack';
 import { MaterialDetails } from './components/MaterialDetails';
+import { Location } from './components/Location';
 import { Terrace } from './components/Terrace';
 import { DemoContact } from './components/DemoContact';
 import { Footer } from './components/Footer';
@@ -31,6 +32,7 @@ export default function App() {
         <SpacesStack />
         <MaterialDetails />
         <Terrace />
+        <Location />
         <DemoContact />
       </main>
       <Footer />

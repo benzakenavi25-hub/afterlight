@@ -1,7 +1,7 @@
 # AFTERLIGHT — Progress
 
 ## Current stage
-Round 2, stages 1–4 done (stages 2–4 approved to run without stopping). Next: stage 5 (location).
+Round 2 complete (stages 1–6). Stages 1–4 merged to main (PR #2) and deployed; stages 5–6 on branch claude/wonderful-franklin-rs58ie.
 
 Stage 5 complete. All stages done. **Deployed (2026-11-16) to https://benzakenavi25-hub.github.io/afterlight/ (repo benzakenavi25-hub/afterlight, GitHub Pages via Actions). Still not ready for final launch** (blockers below). Details: docs/HANDOFF.md.
 
@@ -30,6 +30,16 @@ Stage 5 complete. All stages done. **Deployed (2026-11-16) to https://benzakenav
 ### Stage 4 — materials in one screen — completed
 - Phones: horizontal scroll-snap row (RTL, card 85% so the next peeks ~15%, edge-to-edge bleed, hidden scrollbar, list focusable with aria-label for keyboard scrolling); tablets 45% cards; desktop three in a row (stagger removed). Card = 4:5 image (max 52svh) + h3 name + one line.
 - Checks (light, per instruction): build; 360/390/768/1440 × normal/reduced: 0 overflow, counters end at final values, bar shown at materials and hidden at the form, headings reach "in", console clean. One phone screenshot set.
+
+### Stage 5 — location — completed
+- `Location.tsx/.css` after the terrace, same ivory surface: THE LOCATION / "הקו הראשון לים." / fictional coastal city copy (content.ts `location`). Nav gets "מיקום" (#location).
+- Code-drawn SVG (400×320, not a map): bronze coastline drawn with scroll (`useScrollTone` on the map, pathLength 1 + stroke-dashoffset), then home ring, then sea / promenade / city centre with dashed links, one after another (`--at` thresholds). Labels 18 units (≥15px at 360). SVG aria-hidden; same information in a visually-hidden description + list. Reduced motion / no JS: fully drawn.
+
+### Stage 6 — visit slot picker (demo) — completed
+- `SlotPicker.tsx` inside #visit before the fields: next 7 days from today (Intl he-IL; phone: horizontal row bleeding to the edges; ≥40rem: 7 columns), then 4 times (10:00, 13:00, 16:30, 18:30 "שעת השקיעה"). Real buttons, aria-pressed, fieldset/legend, arrow keys (RTL ← = next) + Home/End within each group. Selected = bronze fill.
+- Validation adds "נא לבחור יום ושעה לביקור." (focus to the first day). Valid submit → confirmation card replaces the form ("הביקור שלכם · יום …, … · 18:30" + demo line + "לבחור מועד אחר" → back to an empty form, focus on the first day). `#visit` moved to a wrapper so links and the phone bar work in both states. Nothing sent or stored.
+- Checks (light): build; 360/390/768/1024/1440 × normal/reduced: 0 overflow, header nav fits with the new item, slot error → card → back flow and keyboard arrows verified, console clean. One phone screenshot set.
+- Still open: terrace/location (ivory) → contact (dark) is a hard edge; flow-mode kitchen background `#dcd2c4`.
 
 ## Working rules (Abraham, 2026-11-16)
 Token-frugal: read only stage-relevant brief sections/files, concise PROGRESS, no full rescans, checks proportional to change, short report, stop for approval.
