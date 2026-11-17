@@ -233,3 +233,26 @@ export const stack = {
    */
   intro: { start: 'top 90%', end: 'top top', mid: '#a88a6d', split: [0.7, 0.3] as [number, number] },
 };
+
+/**
+ * Materials layers (MaterialDetails). Pinned section; the three photos are laid over each other with
+ * scroll. Copy and photos are in content.ts (materials).
+ */
+export const materials = {
+  /** Extra scroll distance in viewport heights beyond the pinned stage. Lower = shorter/faster. */
+  scroll: { wide: 2.5, narrow: 2 },
+  /**
+   * Share of the timeline (0–1) for each layer change [starts, ends]: stone over walnut, then textile
+   * over stone. The gaps before, between and after are the settled, readable holds.
+   */
+  transitions: [
+    [0.12, 0.42],
+    [0.58, 0.88],
+  ] as [number, number][],
+  /** Each photo zooms from this scale to 1 over its own reveal and hold (texture becomes tangible). */
+  zoom: 1.12,
+  /** Phones: frame height as a share of the smallest viewport height (svh). */
+  frameNarrow: 0.55,
+  /** Vertical offset of the incoming / outgoing caption, in px. */
+  textOffset: 10,
+};

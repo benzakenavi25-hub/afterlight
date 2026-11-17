@@ -1,8 +1,6 @@
 .materials {
-  padding-block: var(--section-space);
   background: transparent; /* shared plaster surface: PlasterBackground */
   color: var(--light);
-  overflow: hidden;
 }
 
 /* Large selective English word, decorative (the Hebrew H2 carries the meaning) */
@@ -23,44 +21,16 @@
   font-size: var(--fs-h2);
 }
 
-/* Phones/tablets: horizontal snap row, bleeding to the screen edges; the next card peeks ~15% */
 .materials__list {
-  --card: 85%;
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: var(--card);
-  gap: 1rem;
-  margin: clamp(2rem, 1.5rem + 3vw, 5rem) calc(var(--gutter) * -1) 0;
-  padding: 0 var(--gutter) 0.5rem;
+  margin: 0;
+  padding: 0;
   list-style: none;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-  scroll-padding-inline: var(--gutter);
-  scrollbar-width: none;
-}
-
-.materials__list::-webkit-scrollbar {
-  display: none;
-}
-
-.materials__list:focus-visible {
-  outline: 2px solid var(--bronze);
-  outline-offset: 4px;
-}
-
-.materials__item {
-  display: grid;
-  align-content: start;
-  gap: 0.375rem;
-  scroll-snap-align: start;
 }
 
 .materials__img {
+  display: block;
   inline-size: 100%;
-  aspect-ratio: 4 / 5;
-  max-block-size: 52svh; /* keeps label, heading and card inside one phone screen */
-  margin-block-end: 0.625rem;
+  block-size: 100%;
   object-fit: cover;
   background: var(--ink-2);
 }
@@ -72,19 +42,81 @@
   color: var(--light);
 }
 
+.mat__num {
+  font-size: 1.125rem;
+  letter-spacing: 0.12em;
+  color: var(--light-muted);
+}
+
 .materials__text {
   color: var(--light-muted);
 }
 
+.mat__edge {
+  display: none;
+}
+
+/* ================= Flow: the previous cards (reduced motion, short screens, fallback) ================= */
+.materials--flow {
+  padding-block: var(--section-space);
+  overflow: hidden;
+}
+
+/* Phones/tablets: horizontal snap row, bleeding to the screen edges; the next card peeks ~15% */
+.materials--flow .materials__list {
+  --card: 85%;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--card);
+  gap: 1rem;
+  margin: clamp(2rem, 1.5rem + 3vw, 5rem) calc(var(--gutter) * -1) 0;
+  padding: 0 var(--gutter) 0.5rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  scrollbar-width: none;
+}
+
+.materials--flow .materials__list::-webkit-scrollbar {
+  display: none;
+}
+
+.materials--flow .materials__list:focus-visible {
+  outline: 2px solid var(--bronze);
+  outline-offset: 4px;
+}
+
+.materials--flow .materials__item {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  scroll-snap-align: start;
+}
+
+.materials--flow .mat__layer {
+  aspect-ratio: 4 / 5;
+  max-block-size: 52svh; /* keeps label, heading and card inside one phone screen */
+  overflow: hidden;
+}
+
+.materials--flow .mat__inner {
+  block-size: 100%;
+}
+
+.materials--flow .mat__cap {
+  display: grid;
+  gap: 0.375rem;
+}
+
 @media (min-width: 40rem) {
-  .materials__list {
+  .materials--flow .materials__list {
     --card: 45%;
   }
 }
 
-/* Desktop: three in a row, no scrolling */
 @media (min-width: 62.5rem) {
-  .materials__list {
+  .materials--flow .materials__list {
     grid-auto-flow: row;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: clamp(1.5rem, 3vw, 3.5rem);
@@ -93,7 +125,177 @@
     overflow: visible;
   }
 
-  .materials__img {
+  .materials--flow .mat__layer {
     max-block-size: none;
+  }
+}
+
+/* ================= Stack: pinned layers ================= */
+/* Section = stage + scroll distance, reserved up front (no pin-spacer, no shift when GSAP loads) */
+.materials--stack {
+  block-size: calc(100vh * (1 + var(--travel, 2)));
+}
+
+.mat__stage {
+  position: relative;
+}
+
+.materials--stack .mat__stage {
+  position: sticky;
+  inset-block-start: 0;
+  block-size: 100vh;
+  overflow: clip; /* clip, not hidden: must not become a scroll container for sticky */
+}
+
+@supports (height: 100lvh) {
+  .materials--stack {
+    block-size: calc(100lvh * (1 + var(--travel, 2)));
+  }
+
+  .materials--stack .mat__stage {
+    block-size: 100lvh;
+  }
+}
+
+/* Phones (one column): frame on top, then heading, caption, progress */
+.materials--stack .mat__grid {
+  --pad: clamp(0.75rem, 2.5svh, 2rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: calc(var(--frame-narrow, 0.55) * 100svh) auto auto auto;
+  grid-template-areas: 'frame' 'head' 'cap' 'prog';
+  align-content: start;
+  row-gap: clamp(0.75rem, 2svh, 1.25rem);
+  block-size: 100vh;
+  padding-block: calc(var(--header-h) + var(--pad)) max(var(--pad), env(safe-area-inset-bottom));
+  overflow: hidden; /* fit check: content taller than this falls back to flow */
+}
+
+@supports (height: 100svh) {
+  .materials--stack .mat__grid {
+    block-size: 100svh;
+  }
+}
+
+.materials--stack .mat__head {
+  grid-area: head;
+}
+
+.materials--stack .materials__word {
+  font-size: clamp(1.75rem, 1rem + 3vw, 5.5rem);
+}
+
+.materials--stack .materials__title {
+  margin-block-start: 0.5rem;
+}
+
+/* Every item shares the frame and caption cells (subgrid): the list stays a real list */
+.materials--stack .materials__list,
+.materials--stack .materials__item {
+  display: grid;
+  grid-area: 1 / 1 / -1 / -1;
+  grid-template-columns: subgrid;
+  grid-template-rows: subgrid;
+}
+
+.materials--stack .mat__layer {
+  grid-area: frame;
+  position: relative;
+  overflow: hidden;
+}
+
+.materials--stack .materials__item:nth-child(1) .mat__layer {
+  z-index: 1;
+}
+
+.materials--stack .materials__item:nth-child(2) .mat__layer {
+  z-index: 2;
+}
+
+.materials--stack .materials__item:nth-child(3) .mat__layer {
+  z-index: 3;
+}
+
+.materials--stack .mat__inner {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+/* Thin shadow at the top edge of the incoming sample (moved with transform, inside its clip) */
+.materials--stack .mat__edge {
+  display: block;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgb(0 0 0 / 0.4), rgb(0 0 0 / 0) 1.75rem);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.materials--stack .materials__item:first-child .mat__edge {
+  display: none;
+}
+
+.materials--stack .mat__cap {
+  grid-area: cap;
+  display: grid;
+  align-content: start;
+  gap: 0.25rem;
+}
+
+/* Before the engine runs: only the first sample and caption */
+.materials--stack:not([data-ready]) .materials__item:not(:first-child) :is(.mat__layer, .mat__cap) {
+  visibility: hidden;
+}
+
+/* Three-part bronze progress line */
+.mat__progress {
+  grid-area: prog;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.375rem;
+  inline-size: min(100%, 14rem);
+}
+
+.mat__seg {
+  display: block;
+  block-size: 2px;
+  background: var(--rule-light);
+  overflow: hidden;
+}
+
+.mat__bar {
+  display: block;
+  block-size: 100%;
+  background: var(--bronze);
+  transform-origin: right; /* RTL: fills right → left */
+}
+
+/* Desktop: frame on the left (~60%), text column on the right */
+@media (min-width: 62.5rem) {
+  .materials--stack .mat__grid {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 6fr);
+    grid-template-rows: 1fr auto auto 1fr;
+    grid-template-areas:
+      'head frame'
+      'cap frame'
+      'prog frame'
+      '. frame';
+    column-gap: clamp(2.5rem, 5vw, 6rem);
+    row-gap: 1.5rem;
+    align-content: stretch;
+  }
+
+  .materials--stack .mat__head {
+    align-self: end;
+  }
+
+  .materials--stack .mat__layer {
+    align-self: center;
+    block-size: min(100%, 72svh);
+  }
+
+  .materials--stack .materials__name {
+    font-size: 1.5rem;
   }
 }

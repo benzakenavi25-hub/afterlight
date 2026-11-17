@@ -1,7 +1,7 @@
 # AFTERLIGHT — Progress
 
 ## Current stage
-Round 3, stage 1 (tour card) done — waiting for approval of stage 2 (materials layers). Round 2 (6 stages) merged and deployed.
+Round 3 stages 1–2 done (tour card, materials layers) — on the branch, waiting for approval to merge. Round 2 (6 stages) merged and deployed.
 
 Stage 5 complete. All stages done. **Deployed (2026-11-16) to https://benzakenavi25-hub.github.io/afterlight/ (repo benzakenavi25-hub/afterlight, GitHub Pages via Actions). Still not ready for final launch** (blockers below). Details: docs/HANDOFF.md.
 
@@ -16,6 +16,13 @@ Stage 5 complete. All stages done. **Deployed (2026-11-16) to https://benzakenav
 - Reduced motion / no film / Save-Data / failure mid-tour: static start card with the poster and ENTRY (`--p` and chapter cleared).
 - Checks (Playwright Chromium, vite preview, emulation): 360/390/768/1024/1440/1920/844×390: 0 overflow, at the end of the tour the card transform is identity and the film box covers the stage; hero → #reveal gap 0. LCP vs current main in the same run (slow-4G-like): 390 4×CPU 1.54–1.59 s vs 1.48–1.61 s; 1440 1.37–1.44 s vs 1.35–1.38 s (now the chapter word is the LCP element at 1440, poster preload unchanged). Sweeps: 390 4×CPU 0–2 slow frames (same as main). Reduced motion: no mp4 request, ENTRY shown, start card.
 - Not verified: real phones/GPU compositing, Safari/Firefox.
+
+### Stage 2 — materials as layered samples — completed
+- MaterialDetails: `stack` mode = CSS-sticky stage (section height reserved in CSS: 100lvh × (1 + travel), no pin-spacer). One scrubbed GSAP timeline (lazy, `scrub: true`, `ignoreMobileResize`, gsap.context revert): stone then textile laid over the previous sample from the bottom up (clip-path inset 100% → 0), thin shadow on the incoming top edge (transform, fades at the end), each photo zooms 1.12 → 1 over its reveal and hold, caption "01 — אגוז כהה" / "02 — אבן" / "03 — טקסטיל" swaps (transform + opacity), three-part bronze progress line fills right → left. Desktop: frame on the left (6fr of the container, ≤72svh), MATERIALITY + heading + caption + progress on the right; phones: frame 55svh on top, text below.
+- The materials stay a real list: ul/li with subgrid (every item shares the frame and caption cells); the animation only styles it. Number added to the h3 (visible in both modes).
+- `flow` (reduced motion, max-height 32em incl. landscape phones, content that does not fit, GSAP failure): the previous cards. useReveal skips the stacked list.
+- Tunables: `materials` in media.ts (scroll 2.5 / 2, transitions [0.12–0.42], [0.58–0.88], zoom 1.12, frameNarrow 0.55, textOffset 10).
+- Checks (Playwright Chromium, vite preview, emulation): 360/390/768/1024/1440/1920: stack, 0 overflow; 844×390 → flow. Reversible: state at mid-progress identical after scrolling past and back. Sweeps: 390 4×CPU and 1440: 0 slow frames (p95 18 / 17 ms). Nav "מיקום" lands 88px from the top (same as main); skip link → #main; no focusable elements inside the stage. Reduced motion / GSAP blocked: flow with 3 images with alt.
 
 ## Round 2 (2026-11-17) — 6 stages, approval after each. Off-limits: ElevatorDoors, TourHero, ExteriorReveal. Phone (390×844) first.
 
