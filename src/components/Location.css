@@ -116,6 +116,8 @@
 
 /* ================= Pinned: camera pulls back, then a walk ================= */
 .location--anim {
+  /* starts under the line band, so THE LOCATION + the heading are on screen while the line is drawn */
+  margin-block-start: calc(var(--run-h) * -1);
   padding-block: 0;
   block-size: calc(100vh * (1 + var(--travel, 2)));
 }

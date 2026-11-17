@@ -25,7 +25,7 @@ export function MobileBar() {
     if (!narrow) return;
     document.documentElement.classList.add('has-mobilebar');
     const reveal = document.getElementById('reveal');
-    const ends = [document.getElementById('visit'), document.querySelector('.footer')].filter(Boolean) as Element[];
+    const ends = [document.getElementById('visit'), document.getElementById('studio'), document.querySelector('.footer')].filter(Boolean) as Element[];
     // A scroll check, not an observer: a jump past the opening (anchor link) never makes it intersect.
     let raf = 0;
     const check = () => {

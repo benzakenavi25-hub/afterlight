@@ -83,53 +83,6 @@
   }
 }
 
-/* Real studio conversion, kept visibly separate from the demo form */
-.studio {
-  display: grid;
-  gap: 1rem;
-  justify-items: start;
-  margin-block-start: 1.5rem;
-  padding-block-start: 2.5rem;
-  border-block-start: 1px solid var(--rule-light);
-}
-
-.studio__title {
-  font-size: var(--fs-h3);
-}
-
-.studio__text {
-  color: var(--light-muted);
-}
-
-/* Phones: stacked, full width; ≥ 40rem: side by side */
-.studio__actions {
-  display: grid;
-  gap: 0.75rem;
-  inline-size: 100%;
-}
-
-.studio__btn {
-  gap: 0.5rem;
-  min-block-size: 2.75rem; /* ≥ 44px */
-  inline-size: 100%;
-}
-
-.studio__wa {
-  flex: none;
-}
-
-@media (min-width: 40rem) {
-  .studio__actions {
-    display: flex;
-    flex-wrap: wrap;
-    inline-size: auto;
-  }
-
-  .studio__btn {
-    inline-size: auto;
-  }
-}
-
 @media (min-width: 62.5rem) {
   .contact__grid {
     grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -142,32 +95,6 @@
 
   .contact__visit {
     grid-column: 7 / -1;
-  }
-
-  .studio {
-    grid-column: 1 / -1;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: 1.5rem;
-    align-items: end;
-    margin-block-start: 4rem;
-  }
-
-  .studio__title {
-    grid-column: 1 / span 5;
-  }
-
-  .studio__text {
-    grid-column: 6 / span 4;
-  }
-
-  .studio__text {
-    grid-column: 6 / span 3;
-  }
-
-  .studio > :last-child {
-    grid-column: 9 / -1;
-    justify-self: end;
-    justify-content: flex-end;
   }
 }
 

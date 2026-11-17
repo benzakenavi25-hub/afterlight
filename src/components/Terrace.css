@@ -105,9 +105,14 @@
 }
 
 /* ---------- Ivory band below: the horizon line runs on across it ---------- */
+:root {
+  --run-h: clamp(3rem, 8.4svh, 5.4rem); /* 40% shorter than before; the location section is pulled up by it */
+}
+
 .terrace__run {
   position: relative;
-  block-size: clamp(5rem, 14svh, 9rem);
+  z-index: 1; /* the line stays above the location section pulled up under it */
+  block-size: var(--run-h);
 }
 
 .terrace__line {

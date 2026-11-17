@@ -5,7 +5,8 @@
   position: relative;
   z-index: 1;
   margin-block-start: calc(var(--facts-pull, 0) * -100vh);
-  padding-block: var(--section-space);
+  /* short bottom: the first space follows within ~25vh */
+  padding-block: var(--section-space) clamp(1.5rem, 4svh, 3rem);
   color: var(--light);
 }
 

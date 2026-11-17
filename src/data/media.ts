@@ -341,7 +341,7 @@ export const stack = {
    * pin starts). Background ivory → `mid` → plaster in the first `split[0]` of it, text fades in over
    * the last `split[1]`. `mid` is a warm stop so the change never passes through grey.
    */
-  intro: { start: 'top 90%', end: 'top top', mid: '#a88a6d', split: [0.7, 0.3] as [number, number] },
+  intro: { start: 'top 95%', end: 'top 25%', mid: '#a88a6d', split: [0.7, 0.3] as [number, number] },
 };
 
 /**
@@ -423,7 +423,7 @@ export const terrace = {
    */
   textAt: [0.6, 0.9] as [number, number],
   lineAt: [0.72, 1] as [number, number],
-  run: { start: 'top bottom', end: 'top 40%' },
+  run: { start: 'top bottom', end: 'top 64%' }, // ~40% shorter than top 40%
 };
 
 /**

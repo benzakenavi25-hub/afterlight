@@ -8,6 +8,7 @@ import { MaterialDetails } from './components/MaterialDetails';
 import { Location } from './components/Location';
 import { Terrace } from './components/Terrace';
 import { DemoContact } from './components/DemoContact';
+import { StudioCTA } from './components/StudioCTA';
 import { Footer } from './components/Footer';
 import { ElevatorDoors } from './components/ElevatorDoors';
 import { PlasterBackground } from './components/PlasterBackground';
@@ -34,6 +35,7 @@ export default function App() {
         <Terrace />
         <Location />
         <DemoContact />
+        <StudioCTA />
       </main>
       <Footer />
       <MobileBar />

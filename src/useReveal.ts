@@ -15,7 +15,7 @@ const KINDS: [selector: string, kind: string][] = [
   ['main h2:not(.visually-hidden)', 'heading'],
   ['main .latin[lang="en"]', 'latin'],
   [
-    '.terrace__copy, .contact__notice, .studio__text, .facts__note, .location__copy',
+    '.terrace__copy, .contact__notice, .studio__sub, .studio__row, .facts__note, .location__copy',
     'text',
   ],
   ['.materials__item, .facts__item', 'block'],

@@ -418,7 +418,7 @@
 /* Desktop: frame on the left (~60%), text column on the right */
 @media (min-width: 62.5rem) {
   .materials--zoom .mat__grid {
-    grid-template-columns: minmax(0, 4fr) minmax(0, 6fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
     grid-template-rows: 1fr auto auto 1fr;
     grid-template-areas:
       'head frame'
@@ -428,7 +428,8 @@
     column-gap: clamp(2.5rem, 5vw, 6rem);
     row-gap: 1.5rem;
     align-content: stretch;
-    padding-block-end: max(var(--pad), env(safe-area-inset-bottom));
+    /* symmetric, so the frame is centred in the whole stage */
+    padding-block: calc(var(--header-h) + var(--pad));
   }
 
   .materials--zoom .mat__head {
@@ -440,8 +441,7 @@
     align-self: center;
     margin-inline: 0;
     inline-size: 100%;
-    aspect-ratio: var(--room-ratio);
-    max-block-size: 76svh;
+    block-size: 68svh; /* taller than the old ratio-bound frame; the photo covers it (--fx/--fy crop) */
   }
 
   .mat__map {

@@ -211,8 +211,10 @@ export const contact = {
 };
 
 export const b2b = {
-  heading: 'רוצים להציג נכס בצורה כזאת?',
-  text: 'אתרי נדל״ן קולנועיים בהתאמה אישית — Benzaken Studio.',
+  label: 'BENZAKEN STUDIO',
+  heading: 'האתר הזה נבנה כדי למכור פנטהאוז.',
+  sub: 'הוא יכול למכור גם את שלכם.',
+  rows: ['סיור וידאו שנשלט בגלילה', 'עיצוב בהתאמה לנכס ולמותג', 'מהיר, נגיש ומותאם לטלפון'],
   whatsapp: 'לדבר בוואטסאפ',
   site: 'לאתר הסטודיו',
   /** Appended to the link names for screen readers (both open in a new tab). */

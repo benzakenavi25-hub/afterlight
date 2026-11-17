@@ -138,3 +138,11 @@ if [[ -f "$MASTER" ]]; then
     -preset slow -crf 27 -pix_fmt yuv420p -g 8 -keyint_min 8 -sc_threshold 0 -bf 0 "${TAGS[@]}" "$OUT/tour-master-mobile.mp4"
   echo "done: tour masters"
 fi
+
+# Share image (WhatsApp / Facebook / X): 1200x630 JPEG from the facade photo, cropped from the top so the
+# penthouse stays in frame. Goes to the site root (public/og-image.jpg), kept under ~200 KB.
+OGSRC="$OUT/exterior-facade-1672.webp"
+if [[ -f "$OGSRC" ]]; then
+  ffmpeg -v error -y -i "$OGSRC" -vf "crop=iw:iw*630/1200:0:0,scale=1200:630:flags=lanczos" -q:v 4 -pix_fmt yuvj420p "$OUT/../og-image.jpg"
+  echo "done: og-image"
+fi
