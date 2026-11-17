@@ -22,7 +22,7 @@ export function Terrace() {
         <p className="terrace__label latin" lang="en">
           {terrace.label}
         </p>
-        <h2 id="terrace-title">{terrace.heading}</h2>
+        <h2 id="terrace-title" className="ruled">{terrace.heading}</h2>
         <p className="terrace__copy">{terrace.text}</p>
       </div>
     </section>

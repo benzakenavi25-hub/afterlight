@@ -155,18 +155,82 @@ main:focus {
   color: var(--ink);
 }
 
-/* Secondary reveal (set up by useReveal only when motion is allowed) */
-[data-reveal] {
-  opacity: 0;
-  translate: 0 16px;
-  transition:
-    opacity 550ms var(--ease-out),
-    translate 550ms var(--ease-out);
+/* Bronze rule before section headings (drawn by the reveal; static when there is no motion) */
+main h2.ruled::before {
+  content: '';
+  display: block;
+  inline-size: 3rem;
+  block-size: 1px;
+  margin-block-end: 1rem;
+  background: var(--bronze);
+  transform-origin: right; /* RTL start: draws right → left */
 }
 
-[data-reveal='in'] {
+/* ---------- Text reveals (set up by useReveal only when motion is allowed) ---------- */
+[data-reveal] {
+  --rv-ease: var(--ease-out);
+}
+
+/* block: image blocks */
+[data-reveal-kind='block'][data-reveal] {
+  opacity: 0;
+  translate: 0 16px;
+  transition: opacity 550ms var(--rv-ease), translate 550ms var(--rv-ease);
+}
+
+/* text: paragraphs, 150ms after the heading words start */
+[data-reveal-kind='text'][data-reveal] {
+  opacity: 0;
+  translate: 0 12px;
+  transition: opacity 550ms var(--rv-ease) 350ms, translate 550ms var(--rv-ease) 350ms;
+}
+
+[data-reveal-kind='block'][data-reveal='in'],
+[data-reveal-kind='text'][data-reveal='in'] {
   opacity: 1;
   translate: none;
+}
+
+/* latin: tracking opens from --ls-from to the element's own letter-spacing */
+[data-reveal-kind='latin'][data-reveal] {
+  opacity: 0;
+  transition: opacity 900ms var(--rv-ease), letter-spacing 900ms var(--rv-ease);
+}
+
+[data-reveal-kind='latin'][data-reveal=''] {
+  letter-spacing: var(--ls-from, 0.1em);
+}
+
+[data-reveal-kind='latin'][data-reveal='in'] {
+  opacity: 1;
+}
+
+/* heading: rule first (600ms), then words rise out of their windows (700ms, 40ms stagger) */
+[data-reveal-kind='heading']::before {
+  transition: transform 600ms var(--rv-ease);
+}
+
+[data-reveal-kind='heading'][data-reveal='']::before {
+  transform: scaleX(0);
+}
+
+.tw {
+  display: inline-block;
+  overflow: clip;
+  /* room for descenders / nikud inside the window, without changing line height */
+  padding-block: 0.12em;
+  margin-block: -0.12em;
+  vertical-align: top;
+}
+
+.tw__i {
+  display: inline-block;
+  transition: transform 700ms var(--rv-ease);
+  transition-delay: calc(200ms + var(--i, 0) * 40ms);
+}
+
+[data-reveal-kind='heading'][data-reveal=''] .tw__i {
+  transform: translateY(100%);
 }
 
 @media (prefers-reduced-motion: reduce) {

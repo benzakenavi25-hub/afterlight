@@ -67,7 +67,7 @@ export function DemoContact() {
     <section id="contact" className="contact" aria-labelledby="contact-title">
       <div className="container contact__grid">
         <div className="contact__intro">
-          <h2 id="contact-title">{contact.heading}</h2>
+          <h2 id="contact-title" className="ruled">{contact.heading}</h2>
           <p className="contact__notice">{contact.notice}</p>
         </div>
 
@@ -113,7 +113,7 @@ export function DemoContact() {
         </form>
 
         <aside className="studio" aria-labelledby="studio-title">
-          <h2 id="studio-title" className="studio__title">
+          <h2 id="studio-title" className="studio__title ruled">
             {b2b.heading}
           </h2>
           <p className="studio__text">{b2b.text}</p>
