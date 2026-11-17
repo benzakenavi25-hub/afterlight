@@ -8,11 +8,48 @@
   margin: 0;
 }
 
+/* Frame: full width, --h-* svh tall (media.ts terrace.pan) */
+.terrace__frame {
+  --h: var(--h-narrow, 65);
+  --crop: var(--crop-narrow, 0);
+  position: relative;
+  block-size: calc(var(--h) * 1vh);
+  overflow: hidden;
+  background: var(--ink-2);
+}
+
+@supports (height: 1svh) {
+  .terrace__frame {
+    block-size: calc(var(--h) * 1svh);
+  }
+}
+
+/* Static (reduced motion / no GSAP): a crop of the panorama */
 .terrace__img {
+  display: block;
   inline-size: 100%;
-  block-size: clamp(18rem, 52vw, 46rem);
+  block-size: 100%;
   object-fit: cover;
-  object-position: 50% 60%;
+  object-position: var(--static-pos, 70% 45%);
+}
+
+/* Pan: the photo at full frame height (+ bottom crop) is wider than the screen; GSAP moves it sideways */
+.terrace--pan .terrace__img {
+  position: absolute;
+  inset-block-start: 0;
+  left: 0;
+  inline-size: auto;
+  max-inline-size: none;
+  block-size: calc(100% * (1 + var(--crop)));
+  aspect-ratio: var(--pano-ratio, 3);
+  will-change: transform;
+}
+
+@media (min-width: 62.5rem) {
+  .terrace__frame {
+    --h: var(--h-wide, 72);
+    --crop: var(--crop-wide, 0);
+  }
 }
 
 .terrace__text {

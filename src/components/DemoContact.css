@@ -101,6 +101,35 @@
   color: var(--light-muted);
 }
 
+/* Phones: stacked, full width; ≥ 40rem: side by side */
+.studio__actions {
+  display: grid;
+  gap: 0.75rem;
+  inline-size: 100%;
+}
+
+.studio__btn {
+  gap: 0.5rem;
+  min-block-size: 2.75rem; /* ≥ 44px */
+  inline-size: 100%;
+}
+
+.studio__wa {
+  flex: none;
+}
+
+@media (min-width: 40rem) {
+  .studio__actions {
+    display: flex;
+    flex-wrap: wrap;
+    inline-size: auto;
+  }
+
+  .studio__btn {
+    inline-size: auto;
+  }
+}
+
 @media (min-width: 62.5rem) {
   .contact__grid {
     grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -131,9 +160,14 @@
     grid-column: 6 / span 4;
   }
 
+  .studio__text {
+    grid-column: 6 / span 3;
+  }
+
   .studio > :last-child {
-    grid-column: 10 / -1;
+    grid-column: 9 / -1;
     justify-self: end;
+    justify-content: flex-end;
   }
 }
 

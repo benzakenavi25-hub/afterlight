@@ -61,3 +61,14 @@
     justify-self: end;
   }
 }
+
+.footer__studio {
+  color: var(--light);
+  text-decoration: underline;
+  text-decoration-color: var(--bronze);
+  text-underline-offset: 0.25em;
+}
+
+.footer__studio:hover {
+  color: var(--bronze);
+}

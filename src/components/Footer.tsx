@@ -19,7 +19,9 @@ export function Footer() {
           </ul>
         </nav>
         <p className="footer__meta">
-          {footer.concept} · {footer.credit} <span dir="ltr">{studio.name}</span>
+          {footer.concept} · {footer.credit} <a className="footer__studio" href={studio.contactHref} target="_blank" rel="noopener" dir="ltr">
+            {studio.name}
+          </a>
         </p>
         <p className="footer__privacy">{footer.privacy}</p>
       </div>

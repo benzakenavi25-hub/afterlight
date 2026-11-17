@@ -6,8 +6,10 @@ export const PLAN_HREF = '#plan';
 
 export const studio = {
   name: 'Benzaken Studio',
-  /** Real, verified studio contact link. Leave null until supplied — never invent one. */
-  contactHref: null as string | null,
+  /** Studio website (B2B block + footer credit). */
+  contactHref: 'https://benzakenavi25-hub.github.io/benzaken-studio/',
+  /** WhatsApp chat with a prefilled message (wa.me, international number without +). */
+  whatsapp: 'https://wa.me/972532415558?text=' + encodeURIComponent('היי, ראיתי את AFTERLIGHT ואשמח לדבר על אתר לנכס שלי'),
 };
 
 export const nav = [
@@ -155,12 +157,14 @@ export const location = {
   /** Text equivalent of the illustration. */
   mapDescription: 'איור סכמטי, לא מפה: קו החוף עובר לאורך האיור, הבית ממוקם ממש מעליו, הים מצידו האחד והעיר מצידו האחר.',
   places: [
-    { id: 'sea', name: 'הים', time: '3 דק׳ הליכה' },
-    { id: 'promenade', name: 'הטיילת', time: '2 דק׳' },
-    { id: 'center', name: 'מרכז העיר', time: '8 דק׳ נסיעה' },
+    { id: 'sea', name: 'הים', time: '3 דק׳ הליכה', minutes: 3 },
+    { id: 'promenade', name: 'הטיילת', time: '2 דק׳', minutes: 2 },
+    { id: 'center', name: 'מרכז העיר', time: '8 דק׳ נסיעה', minutes: 8 },
   ],
   home: 'הבית',
   sea: 'ים',
+  /** Unit next to the walking minutes counter on the map. */
+  minutesUnit: 'דק׳',
 };
 
 export const contact = {
@@ -196,7 +200,10 @@ export const contact = {
 export const b2b = {
   heading: 'רוצים להציג נכס בצורה כזאת?',
   text: 'אתרי נדל״ן קולנועיים בהתאמה אישית — Benzaken Studio.',
-  cta: 'לדבר על האתר שלכם',
+  whatsapp: 'לדבר בוואטסאפ',
+  site: 'לאתר הסטודיו',
+  /** Appended to the link names for screen readers (both open in a new tab). */
+  newTab: '(נפתח בכרטיסייה חדשה)',
 };
 
 export const footer = {

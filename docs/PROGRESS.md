@@ -5,6 +5,13 @@ Round 3 stages 1–3 done (tour card, materials layers, exterior-reveal exit) �
 
 Stage 5 complete. All stages done. **Deployed (2026-11-16) to https://benzakenavi25-hub.github.io/afterlight/ (repo benzakenavi25-hub/afterlight, GitHub Pages via Actions). Still not ready for final launch** (blockers below). Details: docs/HANDOFF.md.
 
+## Round 4 (2026-11-17) — 5 changes in one pass. Off-limits: ElevatorDoors, TourHero, ExteriorReveal. Only check: `npm run build` (passes). Not checked in a browser/phone.
+- Materials: "from the room to the detail" — sticky stage on gallery-living, 3 bronze spots (`materials.spots` %), per material spotlight → leader line + label → camera zoom → crossfade to the detail photo → pull-back; minimap with camera frame, 3-part progress; flow cards for reduced motion / GSAP failure / short screens.
+- Facts: count-up starts only when the list is ≥60% in the viewport AND not covered (elementFromPoint check each frame while intersecting), works when the strip rises over the reveal card on phones.
+- Terrace: panorama pan (scrubbed, no pin) left → right ending on the sea; tunables `terrace.pan` (ratio, direction, distance, height 65/72svh, desktop bottom crop). Source: terrace-panorama-4344x1448.jpg was NOT found — built from Pictures/"Blue hour Mediterranean terrace panorama.png" (2172×724) → widths 1600/2172; build-media.sh prefers the JPEG when it is added (then update widths in media.ts).
+- Location: pinned, scrubbed — pull-back from the home + coastline draw, bronze walker with minutes counter to sea / promenade / centre (labels light on arrival), thin drifting waves; "ים" fixed (no letter-spacing, rtl/plaintext). Tunables `location` (media.ts).
+- Studio block: WhatsApp (primary, icon, prefilled message) + studio site (secondary), new tab, ≥44px, stacked full width on phones; footer "Benzaken Studio" links to the studio site. There was no pendingNote in the code to remove.
+
 ## Round 3 (2026-11-17) — tour card + materials layers. Off-limits: ElevatorDoors, ExteriorReveal, the tour scrub logic (progress → currentTime, film loading, fallbacks).
 
 ### Stage 1 — tour in a card — completed
@@ -151,7 +158,7 @@ Token-frugal: read only stage-relevant brief sections/files, concise PROGRESS, n
 
 ## Pending / launch blockers
 - [x] Tour film integrated (Stage 4).
-- [ ] Real Benzaken Studio contact link for the B2B CTA (`studio.contactHref`).
+- [x] Real Benzaken Studio contact link for the B2B CTA (`studio.contactHref`) + WhatsApp.
 - [ ] Real-device QA: iPhone Safari + Android Chrome (player, scrub fallback).
 - [x] GitHub Pages demo deployed (no custom domain). Studio site (benzaken-studio repo) untouched.
 

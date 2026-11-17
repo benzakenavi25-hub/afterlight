@@ -17,6 +17,7 @@ export type StillId =
   | 'gallery-bedroom'
   | 'gallery-bathroom'
   | 'gallery-terrace'
+  | 'terrace-panorama'
   | 'detail-walnut'
   | 'detail-stone'
   | 'detail-textile'
@@ -94,6 +95,17 @@ export const stills: Record<StillId, Still> = {
     status: 'ready',
     ...LANDSCAPE,
     alt: 'מרפסת פתוחה עם ספה, פוף קלוע ופנס מואר, מול קו רקיע עירוני והים בשעת דמדומים',
+  },
+  // Terrace panorama (≈3:1) for the horizontal pan. Widths must match what build-media.sh produced:
+  // from the 2172×724 PNG → [1600, 2172]; from the 4344×1448 JPEG → [1600, 2600, 4344] (width 4344, height 1448).
+  'terrace-panorama': {
+    id: 'terrace-panorama',
+    role: 'gallery',
+    status: 'ready',
+    width: 2172,
+    height: 724,
+    widths: [1600, 2172],
+    alt: 'מרפסת גג רחבה בשעה הכחולה: ספה, פוף קלוע ופנס מואר בין עצי זית, ומעבר למעקה הזכוכית העיר, שני מגדלים והים עד האופק',
   },
   'detail-walnut': {
     id: 'detail-walnut',
@@ -254,24 +266,89 @@ export const stack = {
 };
 
 /**
- * Materials layers (MaterialDetails). Pinned section; the three photos are laid over each other with
- * scroll. Copy and photos are in content.ts (materials).
+ * Materials — "from the room to the detail" (MaterialDetails). Pinned section on gallery-living; per
+ * material: spotlight → leader line + label → camera zoom → crossfade to the detail photo → pull-back.
+ * Copy and detail photos are in content.ts (materials).
  */
 export const materials = {
   /** Extra scroll distance in viewport heights beyond the pinned stage. Lower = shorter/faster. */
-  scroll: { wide: 2.5, narrow: 2 },
+  scroll: { wide: 3.5, narrow: 3 },
   /**
-   * Share of the timeline (0–1) for each layer change [starts, ends]: stone over walnut, then textile
-   * over stone. The gaps before, between and after are the settled, readable holds.
+   * Hot spots on gallery-living, in % of the photo (x from the left, y from the top). Same order as
+   * content.ts materials.items: walnut shelving wall, stone table, throw on the sofa.
    */
-  transitions: [
-    [0.12, 0.42],
-    [0.58, 0.88],
-  ] as [number, number][],
-  /** Each photo zooms from this scale to 1 over its own reveal and hold (texture becomes tangible). */
-  zoom: 1.12,
-  /** Phones: frame height as a share of the smallest viewport height (svh). */
-  frameNarrow: 0.55,
+  spots: [
+    { x: 24, y: 36 },
+    { x: 55, y: 79 },
+    { x: 23, y: 76 },
+  ],
+  /** Spotlight radius as a share of the photo width (soft edge), and how dark the rest gets (0–1). */
+  spotRadius: 0.11,
+  dim: 0.62,
+  /** Camera zoom at the peak (scale of the room photo). */
+  zoom: 2.6,
+  /**
+   * Phases inside each material's share of the scroll (0–1): spotlight + label, zoom in, crossfade to
+   * the detail photo, pull-back (not after the last one).
+   */
+  phases: {
+    spot: [0, 0.14] as [number, number],
+    zoom: [0.14, 0.46] as [number, number],
+    detail: [0.4, 0.5] as [number, number],
+    out: [0.8, 1] as [number, number],
+  },
+  /** Phones: frame width / height (full screen width), and which point of the photo stays in view (%). */
+  narrowRatio: 4 / 3,
+  focus: { x: 40, y: 55 },
   /** Vertical offset of the incoming / outgoing caption, in px. */
   textOffset: 10,
+};
+
+/**
+ * Terrace (Terrace.tsx): the panorama sits in a frame wider than the screen and pans sideways while the
+ * section passes through the viewport (scrubbed, no pin). To use another panorama: replace the file
+ * (build-media.sh) and update `still` widths + `pan.ratio`.
+ */
+export const terrace = {
+  still: 'terrace-panorama' as StillId,
+  pan: {
+    /** Width / height of the panorama file. */
+    ratio: 2172 / 724,
+    /** 'ltr' = starts on the left edge of the photo (sofa, lantern) and ends on the right (sea). */
+    direction: 'ltr' as 'ltr' | 'rtl',
+    /** Share of the available sideways overflow that is travelled (0–1). wide ≥ 62.5rem / narrow. */
+    distance: { wide: 1, narrow: 1 },
+    /** Frame height in svh. Taller = wider photo = more travel. */
+    height: { wide: 72, narrow: 65 },
+    /** Desktop: extra photo height cut off at the bottom (floor), as a share, so the horizon sits mid-frame. */
+    cropBottom: { wide: 0.16, narrow: 0 },
+    /** ScrollTrigger range on the frame: pan starts / ends (ends on the horizon while still in view). */
+    start: 'top bottom',
+    end: 'bottom 30%',
+    /** Reduced motion / no GSAP: static crop of the panorama (CSS object-position). */
+    staticPosition: '70% 45%',
+  },
+};
+
+/**
+ * Location map (Location.tsx): pinned, scrubbed. The map pulls back from the home while the coastline
+ * draws, then a bronze dot walks to each place (order = content.ts location.places) with a minutes counter.
+ */
+export const location = {
+  /** Extra scroll distance in viewport heights beyond the pinned stage. Lower = shorter/faster. */
+  scroll: { wide: 2.2, narrow: 2 },
+  /** Starting zoom on the home (1 = the whole map). */
+  zoom: 2.6,
+  /** Timeline shares (0–1): pull-back, coastline drawing, and one [start, arrival] per walk. */
+  phases: {
+    zoom: [0, 0.3] as [number, number],
+    coast: [0.04, 0.32] as [number, number],
+    walks: [
+      [0.34, 0.54],
+      [0.58, 0.72],
+      [0.76, 0.96],
+    ] as [number, number][],
+  },
+  /** Sideways drift of the wave lines over the whole sequence, in drawing units. */
+  waveDrift: 6,
 };

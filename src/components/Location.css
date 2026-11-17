@@ -46,18 +46,35 @@
   font-family: var(--font-body);
 }
 
-/* --tone (useScrollTone): 0–1 as the map rises; default 1 = fully drawn */
+/* Defaults = the final, fully drawn map (static mode); GSAP animates from here in --anim */
 .location__coast {
   fill: none;
   stroke: var(--bronze); /* decorative line */
   stroke-width: 2;
   stroke-linecap: round;
   stroke-dasharray: 1;
-  stroke-dashoffset: calc(1 - min(1, var(--tone, 1) / 0.5));
+  stroke-dashoffset: 0;
 }
 
-.location__pt {
-  opacity: clamp(0, calc((var(--tone, 1) - var(--at)) * 10), 1);
+.location__wave {
+  fill: none;
+  stroke: var(--bronze);
+  stroke-width: 0.75;
+  stroke-linecap: round;
+  opacity: 0.45;
+}
+
+.location__step {
+  fill: var(--bronze);
+  stroke: var(--paper);
+  stroke-width: 1.5;
+}
+
+.location__count {
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  fill: var(--text);
+  direction: rtl;
 }
 
 .location__link {
@@ -88,11 +105,65 @@
   fill: var(--text-muted);
 }
 
+/* Hebrew word: body font, no letter-spacing (spacing made SVG lay the letters out reversed: "ם י") */
 .location__sea {
-  font-family: var(--font-display);
   font-size: 22px;
   fill: var(--text-muted);
-  letter-spacing: 0.1em;
+  letter-spacing: normal;
+  direction: rtl;
+  unicode-bidi: plaintext;
+}
+
+/* ================= Pinned: camera pulls back, then a walk ================= */
+.location--anim {
+  padding-block: 0;
+  block-size: calc(100vh * (1 + var(--travel, 2)));
+}
+
+.location--anim .location__stage {
+  position: sticky;
+  inset-block-start: 0;
+  block-size: 100vh;
+  overflow: clip;
+}
+
+@supports (height: 100lvh) {
+  .location--anim {
+    block-size: calc(100lvh * (1 + var(--travel, 2)));
+  }
+
+  .location--anim .location__stage {
+    block-size: 100lvh;
+  }
+}
+
+.location--anim .location__grid {
+  --pad: clamp(0.75rem, 2.5svh, 2rem);
+  block-size: 100vh;
+  align-content: center;
+  gap: clamp(1rem, 3svh, 2rem);
+  padding-block: calc(var(--header-h) + var(--pad)) max(var(--pad), env(safe-area-inset-bottom));
+  overflow: hidden; /* fit check: content taller than this falls back to the static map */
+}
+
+@supports (height: 100svh) {
+  .location--anim .location__grid {
+    block-size: 100svh;
+  }
+}
+
+/* The zooming drawing stays inside its frame */
+.location--anim .location__svg {
+  overflow: hidden;
+  max-block-size: 52svh;
+}
+
+.location--anim .location__walker {
+  visibility: hidden;
+}
+
+.location--anim[data-ready] .location__walker {
+  visibility: visible;
 }
 
 @media (min-width: 62.5rem) {

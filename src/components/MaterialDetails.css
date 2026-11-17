@@ -130,17 +130,18 @@
   }
 }
 
-/* ================= Stack: pinned layers ================= */
+
+/* ================= Zoom: from the room to the detail ================= */
 /* Section = stage + scroll distance, reserved up front (no pin-spacer, no shift when GSAP loads) */
-.materials--stack {
-  block-size: calc(100vh * (1 + var(--travel, 2)));
+.materials--zoom {
+  block-size: calc(100vh * (1 + var(--travel, 3)));
 }
 
 .mat__stage {
   position: relative;
 }
 
-.materials--stack .mat__stage {
+.materials--zoom .mat__stage {
   position: sticky;
   inset-block-start: 0;
   block-size: 100vh;
@@ -148,21 +149,21 @@
 }
 
 @supports (height: 100lvh) {
-  .materials--stack {
-    block-size: calc(100lvh * (1 + var(--travel, 2)));
+  .materials--zoom {
+    block-size: calc(100lvh * (1 + var(--travel, 3)));
   }
 
-  .materials--stack .mat__stage {
+  .materials--zoom .mat__stage {
     block-size: 100lvh;
   }
 }
 
-/* Phones (one column): frame on top, then heading, caption, progress */
-.materials--stack .mat__grid {
+/* Phones (one column): full-width frame on top, then heading, caption, progress */
+.materials--zoom .mat__grid {
   --pad: clamp(0.75rem, 2.5svh, 2rem);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: calc(var(--frame-narrow, 0.55) * 100svh) auto auto auto;
+  grid-template-rows: min(calc(100vw / var(--narrow-ratio, 1.333)), 52svh) auto auto auto;
   grid-template-areas: 'frame' 'head' 'cap' 'prog';
   align-content: start;
   row-gap: clamp(0.75rem, 2svh, 1.25rem);
@@ -172,80 +173,192 @@
 }
 
 @supports (height: 100svh) {
-  .materials--stack .mat__grid {
+  .materials--zoom .mat__grid {
     block-size: 100svh;
   }
 }
 
-.materials--stack .mat__head {
+.materials--zoom .mat__head {
   grid-area: head;
 }
 
-.materials--stack .materials__word {
+.materials--zoom .materials__word {
   font-size: clamp(1.75rem, 1rem + 3vw, 5.5rem);
 }
 
-.materials--stack .materials__title {
+.materials--zoom .materials__title {
   margin-block-start: 0.5rem;
 }
 
-/* Every item shares the frame and caption cells (subgrid): the list stays a real list */
-.materials--stack .materials__list,
-.materials--stack .materials__item {
+/* The room, the detail photos and the minimap share the frame cell; phones: edge to edge */
+.materials--zoom :is(.mat__room, .mat__layer) {
+  grid-area: frame;
+  position: relative;
+  overflow: hidden;
+  margin-inline: calc(var(--gutter) * -1);
+}
+
+.mat__room {
+  background: var(--ink-2);
+}
+
+/* Size container for the camera maths (it is a stacking context; the room itself is not, so the
+   minimap can sit above the detail photos) */
+.mat__view {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  overflow: hidden;
+}
+
+/* The whole photo, covering the frame (cqw/cqh = frame size); --fx/--fy pick the crop on narrow frames */
+.mat__cam {
+  --cw: max(100cqw, calc(100cqh * var(--room-ratio)));
+  --ch: max(100cqh, calc(100cqw / var(--room-ratio)));
+  position: absolute;
+  inline-size: var(--cw);
+  block-size: var(--ch);
+  left: clamp(calc(100cqw - var(--cw)), calc(50cqw - var(--fx, 0.5) * var(--cw)), 0px);
+  top: clamp(calc(100cqh - var(--ch)), calc(50cqh - var(--fy, 0.5) * var(--ch)), 0px);
+  will-change: transform;
+}
+
+.mat__roomimg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.mat__light {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mat__dots {
+  position: absolute;
+  inset: 0;
+}
+
+/* Small numbered bronze spots */
+.mat__dot {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  inline-size: 1.625rem;
+  block-size: 1.625rem;
+  translate: -50% -50%;
+  border: 1px solid var(--bronze);
+  border-radius: 50%;
+  background: rgb(var(--ink-rgb) / 0.55);
+  color: var(--light);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  box-shadow: 0 0 0 4px rgb(173 137 103 / 0.18);
+}
+
+/* Leader line up from the spot, label at its end (extends towards the photo's centre) */
+.mat__call {
+  position: absolute;
+  inline-size: 0;
+  block-size: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mat__lead {
+  position: absolute;
+  inset-block-end: 0.95rem;
+  left: -0.5px;
+  inline-size: 1px;
+  block-size: clamp(1.75rem, 6cqh, 3.5rem);
+  background: var(--bronze);
+}
+
+.mat__tag {
+  position: absolute;
+  inset-block-end: calc(0.95rem + clamp(1.75rem, 6cqh, 3.5rem) + 0.375rem);
+  white-space: nowrap;
+  padding: 0.25rem 0.625rem;
+  background: rgb(var(--ink-rgb) / 0.72);
+  border-block-end: 1px solid var(--bronze);
+  color: var(--light);
+  font-size: 0.875rem;
+}
+
+.mat__call--r .mat__tag {
+  left: -0.5rem;
+}
+
+.mat__call--l .mat__tag {
+  right: -0.5rem;
+}
+
+/* Detail photos sit over the room, faded in at the peak of the zoom */
+.materials--zoom .materials__list,
+.materials--zoom .materials__item {
   display: grid;
   grid-area: 1 / 1 / -1 / -1;
   grid-template-columns: subgrid;
   grid-template-rows: subgrid;
 }
 
-.materials--stack .mat__layer {
-  grid-area: frame;
-  position: relative;
-  overflow: hidden;
-}
-
-.materials--stack .materials__item:nth-child(1) .mat__layer {
+.materials--zoom .mat__layer {
   z-index: 1;
+  opacity: 0;
+  visibility: hidden;
 }
 
-.materials--stack .materials__item:nth-child(2) .mat__layer {
-  z-index: 2;
-}
-
-.materials--stack .materials__item:nth-child(3) .mat__layer {
-  z-index: 3;
-}
-
-.materials--stack .mat__inner {
+.materials--zoom .mat__inner {
   position: absolute;
   inset: 0;
   will-change: transform;
 }
 
-/* Thin shadow at the top edge of the incoming sample (moved with transform, inside its clip) */
-.materials--stack .mat__edge {
-  display: block;
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, rgb(0 0 0 / 0.4), rgb(0 0 0 / 0) 1.75rem);
-  pointer-events: none;
-  will-change: transform;
-}
-
-.materials--stack .materials__item:first-child .mat__edge {
-  display: none;
-}
-
-.materials--stack .mat__cap {
+.materials--zoom .mat__cap {
   grid-area: cap;
   display: grid;
   align-content: start;
   gap: 0.25rem;
 }
 
-/* Before the engine runs: only the first sample and caption */
-.materials--stack:not([data-ready]) .materials__item:not(:first-child) :is(.mat__layer, .mat__cap) {
+/* Before the engine runs: only the first caption */
+.materials--zoom:not([data-ready]) .materials__item:not(:first-child) .mat__cap {
   visibility: hidden;
+}
+
+/* Minimap: the whole room, a frame shows where the camera is */
+.mat__map {
+  position: absolute;
+  z-index: 3;
+  inset-block-start: 0;
+  left: 0;
+  inline-size: clamp(4.75rem, 18vw, 8.5rem);
+  aspect-ratio: var(--room-ratio);
+  margin: 0.75rem;
+  outline: 1px solid rgb(244 238 228 / 0.55);
+  box-shadow: 0 4px 18px rgb(0 0 0 / 0.35);
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+}
+
+.mat__map picture,
+.mat__mapimg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+}
+
+.mat__mapbox {
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid var(--bronze);
+  box-shadow: 0 0 0 999px rgb(0 0 0 / 0.35);
 }
 
 /* Three-part bronze progress line */
@@ -273,7 +386,7 @@
 
 /* Desktop: frame on the left (~60%), text column on the right */
 @media (min-width: 62.5rem) {
-  .materials--stack .mat__grid {
+  .materials--zoom .mat__grid {
     grid-template-columns: minmax(0, 4fr) minmax(0, 6fr);
     grid-template-rows: 1fr auto auto 1fr;
     grid-template-areas:
@@ -286,16 +399,27 @@
     align-content: stretch;
   }
 
-  .materials--stack .mat__head {
+  .materials--zoom .mat__head {
     align-self: end;
   }
 
-  .materials--stack .mat__layer {
+  .materials--zoom :is(.mat__room, .mat__layer) {
     align-self: center;
-    block-size: min(100%, 72svh);
+    margin-inline: 0;
+    inline-size: 100%;
+    aspect-ratio: var(--room-ratio);
+    max-block-size: 76svh;
   }
 
-  .materials--stack .materials__name {
+  .mat__map {
+    margin: 0.875rem;
+  }
+
+  .materials--zoom .materials__name {
     font-size: 1.5rem;
+  }
+
+  .mat__tag {
+    font-size: 0.9375rem;
   }
 }

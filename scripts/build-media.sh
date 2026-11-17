@@ -45,6 +45,31 @@ for row in "${MAP[@]}"; do
   echo "done: $name"
 done
 
+# Terrace panorama (≈3:1) for the horizontal pan (Terrace.tsx, media.ts terrace.pan). Prefers the full
+# 4344×1448 JPEG (project root or source dir); falls back to the 2172×724 PNG. Widths above the source
+# width are not produced (the source width itself is used instead) — keep stills['terrace-panorama'].widths in sync.
+PANO=""
+for c in "$(dirname "$0")/../terrace-panorama-4344x1448.jpg" "$SRC/terrace-panorama-4344x1448.jpg" \
+  "$HOME/Pictures/Blue hour Mediterranean terrace panorama.png"; do
+  if [[ -f "$c" ]]; then PANO="$c"; break; fi
+done
+if [[ -n "$PANO" ]]; then
+  pw=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=p=0 "$PANO")
+  done_ws=" "
+  for w in 1600 2600 4344; do
+    (( w > pw )) && w=$pw
+    [[ "$done_ws" == *" $w "* ]] && continue
+    done_ws+="$w "
+    ffmpeg -v error -y -i "$PANO" -vf "scale=${w}:-2:flags=lanczos" \
+      -c:v libwebp -quality 80 -compression_level 6 "$OUT/terrace-panorama-${w}.webp"
+    ffmpeg -v error -y -i "$PANO" -vf "scale=${w}:-2:flags=lanczos,format=yuv420p" \
+      -c:v libaom-av1 -still-picture 1 -crf 30 -b:v 0 -cpu-used 4 "$OUT/terrace-panorama-${w}.avif"
+  done
+  echo "done: terrace-panorama ($PANO, widths:$done_ws)"
+else
+  echo "missing: terrace panorama" >&2
+fi
+
 # Tour film (Stage 4). Frame 121 is a near-duplicate at the first clip joint (YDIF 0.71 vs ~3.2
 # around it) and is removed; timing is re-based at 24fps so movement speed is unchanged.
 if [[ -f "$MASTER" ]]; then
