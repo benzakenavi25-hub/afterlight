@@ -3,12 +3,14 @@ import './ElevatorDoors.css';
 
 const OPEN_MS = 900; // keep in sync with the transition in ElevatorDoors.css
 const POSTER_WAIT_MS = 1500; // never wait longer than this for the poster
+const SETTLE_MS = 1800; // html[data-doors] stays until the headline has finished entering (900 delay + 700)
 
 /**
- * Elevator-doors intro: two code-drawn panels meet at the centre and slide apart over the hero.
+ * Elevator-doors intro: two code-drawn panels meet at the centre of the tour card and slide apart (the card clips them).
  * Whether it plays is decided before first paint by the inline script in index.html
- * (sets html[data-doors="pending"]): on every load/refresh, never with reduced motion. Overlay is inert, never blocks scroll or
- * clicks, takes no layout space, and is removed when the motion ends.
+ * (sets html[data-doors="pending"]): on every load/refresh, never with reduced motion or a #hash. Inert, never
+ * blocks scroll or clicks, takes no layout space, removed when the motion ends. Scrolling before it opened
+ * opens it at once. While open, the card scales 0.98 → 1 and the headline enters (ElevatorDoors.css).
  */
 export function ElevatorDoors() {
   const [phase, setPhase] = useState<'closed' | 'open' | 'done'>(() =>
@@ -29,12 +31,17 @@ export function ElevatorDoors() {
       });
     };
 
+    // Scrolling starts the tour: never hold it back
+    window.addEventListener('scroll', open, { once: true, passive: true });
+    if (window.scrollY > 2) open();
+
     const poster = document.querySelector<HTMLImageElement>('.hero__poster');
     (poster?.decode?.() ?? Promise.resolve()).then(open, open);
     const waitTimer = window.setTimeout(open, POSTER_WAIT_MS);
 
     return () => {
       window.clearTimeout(waitTimer);
+      window.removeEventListener('scroll', open);
       cancelAnimationFrame(raf);
     };
   }, [phase]);
@@ -46,8 +53,12 @@ export function ElevatorDoors() {
     return () => window.clearTimeout(t);
   }, [phase]);
 
+  // html[data-doors]: 'open' while the doors move and the headline settles, then removed (no cleanup on
+  // purpose: the timer must outlive this component, which unmounts when the doors are done).
   useEffect(() => {
-    if (phase === 'done') delete document.documentElement.dataset.doors;
+    const root = document.documentElement;
+    if (phase === 'open') root.dataset.doors = 'open';
+    if (phase === 'done') window.setTimeout(() => delete root.dataset.doors, SETTLE_MS);
   }, [phase]);
 
   if (phase === 'done') return null;

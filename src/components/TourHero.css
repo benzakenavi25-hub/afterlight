@@ -71,6 +71,7 @@
 .hero__corner {
   --r: var(--radius, 6px);
   position: absolute;
+  z-index: 2; /* above the elevator doors */
   inline-size: var(--r);
   block-size: var(--r);
   transform: scale(calc(1 / var(--sx)), calc(1 / var(--sy)));

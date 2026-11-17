@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { hero, studio } from '../data/content';
 import { heroPoster, heroPosterVertical, tour, tourCard } from '../data/media';
 import { ResponsiveImage } from './ResponsiveImage';
+import { ElevatorDoors } from './ElevatorDoors';
 import './TourHero.css';
 
 /** The poster fills the film's 16:9 cover box, so on tall viewports it is wider than 100vw. Mirrored in index.html preload. */
@@ -345,6 +346,8 @@ export function TourHero() {
               )}
             </div>
             <div className="hero__shade" aria-hidden="true" />
+            {/* Elevator-doors intro: inside the card, clipped by it (under the corner caps) */}
+            <ElevatorDoors />
             {(['tl', 'tr', 'bl', 'br'] as const).map((c) => (
               <span key={c} className="hero__corner" data-c={c} aria-hidden="true" />
             ))}

@@ -1,14 +1,33 @@
-/* Dark behind the doors from the very first paint (CSS is render-blocking), so no light flash */
-html[data-doors='pending'] body {
-  background: var(--ink-2);
-}
-
+/* The doors live inside the tour card (TourHero .hero__card, which clips them): absolute, card-sized.
+   Everything outside the card is visible from the start. html[data-doors]: 'pending' = closed (set before
+   first paint by public/script.js), 'open' = opening + the headline settling in, then removed. */
 .doors {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: 1000;
+  z-index: 1; /* above the film and shade, below the corner caps (which round the card) */
   overflow: hidden;
   pointer-events: none; /* never blocks scroll or clicks */
+}
+
+/* Card breathes in with the opening (same duration and easing as the panels) */
+html[data-doors='pending'] :is(.hero__card, .hero__cardshadow) {
+  scale: 0.98;
+}
+
+html[data-doors='open'] :is(.hero__card, .hero__cardshadow) {
+  transition: scale 900ms cubic-bezier(0.7, 0, 0.2, 1);
+}
+
+/* Headline + subtitle enter only after the doors have opened: soft rise + fade */
+html[data-doors='pending'] .hero__copy {
+  opacity: 0;
+  translate: 0 14px;
+}
+
+html[data-doors='open'] .hero__copy {
+  transition:
+    opacity 700ms var(--ease-out) 900ms,
+    translate 700ms var(--ease-out) 900ms;
 }
 
 .doors__panel {
