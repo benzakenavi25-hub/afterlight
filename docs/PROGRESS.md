@@ -174,7 +174,7 @@ Token-frugal: read only stage-relevant brief sections/files, concise PROGRESS, n
 - Hero poster is a video frame (1920×1080), softer than the stills.
 - `.playwright-mcp/` holds local check screenshots (dev artefacts, not part of the site).
 - Materials on phones: frame now fills the screen height left by header, title and bottom bar (min 38svh), MATERIALITY half behind the frame, flow fallback only on truly short screens (build only, not checked on a device).
-- Hero on phone portrait: separate vertical film (tour-master-vertical.mp4, 1080x1920, 8.4MB, g8/bf0) + first-frame poster tour-01-entry-vertical (portrait-only preload), chaptersVertical 0/0.1/0.36/0.88, scroll.vertical 2; tall card ~66svh (shorter on short screens), edge-to-edge chapter word cut by the card top (opacity 0.25, desktop too), label under the header, headline straddling the card bottom, bronze scroll cue, chapter label + progress line in the card, skip link alone at the side. Only `npm run build` checked (no browser, no device).
+- Hero on phone portrait: separate vertical film (tour-master-vertical.mp4 from AFTERLIGHT-tour-updated-1080p.mp4, 1080x1920, 8.4MB, g8/bf0) + first-frame poster tour-01-entry-vertical (portrait-only preload), chaptersVertical 0/0.1/0.36/0.9, scroll.vertical 2; tall card ~66svh (shorter on short screens), edge-to-edge chapter word cut by the card top (opacity 0.25, desktop too), label under the header, headline straddling the card bottom, bronze scroll cue, chapter label + progress line in the card, skip link alone at the side. Only `npm run build` checked (no browser, no device).
 
 ## Next step
 None. Remaining work is the launch blockers (real studio contact, real-device QA, hosting decision).

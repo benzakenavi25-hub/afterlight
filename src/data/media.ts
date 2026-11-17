@@ -229,13 +229,13 @@ export const tour = {
   ],
   /**
    * The same chapters on the vertical film (phone portrait), read from its contact sheet: kitchen and
-   * stools from ~2.5 s, living (sofa, armchair) from ~9 s, terrace once the glass doors are passed (~22 s).
+   * stools from ~2.5 s, living (sofa, armchair) from ~9 s, terrace once the glass doors are passed (~22.5 s).
    */
   chaptersVertical: [
     { from: 0, label: 'כניסה' },
     { from: 0.1, label: 'מטבח ופינת אוכל' },
     { from: 0.36, label: 'סלון' },
-    { from: 0.88, label: 'מרפסת' },
+    { from: 0.9, label: 'מרפסת' },
   ],
 };
 
