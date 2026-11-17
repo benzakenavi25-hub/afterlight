@@ -186,15 +186,21 @@
   grid-area: head;
 }
 
+/* Phones: the whole word sits between the frame and the heading (no overlap with the frame), sized to the
+   column width (11 letters ≈ 7.4em plus the tracking the reveal opens up) */
 .materials--zoom .materials__word {
   font-size: clamp(1.75rem, 1rem + 3vw, 5.5rem);
 }
 
-/* Phones: half of the big English word sits behind the bottom edge of the frame (the Hebrew title stays below) */
+@media (max-width: 62.4375rem) {
+  .materials--zoom .materials__word {
+    font-size: calc((100vw - 2 * var(--gutter)) / 8.4);
+    white-space: nowrap;
+  }
+}
+
 .materials--zoom .mat__head {
   position: relative;
-  z-index: 0;
-  margin-block-start: calc(-1 * var(--rg) - 0.45 * clamp(1.75rem, 1rem + 3vw, 5.5rem));
 }
 
 .materials--zoom .mat__room {
