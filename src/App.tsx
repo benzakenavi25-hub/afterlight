@@ -7,6 +7,7 @@ import { Terrace } from './components/Terrace';
 import { DemoContact } from './components/DemoContact';
 import { Footer } from './components/Footer';
 import { ElevatorDoors } from './components/ElevatorDoors';
+import { PlasterBackground } from './components/PlasterBackground';
 import { useReveal } from './useReveal';
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
 
   return (
     <>
+      <PlasterBackground />
       <ElevatorDoors />
       <a className="skip-link" href="#main">
         דילוג לתוכן הראשי

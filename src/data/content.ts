@@ -37,8 +37,8 @@ export type ZoneId = 'entry' | 'kitchen' | 'living' | 'suite' | 'terrace';
 
 /**
  * Three spaces, one composition (SpacesStack). Stage copy, photos, crops and colours live here.
- * `bg` is a literal colour or a CSS custom property (`--ink` = the site's deep blue), resolved at runtime.
- * `theme` picks the text palette: 'dark' text on light backgrounds, 'light' text on the blue.
+ * `bg` is a literal colour or a CSS custom property (`--ink` = the shared dark plaster surface), resolved at runtime.
+ * `theme` picks the text palette: 'dark' text on light backgrounds, 'light' text on the dark surface.
  * `crop` is the CSS object-position per layout (narrow = phone/tablet, where the frame is near-square).
  */
 export const spacesStack = {
@@ -53,7 +53,7 @@ export const spacesStack = {
       title: 'מקום להישאר.',
       still: 'gallery-living',
       zone: 'living',
-      bg: '#ffffff',
+      bg: '#f6f1e8',
       theme: 'dark',
       crop: { wide: '50% 55%', narrow: '38% 62%' },
     },
@@ -64,7 +64,7 @@ export const spacesStack = {
       title: 'במרכז הבית.',
       still: 'gallery-kitchen',
       zone: 'kitchen',
-      bg: '#dfe3e8',
+      bg: '#dcd2c4',
       theme: 'dark',
       crop: { wide: '50% 60%', narrow: '46% 70%' },
     },

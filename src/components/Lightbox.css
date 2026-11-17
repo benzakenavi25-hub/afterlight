@@ -10,12 +10,12 @@ html.is-scroll-locked {
   margin: 0;
   padding: 0;
   border: 0;
-  background: rgb(17 24 32 / 0.97);
+  background: rgb(var(--ink-rgb) / 0.97);
   color: var(--light);
 }
 
 .lightbox::backdrop {
-  background: rgb(17 24 32 / 0.7);
+  background: rgb(var(--ink-rgb) / 0.7);
 }
 
 .lightbox__inner {

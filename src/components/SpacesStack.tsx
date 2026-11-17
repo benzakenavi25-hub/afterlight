@@ -24,8 +24,14 @@ function useMedia(query: string): boolean {
   return matches;
 }
 
-/** `--token` → var(--token) for CSS; literal colours pass through. */
-const cssColor = (bg: string) => (bg.startsWith('--') ? `var(${bg})` : bg);
+/**
+ * The dark surface is the shared PlasterBackground layer. A stage on it is therefore see-through
+ * (the same colour at alpha 0), so the plaster texture shows as the section darkens.
+ */
+const SHARED_BG = '--ink';
+
+/** `--token` → var(--token) for CSS; literal colours pass through; the shared surface → transparent. */
+const cssColor = (bg: string) => (bg === SHARED_BG ? 'transparent' : bg.startsWith('--') ? `var(${bg})` : bg);
 /** `--token` → its computed value, so GSAP can interpolate it. */
 const resolvedColor = (bg: string) =>
   bg.startsWith('--') ? getComputedStyle(document.documentElement).getPropertyValue(bg).trim() : bg;
@@ -40,10 +46,14 @@ function StageText({ stage, onPlan }: { stage: Stage; onPlan: (e: MouseEvent<HTM
         <span className="ss__num latin" aria-hidden="true">
           {stage.num}
         </span>
+        <span className="ss__sep" aria-hidden="true">
+          /
+        </span>
         <span className="ss__label">{stage.label}</span>
       </p>
       <h3 className="ss__title">{stage.title}</h3>
-      <button type="button" className="btn ss__btn" onClick={onPlan}>
+      <span className="ss__rule" aria-hidden="true" />
+      <button type="button" className="ss__btn" onClick={onPlan}>
         {spacesStack.planButton}
         <span aria-hidden="true">&nbsp;↗</span>
       </button>
@@ -58,7 +68,7 @@ const cropStyle = (stage: Stage) =>
  * Three spaces, one composition. The whole composition (text + image frame) is one CSS-sticky stage,
  * like the tour and the exterior reveal, so pins never fight. One scrubbed GSAP timeline maps scroll
  * to: incoming photo cards rising over the previous ones (transform only, inside a clipped frame),
- * the stage text swapping, and the section background moving from white to the site's deep blue.
+ * the stage text swapping, and the section background moving from warm ivory to the site's dark plaster surface.
  * Reduced motion, short viewports or text that would not fit fall back to a plain document flow.
  */
 export function SpacesStack() {
@@ -111,7 +121,14 @@ export function SpacesStack() {
       gsap.registerPlugin(ScrollTrigger);
       ScrollTrigger.config({ ignoreMobileResize: true }); // mobile address-bar changes must not re-measure
 
-      const colors = stages.map((s) => resolvedColor(s.bg));
+      // The shared surface becomes its colour at alpha 0: over the plaster layer it reads as one
+      // smooth taupe → espresso change, and the texture appears as the section turns see-through.
+      const colors = stages.map((s) => {
+        const c = resolvedColor(s.bg);
+        if (s.bg !== SHARED_BG) return c;
+        const [r, g, b] = gsap.utils.splitColor(c) as number[];
+        return `rgba(${r}, ${g}, ${b}, 0)`;
+      });
       const ctx = gsap.context(() => {
         const cards = gsap.utils.toArray<HTMLElement>('.ss__card', section);
         const texts = gsap.utils.toArray<HTMLElement>('.ss__text', section);

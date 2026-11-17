@@ -6,7 +6,7 @@
 
 /* ---------- Scrub mode: section = stage + scroll distance, sized up front (no shift when GSAP loads) ---------- */
 .ss--scrub {
-  background: var(--ss-bg-start, #fff);
+  background: var(--ss-bg-start, var(--paper));
   block-size: calc(100vh * (1 + var(--ss-travel, 1.8)));
 }
 
@@ -75,6 +75,10 @@
   background: var(--paper-2);
 }
 
+.ss__frame {
+  position: relative;
+}
+
 /* Tablets: room for a wider, less cropped frame */
 @media (min-width: 40rem) {
   .ss__media {
@@ -103,31 +107,54 @@
   gap: 0.5rem;
 }
 
+/* "03 / label": small, tracked, quiet */
 .ss__meta {
   display: flex;
   align-items: baseline;
-  gap: 0.875rem;
+  gap: 0.625rem;
   font-size: var(--fs-small);
+  letter-spacing: 0.08em;
   color: var(--text-muted);
 }
 
 .ss__num {
   font-size: 1.125rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.16em;
 }
 
 .ss__title {
   font-size: var(--fs-h2);
+  line-height: 1.08;
 }
 
+/* Short bronze rule between title and link */
+.ss__rule {
+  display: block;
+  inline-size: 4.5rem;
+  block-size: 1px;
+  margin-block: clamp(0.5rem, 2svh, 1.5rem) clamp(0.125rem, 1svh, 0.5rem);
+  background: var(--bronze);
+}
+
+/* Understated text link, no box; ≥44px target */
 .ss__btn {
-  margin-block-start: clamp(0.5rem, 2svh, 1.25rem);
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: 400 var(--fs-body) / 1.3 var(--font-body);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.4em;
+  transition: text-decoration-color var(--dur-hover) ease;
 }
 
 .ss__btn:hover {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--light);
+  text-decoration-color: var(--bronze);
 }
 
 .ss__text[data-theme='light'] {
@@ -136,12 +163,6 @@
 
 .ss__text[data-theme='light'] .ss__meta {
   color: var(--light-muted);
-}
-
-.ss__text[data-theme='light'] .ss__btn:hover {
-  background: var(--paper);
-  border-color: var(--paper);
-  color: var(--ink);
 }
 
 /* ---------- Desktop: image left (~60%), text right (~40%) — RTL, so text is the first column ---------- */
@@ -161,8 +182,12 @@
     gap: 0.75rem;
   }
 
+  /* Large, one word per line (all titles are two words), as in the reference */
   .ss__title {
-    font-size: clamp(2.25rem, 1.2rem + 2.6vw, 4.25rem);
+    inline-size: min-content;
+    overflow-wrap: normal; /* body uses 'anywhere'; here min-content must break at words only */
+    font-size: clamp(3rem, 0.8rem + 4.4vw, 6.25rem);
+    line-height: 1.05;
   }
 
   .ss__media {

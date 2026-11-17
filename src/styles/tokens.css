@@ -1,16 +1,32 @@
 :root {
-  /* Palette (brief §3) */
-  --ink: #111820;
-  --ink-2: #18212b;
-  --paper: #f0ece5;
-  --paper-2: #e7e1d8;
-  --text: #20262c;
-  --text-muted: #565b60; /* on paper 5.8:1, on paper-2 5.3:1 */
-  --light: #f0ece5;
-  --light-muted: #c6c1b9; /* on ink 10.0:1 */
-  --bronze: #a58c72; /* rules and decoration only */
-  --rule-dark: rgb(32 38 44 / 0.18);
-  --rule-light: rgb(240 236 229 / 0.22);
+  /* Palette: warm charcoal / mineral plaster. Token names kept; "ink" = the dark espresso surface. */
+  --ink: #2b241e; /* main dark background: espresso brown */
+  --ink-rgb: 43 36 30; /* --ink as channels, for translucent overlays */
+  --ink-2: #211e1a; /* secondary dark surface */
+  --paper: #f3ede3; /* warm ivory light surface */
+  --paper-2: #e8dfd2;
+  --text: #2a251f; /* on paper 13.0:1 */
+  --text-muted: #5e554b; /* on paper 6.3:1, on paper-2 5.5:1 */
+  --light: #f0e8db; /* on ink 12.6:1 */
+  --light-muted: #bdb1a1; /* on ink 7.3:1, on ink-2 7.9:1 */
+  --bronze: #ad8967; /* aged bronze: on ink 4.8:1; on light surfaces decoration only (2.8:1) */
+  --rule-dark: rgb(42 37 31 / 0.18);
+  --rule-light: rgb(240 232 219 / 0.2);
+
+  /* Plaster surface (PlasterBackground, header, the wall around the AFTER / LIGHT letters). Tune here:
+     --plaster-texture  strength of the mineral texture (opacity of assets/plaster.svg, overlay blend)
+     --plaster-light    warm light wash from the upper right (alpha, 0 = off)
+     --plaster-shade    deeper brown toward the lower left (alpha, 0 = off)
+     The light/shade geometry is mirrored in ExteriorReveal.tsx (PLASTER_LIGHTS); change both together. */
+  --plaster-texture: 0.28;
+  --plaster-light: 0.2;
+  --plaster-shade: 0.34;
+  --plaster-light-rgb: 255 220 180;
+  --plaster-shade-rgb: 16 11 7;
+  /* Viewport-sized light layers: shared by the fixed plaster layer and the solid header so they match */
+  --plaster-lighting:
+    radial-gradient(100vw 115vh at 90vw 0, rgb(var(--plaster-light-rgb) / var(--plaster-light)), transparent 75%),
+    radial-gradient(85vw 95vh at 0 100vh, rgb(var(--plaster-shade-rgb) / var(--plaster-shade)), transparent 75%);
 
   /* Type */
   --font-display: 'Noto Serif Hebrew', 'Times New Roman', serif;

@@ -20,7 +20,7 @@ html.is-scroll-locked {
 }
 
 .plan-dialog::backdrop {
-  background: rgb(17 24 32 / 0.72);
+  background: rgb(var(--ink-rgb) / 0.72);
 }
 
 .plan-dialog__inner {
@@ -160,6 +160,11 @@ html.is-scroll-locked {
 .plan__sub {
   font-size: 14px !important;
   fill: var(--text-muted) !important;
+}
+
+/* On the selected (dark) zone the muted line must turn light to stay readable */
+.zone[data-active='true'] .plan__sub {
+  fill: var(--light-muted) !important;
 }
 
 /* Narrow screens: the SVG scales down, so enlarge labels to stay legible (~14px rendered) */

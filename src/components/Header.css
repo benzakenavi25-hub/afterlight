@@ -9,8 +9,23 @@
 }
 
 .site-header[data-solid='true'] {
-  background: var(--ink);
+  background: var(--plaster-lighting), var(--ink);
+  background-attachment: fixed; /* lines up with the fixed plaster layer */
   box-shadow: 0 1px 0 var(--rule-light);
+}
+
+/* Same plaster texture as PlasterBackground, fixed-attached so it continues the wall seamlessly.
+   The header is its own stacking context (fixed + z-index): the blend stays inside it, and the
+   negative z-index keeps the texture under the links. Covers the open mobile panel too. */
+.site-header[data-solid='true']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url('../assets/plaster.svg') 0 0 / 1024px 1024px repeat fixed;
+  mix-blend-mode: overlay;
+  opacity: var(--plaster-texture);
+  pointer-events: none;
 }
 
 .site-header__bar {
@@ -86,7 +101,7 @@
 
 .site-header__panel {
   border-block-start: 1px solid var(--rule-light);
-  background: var(--ink);
+  background: transparent; /* the solid header behind it carries the plaster surface */
   max-block-size: calc(100dvh - var(--header-h));
   overflow-y: auto;
 }

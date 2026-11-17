@@ -9,7 +9,6 @@ const REDUCED_QUERY = '(prefers-reduced-motion: reduce)';
 const FONT_STACK = '"Barlow Semi Condensed", "Arial Narrow", Arial, sans-serif';
 const LINES = ['AFTER', 'LIGHT'] as const;
 const LINE_GAP = 0.09; // between the two lines, in em
-
 function useMedia(query: string): boolean {
   const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
   useEffect(() => {
@@ -108,6 +107,7 @@ export function ExteriorReveal() {
   const wordRef = useRef<SVGGElement>(null);
   const stemRef = useRef<SVGRectElement>(null);
   const veilRef = useRef<SVGGElement>(null);
+  const wallRef = useRef<HTMLDivElement>(null);
   const kickerRef = useRef<HTMLParagraphElement>(null);
   const finalRef = useRef<HTMLDivElement>(null);
   const shadeRef = useRef<HTMLDivElement>(null);
@@ -152,6 +152,7 @@ export function ExteriorReveal() {
       const word = wordRef.current!;
       const stem = stemRef.current!;
       const veil = veilRef.current!;
+      const wall = wallRef.current!;
       const kicker = kickerRef.current!;
       const final = finalRef.current!;
       const shade = shadeRef.current!;
@@ -247,7 +248,7 @@ export function ExteriorReveal() {
       tl.to(kicker, { autoAlpha: 0, duration: 0.08 }, 0.04)
         .to(state, { z: 1, duration: z1 - z0, onUpdate: apply }, z0)
         // fully open: the veil no longer changes a single pixel, so stop painting it (reversible)
-        .set(veil, { autoAlpha: 0 }, z1)
+        .set([veil, wall], { autoAlpha: 0 }, z1)
         .fromTo(shade, { opacity: 0 }, { opacity: 1, duration: 0.1 }, z1)
         .fromTo(final, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.1 }, z1);
       tl.to({}, { duration: Math.max(0, 1 - tl.duration()) }, tl.duration());
@@ -275,7 +276,7 @@ export function ExteriorReveal() {
         ro.disconnect();
         tl.scrollTrigger?.kill();
         tl.kill();
-        gsap.set([kicker, veil, final, shade], { clearProps: 'all' });
+        gsap.set([kicker, veil, wall, final, shade], { clearProps: 'all' });
         word.removeAttribute('transform');
         delete section.dataset.ready;
         kicker.removeAttribute('style');
@@ -316,7 +317,7 @@ export function ExteriorReveal() {
             <defs>
               <mask id="rw-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
                 <rect x="0" y="0" width="100%" height="100%" fill="#fff" />
-                <g ref={wordRef} fill="#000">
+                <g ref={wordRef} id="rw-word" fill="#000">
                   <rect ref={stemRef} />
                   {LINES.map((line) => (
                     <text key={line} className="rw__text" textAnchor="middle">
@@ -330,6 +331,17 @@ export function ExteriorReveal() {
               <rect className="rw__veil" x="0" y="0" width="100%" height="100%" mask="url(#rw-mask)" />
             </g>
           </svg>
+        )}
+
+        {/* The plaster wall around the letters: the shared surface with the name drawn in black (no
+            mask, so it stays cheap to repaint while the name grows), added onto the photo layer (see CSS) */}
+        {mode === 'scrub' && (
+          <div ref={wallRef} className="rw__wall" aria-hidden="true">
+            <div className="plaster plaster--fill" />
+            <svg className="rw__holes" focusable="false">
+              <use href="#rw-word" />
+            </svg>
+          </div>
         )}
 
         {mode === 'scrub' && (
