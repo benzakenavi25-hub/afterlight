@@ -55,7 +55,11 @@
   grid-area: 1 / 1;
 }
 
-/* Before the engine runs: only the first stage is shown */
+/* Before the engine runs: no text yet (the intro fades it in after the background change) */
+.ss--scrub:not([data-ready]) .ss__texts {
+  opacity: 0;
+}
+
 .ss--scrub:not([data-ready]) .ss__text:not(:first-child) {
   opacity: 0;
   visibility: hidden;

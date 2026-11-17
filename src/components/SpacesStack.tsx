@@ -39,9 +39,17 @@ const resolvedColor = (bg: string) =>
 /** Settled stage for a timeline progress: the text swaps at the midpoint of each card transition. */
 const stageAt = (progress: number) => cfg.transitions.filter(([a, b]) => progress >= (a + b) / 2).length;
 
-function StageText({ stage, onPlan }: { stage: Stage; onPlan: (e: MouseEvent<HTMLButtonElement>) => void }) {
+function StageText({
+  stage,
+  theme = stage.theme,
+  onPlan,
+}: {
+  stage: Stage;
+  theme?: Stage['theme'];
+  onPlan: (e: MouseEvent<HTMLButtonElement>) => void;
+}) {
   return (
-    <div className="ss__text" data-theme={stage.theme}>
+    <div className="ss__text" data-theme={theme}>
       <p className="ss__meta">
         <span className="ss__num latin" aria-hidden="true">
           {stage.num}
@@ -68,7 +76,8 @@ const cropStyle = (stage: Stage) =>
  * Three spaces, one composition. The whole composition (text + image frame) is one CSS-sticky stage,
  * like the tour and the exterior reveal, so pins never fight. One scrubbed GSAP timeline maps scroll
  * to: incoming photo cards rising over the previous ones (transform only, inside a clipped frame),
- * the stage text swapping, and the section background moving from warm ivory to the site's dark plaster surface.
+ * and the stage text swapping. Before any of that, a short time-based intro (not scrubbed) turns the section
+ * from warm ivory to the site's plaster surface, then fades the text in; it reverses when scrolling back above.
  * Reduced motion, short viewports or text that would not fit fall back to a plain document flow.
  */
 export function SpacesStack() {
@@ -122,21 +131,29 @@ export function SpacesStack() {
       ScrollTrigger.config({ ignoreMobileResize: true }); // mobile address-bar changes must not re-measure
 
       // The shared surface becomes its colour at alpha 0: over the plaster layer it reads as one
-      // smooth taupe → espresso change, and the texture appears as the section turns see-through.
-      const colors = stages.map((s) => {
-        const c = resolvedColor(s.bg);
-        if (s.bg !== SHARED_BG) return c;
-        const [r, g, b] = gsap.utils.splitColor(c) as number[];
-        return `rgba(${r}, ${g}, ${b}, 0)`;
-      });
+      // smooth ivory → espresso change, and the texture appears as the section turns see-through.
+      const [r, g, b] = gsap.utils.splitColor(resolvedColor(SHARED_BG)) as number[];
+      const startColor = resolvedColor(stages[0].bg);
+      const endColor = `rgba(${r}, ${g}, ${b}, 0)`;
       const ctx = gsap.context(() => {
         const cards = gsap.utils.toArray<HTMLElement>('.ss__card', section);
         const texts = gsap.utils.toArray<HTMLElement>('.ss__text', section);
+        const textBox = section.querySelector<HTMLElement>('.ss__texts')!;
         const off = cfg.textOffset;
 
-        gsap.set(section, { backgroundColor: colors[0] });
+        gsap.set(section, { backgroundColor: startColor });
+        gsap.set(textBox, { autoAlpha: 0, y: off });
         gsap.set(cards, { y: 0, yPercent: (i: number) => (i === 0 ? 0 : 100) });
         gsap.set(texts, { y: (i: number) => (i === 0 ? 0 : off), autoAlpha: (i: number) => (i === 0 ? 1 : 0) });
+
+        // Intro, on time not scroll: background first, then the text. The image swaps come later (scrubbed).
+        gsap
+          .timeline({
+            paused: true,
+            scrollTrigger: { trigger: section, start: cfg.intro.start, toggleActions: 'play none none reverse' },
+          })
+          .to(section, { backgroundColor: endColor, duration: cfg.intro.bg, ease: 'power1.inOut' })
+          .to(textBox, { autoAlpha: 1, y: 0, duration: cfg.intro.text, ease: 'power2.out' });
 
         const tl = gsap.timeline({
           defaults: { ease: 'none' },
@@ -157,8 +174,6 @@ export function SpacesStack() {
           const d = b - a;
           // the incoming card covers the previous one; the previous one stays put underneath
           tl.to(cards[i + 1], { yPercent: 0, duration: d, ease: 'power1.inOut' }, a);
-          // background reaches its target before the next text appears (contrast stays readable)
-          tl.to(section, { backgroundColor: colors[i + 1], duration: d * 0.6 }, a);
           // previous text out in the first part, next text in during the last part
           tl.to(texts[i], { autoAlpha: 0, y: -off, duration: d * 0.4 }, a);
           tl.to(texts[i + 1], { autoAlpha: 1, y: 0, duration: d * 0.4 }, a + d * 0.6);
@@ -279,7 +294,7 @@ export function SpacesStack() {
           <div ref={frameRef} className="ss__frame container">
             <div className="ss__texts">
               {stages.map((s, i) => (
-                <StageText key={s.id} stage={s} onPlan={(e) => openPlan(i, e.currentTarget)} />
+                <StageText key={s.id} stage={s} theme="light" onPlan={(e) => openPlan(i, e.currentTarget)} />
               ))}
             </div>
             <div className="ss__media">
