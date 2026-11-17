@@ -201,4 +201,9 @@ export const stack = {
   ] as [number, number][],
   /** Vertical offset of the incoming / outgoing text, in px. */
   textOffset: 8,
+  /**
+   * Time-based intro (seconds): ivory → plaster background, then the first text fades in.
+   * Starts when the section top reaches `start` (ScrollTrigger syntax); reverses above it.
+   */
+  intro: { start: 'top 15%', bg: 0.9, text: 0.6 },
 };
